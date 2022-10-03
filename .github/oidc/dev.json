@@ -1,7 +1,7 @@
 [
   {
     "ParameterKey": "SubjectClaimFilters",
-    "ParameterValue": "repo:CMSgov/mmdl-connectors:*"
+    "ParameterValue": "repo:CMSgov/seatool-compare:*"
   },
   {
     "ParameterKey": "Path",

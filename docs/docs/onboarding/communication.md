@@ -29,7 +29,7 @@ Let this be a list of standing meetings.  If you need or want an invite, reach o
 
 ## Slack
 
-We love Slack.  Our primary means of synchronous and/or ad hoc communication is our project [Slack channel](https://cmsgov.slack.com/archives/C0403M0D007).  All developers and stakeholders should join the channel, and feel free to put any kind of project related information in it.  Questions, comments, discussions about failing builds, "is anyone available to help me?", "i'm going to be out for a few hours", "check out this cool new thing I found", "good morning everyone", etc. can all go in the Slack channel.  
+We love Slack.  Our primary means of synchronous and/or ad hoc communication is our project [Slack channel](https://cmsgov.slack.com/archives/C045M44HA0Y).  All developers and stakeholders should join the channel, and feel free to put any kind of project related information in it.  Questions, comments, discussions about failing builds, "is anyone available to help me?", "i'm going to be out for a few hours", "check out this cool new thing I found", "good morning everyone", etc. can all go in the Slack channel.  
 
 Please note that comments related to Pull Requests and Issues are best made on those objects.  For example:  putting a comment about a Pull Request in Slack is generally inappropriate, as the Pull Request is then not a complete record of what occurred.  
 
@@ -43,7 +43,7 @@ We use ~~GitHub Issues~~ Jira to document work items.  This should be the place 
 
 ## GitHub Pull Requests (PRs)
 
-GitHub Pull Requests are the primary vehicle to propose code changes to mmdl-connectors.  A PR is always used to ship code to the main branch, with very few exceptions.
+GitHub Pull Requests are the primary vehicle to propose code changes to seatool-compare.  A PR is always used to ship code to the main branch, with very few exceptions.
 
 This project has PR templates which will be used automatically when you create a PR.  While the template sets up a PR with the fields that are typically required, you need to add the content to the various sections.
 

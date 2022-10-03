@@ -1,14 +1,14 @@
-<h1 align="center" style="border-bottom: none;">mmdl-connectors</h1>
-<h3 align="center">A microservice sending CMS Medicaid Model Data Lab (MMDL) data to CMS Bigmac.</h3>
+<h1 align="center" style="border-bottom: none;">seatool-compare</h1>
+<h3 align="center">Service for comparing legacy/seatool data and sending notifications.</h3>
 <p align="center">
-  <a href="https://ideal-engine-7242f556.pages.github.io/">
+  <a href="https://cmsgov.github.io/seatool-compare/">
     <img alt="Docs" src="https://img.shields.io/badge/Docs-Pages-blue.svg">
   </a>
-  <a href="https://cmsgov.slack.com/archives/C0403M0D007">
-    <img alt="Slack" src="https://img.shields.io/badge/Slack-mmdl--connectors-purple.svg">
+  <a href="https://cmsgov.slack.com/archives/C045M44HA0Y">
+    <img alt="Slack" src="https://img.shields.io/badge/Slack-seatool--compare-purple.svg">
   </a>
-  <a href="https://codeclimate.com/repos/63122231cf202c2a4a00ffe9/maintainability">
-    <img src="https://api.codeclimate.com/v1/badges/719b68a07022e9833caf/maintainability" />
+  <a href="https://codeclimate.com/github/CMSgov/seatool-compare/maintainability">
+    <img src="https://api.codeclimate.com/v1/badges/80cdaddc034a103a8c3d/maintainability" />
   </a>
   <a href="https://dependabot.com/">
     <img alt="Dependabot" src="https://badgen.net/badge/Dependabot/enabled/green?icon=dependabot">
@@ -23,13 +23,15 @@
 
 ---
 
-### Please visit our [mmdl-connectors docs site](https://ideal-engine-7242f556.pages.github.io/) for complete documentation.
+### Please visit our [seatool-compare docs site](https://cmsgov.github.io/seatool-compare/) for complete documentation.
 
 ---
 
 ## Overview
 
-The mmdl-connnectors project (oftened referenced in the context of this repository as just 'mmdl') is a microservice that streams Medicaid Data Lab (MMDL) data from it's Oracle database to CMS Bigmac's Kafka cluster in real time. It is powered by Kafka Connect and a JDBC connector.
+The seatool-compare project (oftened referenced in the context of this repository as just 'compare') is a microservice compares legacy data and seatool data and sends notifications when certain conditions
+
+The seatool-compare project is a microservice compares legacy data and seatool data and sends notifications when certain conditions
 
 That's all for now; this project was just created!
 
@@ -37,9 +39,9 @@ That's all for now; this project was just created!
 
 ## Contributing
 
-Work items for mmdl-connectors are tracked in CMS' Jira. If you have access to our Jira, you can view mmdl-connectors related work there. While there's no dedicated mmdl-connectors product view in Jira yet, the [Platform Team board](https://qmacbis.atlassian.net/jira/software/c/projects/OY2/boards/216/backlog?selectedIssue=OY2-17657&epics=visible&issueLimit=100) is a good stand in.
+Work items for seatool-compare are tracked in CMS' Jira. If you have access to our Jira, you can view seatool-compare related work there. While there's no dedicated seatool-compare product view in Jira yet, the [Platform Team board](https://qmacbis.atlassian.net/jira/software/c/projects/OY2/boards/216/backlog?selectedIssue=OY2-17657&epics=visible&issueLimit=100) is a good stand in.
 
-If you don't have access to Jira, would like access to Jira, or would like to discuss any enhancement, bug, idea, or question, please visit the [MMDL Connectors Slack channel](https://cmsgov.slack.com/archives/C0403M0D007). This is a public channel open to anyone in CMS Slack, and all input is welcome!
+If you don't have access to Jira, would like access to Jira, or would like to discuss any enhancement, bug, idea, or question, please visit the [seatool-compare Slack channel](https://cmsgov.slack.com/archives/C045M44HA0Y). This is a public channel open to anyone in CMS Slack, and all input is welcome!
 
 ## License
 

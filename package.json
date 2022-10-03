@@ -1,7 +1,7 @@
 {
-  "name": "mmdl-connectors",
+  "name": "seatool-compare",
   "type": "module",
-  "description": "A microservice sending CMS Medicaid Model Data Lab (MMDL) data to CMS Bigmac.",
+  "description": "Service for comparing legacy/seatool data and sending notifications",
   "version": "0.0.0-managed-by-semantic-release",
   "private": true,
   "main": "index.js",
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cmsgov/mmdl-connectors"
+    "url": "https://github.com/cmsgov/seatool-compare"
   },
   "author": "",
   "license": "CC0-1.0",
   "bugs": {
-    "url": "https://github.com/CMSgov/mmdl-connectors/issues"
+    "url": "https://github.com/CMSgov/seatool-compare/issues"
   },
-  "homepage": "https://github.com/CMSgov/mmdl-connectors#readme",
+  "homepage": "https://github.com/CMSgov/seatool-compare#readme",
   "devDependencies": {
     "@serverless/compose": "^1.3.0",
     "@stratiformdigital/security-hub-sync": "^1.0.3",

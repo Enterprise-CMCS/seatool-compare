@@ -2,7 +2,7 @@
 layout: default
 title: Run Docs Site Locally
 parent: Development Workflows
-nav_order: 4
+nav_order: 5
 ---
 
 # Run Jekyll Docs Site Locally
@@ -32,7 +32,7 @@ Note:  Jekyll's reloading performance in Docker on an M1 Mac when using docker v
 #### Procedure
 - Start the docs site using the run script:
   ```bash
-    cd mmdl-connectors
+    cd seatool-compare
     run docs
   ```
 - In a browser, visit [http://localhost:4000](http://localhost:4000) to view the running site.
