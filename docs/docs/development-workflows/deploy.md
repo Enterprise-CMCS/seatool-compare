@@ -71,10 +71,10 @@ Each branch pushed to the seatool-compare git repository is automatically deploy
 
 #### Procedure
 - [Obtain and set AWS CLI credentials]({{ site.baseurl }}{%link docs/development-workflows/aws-auth.md %})
-- Create a new branch based off of any other branch or commit.  The 'main' branch is the most common branch from which to create new branches, and is shown in the following procedure.:
+- Create a new branch based off of any other branch or commit.  The 'master' branch is the most common branch from which to create new branches, and is shown in the following procedure.:
   ```bash
     cd seatool-compare
-    git checkout main
+    git checkout master
     git pull
     git checkout -b foo
     git push --set-upstream origin foo
