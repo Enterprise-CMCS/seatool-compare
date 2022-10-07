@@ -40,7 +40,7 @@
   "dependencies": {},
   "release": {
     "branches": [
-      "master"
+      "production"
     ],
     "plugins": [
       "@semantic-release/commit-analyzer",
