@@ -29,11 +29,7 @@
 
 ## Overview
 
-The seatool-compare project (oftened referenced in the context of this repository as just 'compare') is a microservice compares legacy data and seatool data and sends notifications when certain conditions
-
-The seatool-compare project is a microservice compares legacy data and seatool data and sends notifications when certain conditions
-
-That's all for now; this project was just created!
+The seatool-compare project (oftened referenced in the context of this repository as just 'compare') is a microservice compares legacy data and seatool data and sends notifications when certain conditions exist.
 
 ![Architecture Diagram](docs/assets/architecture.svg)
 
