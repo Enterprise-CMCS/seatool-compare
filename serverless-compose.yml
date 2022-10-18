@@ -1,3 +1,15 @@
 services:
+  mmdl:
+    path: src/services/mmdl
+  seatool:
+    path: src/services/seatool
+  compare:
+    path: src/services/compare
+    params:
+      mmdlTableName: ${mmdl.TableName}
+      mmdlTableArn: ${mmdl.TableArn}
+      mmdlTableStreamArn: ${mmdl.TableStreamArn}
+      seatoolTableName: ${seatool.TableName}
+      seatoolTableArn: ${seatool.TableArn}
   alerts:
     path: src/services/alerts

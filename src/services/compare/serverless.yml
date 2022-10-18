@@ -1,0 +1,119 @@
+service: ${self:custom.project}-compare
+
+frameworkVersion: "3"
+
+package:
+  individually: true
+
+plugins:
+  - serverless-stack-termination-protection
+  - "@stratiformdigital/serverless-s3-security-helper"
+  - serverless-bundle
+  - "@stratiformdigital/serverless-idempotency-helper"
+  - "@stratiformdigital/serverless-online"
+  - "@stratiformdigital/serverless-iam-helper"
+  - serverless-step-functions
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: ${env:REGION_A}
+  stackTags:
+    PROJECT: ${self:custom.project}
+    SERVICE: ${self:service}
+  iam:
+    role:
+      path: ${ssm:/configuration/${sls:stage}/iam/path, ssm:/configuration/default/iam/path, "/"}
+      permissionsBoundary: ${ssm:/configuration/${sls:stage}/iam/permissionsBoundaryPolicyArn, ssm:/configuration/default/iam/permissionsBoundaryPolicyArn, ""}
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+          Resource:
+            - ${param:mmdlTableArn}
+            - ${param:seatoolTableArn}
+        - Effect: Allow
+          Action:
+            - states:StartExecution
+          Resource:
+            - !Ref MMDLAlertingStateMachine
+            - !Sub "arn:aws:states:${self:provider.region}:${AWS::AccountId}:execution:${MMDLAlertingStateMachine.Name}:*"
+
+custom:
+  project: ${env:PROJECT}
+  serverlessTerminationProtection:
+    stages: # Apply CloudFormation termination protection for these stages
+      - master
+      - val
+      - production
+  emailSender: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/sourceEmail, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/sourceEmail, "emailSender@example.com"}
+  emailRecipient: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/emailRecipient, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/emailRecipient, "emailRecipient@example.com"}
+
+functions:
+  workflowStarter:
+    handler: handlers/workflowStarter.handler
+    events:
+      - stream:
+          arn: ${param:mmdlTableStreamArn}
+          startingPosition: LATEST
+          maximumRetryAttempts: 0
+    environment:
+      stateMachineArn: !Ref MMDLAlertingStateMachine
+      region: ${self:provider.region}
+    maximumRetryAttempts: 0
+  compare:
+    handler: handlers/compare.handler
+    environment:
+      region: ${self:provider.region}
+      mmdlTableName: ${param:mmdlTableName}
+      seatoolTableName: ${param:seatoolTableName}
+  sendAlert:
+    handler: handlers/sendAlert.handler
+    environment:
+      region: ${self:provider.region}
+      emailSender: ${self:custom.emailSender}
+      emailRecipient: ${self:custom.emailRecipient}
+
+stepFunctions:
+  stateMachines:
+    hellostepfunc1:
+      name: ${self:service}-${sls:stage}-alerting
+      id: MMDLAlertingStateMachine
+      definition:
+        Comment: "A State Machine to orchestrate a CMS alerting workflow for MMDL."
+        StartAt: WaitFifteenSeconds
+        States:
+          WaitFifteenSeconds:
+            Type: Wait
+            Seconds: 15
+            Next: Compare
+          WaitTenSeconds:
+            Type: Wait
+            Seconds: 10
+            Next: Compare
+          Compare:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: Decide
+          Decide:
+            Type: Choice
+            Choices:
+              - Variable: $.match
+                BooleanEquals: true
+                Next: SuccessState
+              - Variable: $.match
+                BooleanEquals: false
+                Next: SendAlert
+            Default: SendAlert
+          SendAlert:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendAlert"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: WaitTenSeconds
+          SuccessState:
+            Type: Succeed
