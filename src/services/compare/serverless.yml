@@ -38,6 +38,11 @@ provider:
           Resource:
             - !Ref MMDLAlertingStateMachine
             - !Sub "arn:aws:states:${self:provider.region}:${AWS::AccountId}:execution:${MMDLAlertingStateMachine.Name}:*"
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+          Resource:
+            - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/${self:custom.emailSender}"
 
 custom:
   project: ${env:PROJECT}
@@ -46,7 +51,7 @@ custom:
       - master
       - val
       - production
-  emailSender: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/sourceEmail, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/sourceEmail, "emailSender@example.com"}
+  emailSender: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/sourceEmail, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/sourceEmail, "emailSender@example.com"} # this will need to be updated and verified
   emailRecipient: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/emailRecipient, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/emailRecipient, "emailRecipient@example.com"}
 
 functions:
