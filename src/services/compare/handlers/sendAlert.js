@@ -1,13 +1,18 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import { getSecretsValue } from "../../../libs/secrets-manager-lib";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
+  const { emailRecipients, sourceEmail } = await getSecretsValue({
+    region: process.env.region,
+    secretId: process.env.secretId,
+  });
   const id = event.Context.Execution.Input.id;
-  console.log(`Here is where we would send an email via SES for record ${id}`);
+
   const client = new SESClient({ region: process.env.region });
   const params = {
     Destination: {
-      ToAddresses: [process.env.emailRecipient],
+      ToAddresses: emailRecipients,
     },
     Message: {
       Body: {
@@ -21,14 +26,14 @@ exports.handler = async function (event, context, callback) {
         Data: `ACTION REQUIRED - MMDL record for ${id} needs correction in SEA Tool`,
       },
     },
-    Source: process.env.emailSender,
+    Source: sourceEmail,
   };
 
   const response = {
     statusCode: 200,
   };
 
-  console.log("PARAMS", JSON.stringify(params, null, 2));
+  console.log("Sending email with params:", JSON.stringify(params, null, 2));
   const command = new SendEmailCommand(params);
 
   try {

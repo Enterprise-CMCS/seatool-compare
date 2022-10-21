@@ -42,7 +42,12 @@ provider:
           Action:
             - ses:SendEmail
           Resource:
-            - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/${self:custom.emailSender}"
+            - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/*"
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource:
+            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.secretId}*"
 
 custom:
   project: ${env:PROJECT}
@@ -51,8 +56,7 @@ custom:
       - master
       - val
       - production
-  emailSender: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/sourceEmail, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/sourceEmail, "emailSender@example.com"} # this will need to be updated and verified
-  emailRecipient: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/emailRecipient, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/emailRecipient, "emailRecipient@example.com"}
+  secretId: ${env:PROJECT}/${sls:stage}/alerts
 
 functions:
   workflowStarter:
@@ -76,12 +80,11 @@ functions:
     handler: handlers/sendAlert.handler
     environment:
       region: ${self:provider.region}
-      emailSender: ${self:custom.emailSender}
-      emailRecipient: ${self:custom.emailRecipient}
+      secretId: ${self:custom.secretId}
 
 stepFunctions:
   stateMachines:
-    hellostepfunc1:
+    compareAlertFunc:
       name: ${self:service}-${sls:stage}-alerting
       id: MMDLAlertingStateMachine
       definition:
