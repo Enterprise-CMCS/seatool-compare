@@ -47,7 +47,11 @@ provider:
           Action:
             - secretsmanager:GetSecretValue
           Resource:
-            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.secretId}*"
+            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/alerts*"
+        - Effect: Allow
+          Action:
+            - secretsmanager:ListSecrets
+          Resource: "*"
 
 custom:
   project: ${env:PROJECT}
@@ -56,7 +60,7 @@ custom:
       - master
       - val
       - production
-  secretId: ${env:PROJECT}/${sls:stage}/alerts
+  secretId: ${self:custom.project}/${sls:stage}/alerts
 
 functions:
   workflowStarter:
@@ -80,7 +84,8 @@ functions:
     handler: handlers/sendAlert.handler
     environment:
       region: ${self:provider.region}
-      secretId: ${self:custom.secretId}
+      project: ${self:custom.project}
+      stage: ${sls:stage}
 
 stepFunctions:
   stateMachines:
