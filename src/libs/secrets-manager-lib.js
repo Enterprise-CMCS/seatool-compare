@@ -21,10 +21,7 @@ export const doesSecretExist = async (region, secretId) => {
   const client = new SecretsManagerClient({ region });
   const input = { Filters: [{ Key: "name", Values: [secretId] }] };
   const command = new ListSecretsCommand(input);
-  console.log("COMMAND", JSON.stringify(command, null, 2));
-  const res = await client.send(command);
-  console.log("RES", JSON.stringify(res, null, 2));
+  const { SecretList } = await client.send(command);
 
-  // why is this false?
-  return res.SecretList.includes((secret) => secret.Name === secretId);
+  return SecretList.some((secret) => secret.Name === secretId);
 };
