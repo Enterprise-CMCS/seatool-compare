@@ -55,7 +55,7 @@ jobs:
 
       - name: Delete topics
         run: run deleteTopics --stage $STAGE_NAME
-        
+
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
         if: env.SLACK_WEBHOOK != '' && failure()
