@@ -4,4 +4,6 @@
 # ex. sh setup.sh seatool-compose dev
 
 aws cloudformation deploy --template-file github-actions-oidc-template.yml --stack-name $1-oidc --parameter-overrides file://$2.json --capabilities CAPABILITY_IAM &&
-aws cloudformation describe-stack-resource --stack-name $1-oidc --logical-resource-id GitHubActionsServiceRole --query StackResourceDetail.StackId
+rolename=`aws cloudformation describe-stack-resource --stack-name $1-oidc --logical-resource-id GitHubActionsServiceRole --query StackResourceDetail.PhysicalResourceId --output text`
+rolearn=`aws iam get-role --role-name $rolename --query Role.Arn --output text`
+echo "IAM Role ARN:  $rolearn"

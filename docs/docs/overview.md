@@ -22,7 +22,7 @@ View this site's [\_config.yml](https://github.com/cmsgov/seatool-compare/tree/m
 
 ## Overview
 
-The seatool-compare project is a microservice compares legacy data and seatool data and sends notifications when certain conditions. Alerting is leveraged through [AWS Cloudwatch](https://aws.amazon.com/cloudwatch/).
+The seatool-compare project is a microservice which compares legacy data and seatool data and sends notifications when certain conditions are met. Alerting is leveraged through [AWS SES](https://aws.amazon.com/ses/) service.
 
 ## Archtecture
 

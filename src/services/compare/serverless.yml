@@ -1,0 +1,132 @@
+service: ${self:custom.project}-compare
+
+frameworkVersion: "3"
+
+package:
+  individually: true
+
+plugins:
+  - serverless-stack-termination-protection
+  - "@stratiformdigital/serverless-s3-security-helper"
+  - serverless-bundle
+  - "@stratiformdigital/serverless-idempotency-helper"
+  - "@stratiformdigital/serverless-online"
+  - "@stratiformdigital/serverless-iam-helper"
+  - serverless-step-functions
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: ${env:REGION_A}
+  stackTags:
+    PROJECT: ${self:custom.project}
+    SERVICE: ${self:service}
+  iam:
+    role:
+      path: ${ssm:/configuration/${sls:stage}/iam/path, ssm:/configuration/default/iam/path, "/"}
+      permissionsBoundary: ${ssm:/configuration/${sls:stage}/iam/permissionsBoundaryPolicyArn, ssm:/configuration/default/iam/permissionsBoundaryPolicyArn, ""}
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+          Resource:
+            - ${param:mmdlTableArn}
+            - ${param:seatoolTableArn}
+        - Effect: Allow
+          Action:
+            - states:StartExecution
+          Resource:
+            - !Ref MMDLAlertingStateMachine
+            - !Sub "arn:aws:states:${self:provider.region}:${AWS::AccountId}:execution:${MMDLAlertingStateMachine.Name}:*"
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+          Resource:
+            - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/*"
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource:
+            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/alerts*"
+        - Effect: Allow
+          Action:
+            - secretsmanager:ListSecrets
+          Resource: "*"
+
+custom:
+  project: ${env:PROJECT}
+  serverlessTerminationProtection:
+    stages: # Apply CloudFormation termination protection for these stages
+      - master
+      - val
+      - production
+  secretId: ${self:custom.project}/${sls:stage}/alerts
+
+functions:
+  workflowStarter:
+    handler: handlers/workflowStarter.handler
+    events:
+      - stream:
+          arn: ${param:mmdlTableStreamArn}
+          startingPosition: LATEST
+          maximumRetryAttempts: 0
+    environment:
+      stateMachineArn: !Ref MMDLAlertingStateMachine
+      region: ${self:provider.region}
+    maximumRetryAttempts: 0
+  compare:
+    handler: handlers/compare.handler
+    environment:
+      region: ${self:provider.region}
+      mmdlTableName: ${param:mmdlTableName}
+      seatoolTableName: ${param:seatoolTableName}
+  sendAlert:
+    handler: handlers/sendAlert.handler
+    environment:
+      region: ${self:provider.region}
+      project: ${self:custom.project}
+      stage: ${sls:stage}
+
+stepFunctions:
+  stateMachines:
+    compareAlertFunc:
+      name: ${self:service}-${sls:stage}-alerting
+      id: MMDLAlertingStateMachine
+      definition:
+        Comment: "A State Machine to orchestrate a CMS alerting workflow for MMDL."
+        StartAt: WaitFifteenSeconds
+        States:
+          WaitFifteenSeconds:
+            Type: Wait
+            Seconds: 15
+            Next: Compare
+          WaitTenSeconds:
+            Type: Wait
+            Seconds: 10
+            Next: Compare
+          Compare:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: Decide
+          Decide:
+            Type: Choice
+            Choices:
+              - Variable: $.match
+                BooleanEquals: true
+                Next: SuccessState
+              - Variable: $.match
+                BooleanEquals: false
+                Next: SendAlert
+            Default: SendAlert
+          SendAlert:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendAlert"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: WaitTenSeconds
+          SuccessState:
+            Type: Succeed

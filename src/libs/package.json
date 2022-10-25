@@ -1,4 +1,6 @@
 {
   "name": "libs",
-  "dependencies": {}
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.180.0"
+  }
 }
