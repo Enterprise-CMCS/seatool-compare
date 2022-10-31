@@ -75,6 +75,16 @@ custom:
           """
         done
 
+params:
+  master:
+    topicNamespace: ""
+  val:
+    topicNamespace: ""
+  production:
+    topicNamespace: ""
+  default:
+    topicNamespace: --${self:custom.project}--${sls:stage}--
+
 functions:
   configureConnectors:
     handler: handlers/configureConnectors.handler
@@ -96,6 +106,8 @@ functions:
     environment:
       brokerString: ${self:custom.brokerString}
       stage: ${sls.stage}
+      region: ${self:provider.region}
+      tableName: ${param:seatoolTableName}
   testConnectors:
     handler: handlers/testConnectors.handler
     environment:
@@ -164,6 +176,10 @@ resources:
                     - ssmmessages:OpenControlChannel
                     - ssmmessages:OpenDataChannel
                   Resource: "*"
+                - Effect: Allow
+                  Action:
+                    - lambda:InvokeFunction
+                  Resource: !GetAtt SinkSeatoolDataLambdaFunction.Arn
     KafkaConnectWorkerTaskDefinition:
       Type: "AWS::ECS::TaskDefinition"
       Properties:
@@ -187,13 +203,13 @@ resources:
                 Value: >-
                   ${self:custom.brokerString}
               - Name: CONNECT_GROUP_ID
-                Value: mgmt.connect.${self:service}-${sls:stage}
+                Value: ${param:topicNamespace}mgmt.connect.${self:service}-${sls:stage}
               - Name: CONNECT_CONFIG_STORAGE_TOPIC
-                Value: mgmt.connect.${self:service}-${sls:stage}.config
+                Value: ${param:topicNamespace}mgmt.connect.${self:service}-${sls:stage}.config
               - Name: CONNECT_OFFSET_STORAGE_TOPIC
-                Value: mgmt.connect.${self:service}-${sls:stage}.offsets
+                Value: ${param:topicNamespace}mgmt.connect.${self:service}-${sls:stage}.offsets
               - Name: CONNECT_STATUS_STORAGE_TOPIC
-                Value: mgmt.connect.${self:service}-${sls:stage}.status
+                Value: ${param:topicNamespace}mgmt.connect.${self:service}-${sls:stage}.status
               - Name: CONNECT_OFFSET_STORAGE_PARTITIONS
                 Value: 5
               - Name: CONNECT_STATUS_STORAGE_PARTITIONS
@@ -212,11 +228,11 @@ resources:
                 Value: SSL
               # Producer/Consumer configs below
               # Thank you to https://github.com/confluentinc/kafka-connect-jdbc/issues/161
-              # - Name: CONNECT_PRODUCER_BOOTSTRAP_SERVERS
-              #   Value: >-
-              #     ${self:custom.brokerString}
-              # - Name: CONNECT_PRODUCER_SECURITY_PROTOCOL
-              #   Value: SSL
+              - Name: CONNECT_PRODUCER_BOOTSTRAP_SERVERS
+                Value: >-
+                  ${self:custom.brokerString}
+              - Name: CONNECT_PRODUCER_SECURITY_PROTOCOL
+                Value: SSL
               - Name: CONNECT_CONSUMER_BOOTSTRAP_SERVERS
                 Value: >-
                   ${self:custom.brokerString}
@@ -228,14 +244,6 @@ resources:
                 awslogs-region: !Sub "${AWS::Region}"
                 awslogs-group: !Sub "${KafkaConnectWorkerLogGroup}"
                 awslogs-stream-prefix: fargate
-          # - Name: instantclient
-          #   Image: "ghcr.io/oracle/oraclelinux8-instantclient:21"
-          #   Memory: 2048 # This will kill the instantclient container if it goes over 2048, to preserve the connector container.
-          #   Command:
-          #     - bash
-          #     - "-c"
-          #     - |
-          #       sleep infinity
         Family: ${self:service}-${sls:stage}-kafka-connect-worker
         NetworkMode: awsvpc
         ExecutionRoleArn: !GetAtt KafkaConnectWorkerRole.Arn

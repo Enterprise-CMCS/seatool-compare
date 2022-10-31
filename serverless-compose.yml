@@ -13,5 +13,8 @@ services:
       seatoolTableArn: ${seatool.TableArn}
   connector:
     path: src/services/connector
+    params:
+      mmdlTableName: ${mmdl.TableName}
+      seatoolTableName: ${seatool.TableName}
   alerts:
     path: src/services/alerts
