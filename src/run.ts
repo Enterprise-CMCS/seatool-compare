@@ -158,6 +158,23 @@ yargs(process.argv.slice(2))
     }
   )
   .command(
+    "connect",
+    "Prints a connection string that can be run to 'ssh' directly onto the ECS Fargate task",
+    {
+      stage: { type: "string", demandOption: true },
+      service: { type: "string", demandOption: true },
+    },
+    async (options) => {
+      await install_deps_for_services();
+      await refreshOutputs(options.stage);
+      await runner.run_command_and_output(
+        `connect`,
+        ["sls", options.service, "connect", "--stage", options.stage],
+        "."
+      );
+    }
+  )
+  .command(
     "docs",
     "Starts the Jekyll documentation site in a docker container, available on http://localhost:4000.",
     {},

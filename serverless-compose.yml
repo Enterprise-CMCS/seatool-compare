@@ -11,5 +11,7 @@ services:
       mmdlTableStreamArn: ${mmdl.TableStreamArn}
       seatoolTableName: ${seatool.TableName}
       seatoolTableArn: ${seatool.TableArn}
+  connector:
+    path: src/services/connector
   alerts:
     path: src/services/alerts
