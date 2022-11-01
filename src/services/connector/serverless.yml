@@ -45,6 +45,11 @@ provider:
           Action:
             - cloudwatch:PutMetricData
           Resource: "*"
+        - Effect: "Allow"
+          Action:
+            - dynamodb:UpdateItem
+          Resource:
+            - ${param:seatoolTableArn}
 
 custom:
   project: ${env:PROJECT}

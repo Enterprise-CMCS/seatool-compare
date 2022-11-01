@@ -5,7 +5,8 @@ function myHandler(event, _context, _callback) {
   dynamodb.update({
     region: process.env.region,
     tableName: process.env.tableName,
-    item: { key: event.key, ...event.value },
+    item: { ...JSON.parse(event.value) },
+    key: { id: JSON.parse(event.key) },
   });
 }
 
