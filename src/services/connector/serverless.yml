@@ -47,7 +47,7 @@ provider:
           Resource: "*"
         - Effect: "Allow"
           Action:
-            - dynamodb:UpdateItem
+            - dynamodb:PutItem
           Resource:
             - ${param:seatoolTableArn}
 
