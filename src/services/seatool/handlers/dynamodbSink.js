@@ -16,15 +16,12 @@ exports.handler = async function (event, context, callback) {
     records.map((record) => {
       const id = Buffer.from(record.key, "base64").toString();
       const item = Buffer.from(record.value, "base64").toString();
-      console.log(
-        `Received event for item ${id}:`,
-        JSON.stringify(item, null, 2)
-      );
+      console.log(`Received event for item ${id}:`, item);
 
       return dynamodb.update({
         region: process.env.region,
         tableName: process.env.tableName,
-        item: { id: JSON.parse(event.key), ...JSON.parse(event.value) },
+        item: { id, ...JSON.parse(item) },
       });
     })
   )
