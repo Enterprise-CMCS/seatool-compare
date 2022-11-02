@@ -1,4 +1,4 @@
-import * as dynamodb from "../../../libs/dynamodb-lib";
+import { update } from "../../../libs/dynamodb-lib";
 
 exports.handler = async function (event, context, callback) {
   console.log(`Received event for item:`, JSON.stringify(event, null, 2));
@@ -21,7 +21,7 @@ exports.handler = async function (event, context, callback) {
         JSON.stringify(item, null, 2)
       );
 
-      return dynamodb.update({
+      return update({
         region: process.env.region,
         tableName: process.env.tableName,
         item: { id: JSON.parse(event.key), ...JSON.parse(event.value) },
