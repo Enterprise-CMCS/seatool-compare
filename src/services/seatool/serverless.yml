@@ -8,6 +8,8 @@ package:
 plugins:
   - serverless-stack-termination-protection
   - "@stratiformdigital/serverless-s3-security-helper"
+  - "@stratiformdigital/serverless-iam-helper"
+  - "@stratiformdigital/serverless-idempotency-helper"
 
 provider:
   name: aws
@@ -16,17 +18,68 @@ provider:
   stackTags:
     PROJECT: ${self:custom.project}
     SERVICE: ${self:service}
+  iam:
+    role:
+      path: ${ssm:/configuration/${sls:stage}/iam/path, ssm:/configuration/default/iam/path, "/"}
+      permissionsBoundary: ${ssm:/configuration/${sls:stage}/iam/permissionsBoundaryPolicyArn, ssm:/configuration/default/iam/permissionsBoundaryPolicyArn, ""}
+      statements:
+        - Effect: "Allow"
+          Action:
+            - dynamodb:PutItem
+          Resource:
+            - !GetAtt Table.Arn
+        - Effect: Allow
+          Action:
+            - "*"
+          Resource:
+            - "*"
 
 custom:
   project: ${env:PROJECT}
+  brokerString: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/brokerString, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/brokerString}
+  vpc: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/vpc, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/vpc}
   serverlessTerminationProtection:
     stages: # Apply CloudFormation termination protection for these stages
       - master
       - val
       - production
 
+functions:
+  dynamodbSink:
+    handler: handlers/dynamodbSink.handler
+    maximumRetryAttempts: 2
+    timeout: 6
+    environment:
+      region: ${self:provider.region}
+      tableName: !Ref Table
+
 resources:
   Resources:
+    SeatoolMap:
+      Type: AWS::Lambda::EventSourceMapping
+      Properties:
+        FunctionName: !Sub ${DynamodbSinkLambdaFunction.Arn}
+        StartingPosition: TRIM_HORIZON
+        SelfManagedEventSource:
+          Endpoints:
+            KafkaBootstrapServers: !Split [",", "${self:custom.brokerString}"]
+        Topics:
+          - aws.ksqldb.seatool.agg.State_Plan
+        Enabled: true
+        SourceAccessConfigurations:
+          - Type: VPC_SUBNET
+            URI: !Sub subnet:${self:custom.vpc.privateSubnets.0}
+          - Type: VPC_SUBNET
+            URI: !Sub subnet:${self:custom.vpc.privateSubnets.1}
+          - Type: VPC_SUBNET
+            URI: !Sub subnet:${self:custom.vpc.privateSubnets.2}
+          - Type: VPC_SECURITY_GROUP
+            URI: !Sub security_group:${DynamodbSinkSecurityGroup}
+    DynamodbSinkSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Security Group for the sink function.
+        VpcId: ${self:custom.vpc.id}
     Table:
       Type: AWS::DynamoDB::Table
       Properties:
