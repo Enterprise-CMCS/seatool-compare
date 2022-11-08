@@ -1,9 +1,9 @@
 import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 const { marshall } = require("@aws-sdk/util-dynamodb");
 
-export const update = async ({ region, tableName, item }) => {
-  const client = new DynamoDBClient({ region });
+const client = new DynamoDBClient({ region: process.env.region });
 
+export const update = async ({ tableName, item }) => {
   const params = {
     TableName: tableName,
     Item: marshall(item),

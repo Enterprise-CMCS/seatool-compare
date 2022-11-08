@@ -1,6 +1,6 @@
 export const connectors = [
   {
-    name: `${process.env.connectorPrefix}.lambda.seatoolData`,
+    name: `${process.env.namespace}.lambda.seatoolData`,
     config: {
       "tasks.max": "1",
       "connector.class":

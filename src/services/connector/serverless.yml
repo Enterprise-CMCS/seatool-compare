@@ -96,9 +96,10 @@ functions:
     environment:
       cluster: !Ref KafkaConnectCluster
       service: !Ref KafkaConnectService
-      connectorPrefix: ${self:service}-${sls:stage}
+      namespace: ${self:service}-${sls:stage}
       region: ${self:provider.region}
       seatoolSinkFunctionArn: !GetAtt SinkSeatoolDataLambdaFunction.Arn
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     maximumRetryAttempts: 0
     timeout: 300
     vpc:
@@ -284,6 +285,62 @@ resources:
               - !Sub "${KafkaConnectWorkerSecurityGroup}"
             Subnets: >-
               ${self:custom.vpc.dataSubnets}
+    ECSFailureEventRule:
+      Type: AWS::Events::Rule
+      Properties:
+        Description: "SEA Tool Compare Cluster Task Failure Event Rule"
+        EventPattern:
+          account:
+            - !Sub "${AWS::AccountId}"
+          source:
+            - "aws.ecs"
+          detail-type:
+            - "ECS Task State Change"
+          detail:
+            lastStatus:
+              - "STOPPED"
+            stoppedReason:
+              - "Essential container in task exited"
+              - "Task failed container health checks"
+            clusterArn:
+              - !GetAtt KafkaConnectCluster.Arn
+        Targets:
+          - Arn: ${param:ecsFailureTopicArn}
+            Id: "SeaToolCompareEcsTaskFailure"
+            InputTransformer:
+              InputPathsMap:
+                "clusterArn": "$.detail.clusterArn"
+                "status": "$.detail.lastStatus"
+                "account": "$.account"
+                "stoppedReason": "$.detail.stoppedReason"
+              InputTemplate: |
+                "A SEA Tool Cluster Task Failure Event has occured in bigmac. Account: <account> Cluster ARN: <clusterArn> Status: <status> Reason: <stoppedReason>"
+    Nord0TaskAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:ecsFailureTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 2
+        EvaluationPeriods: 5
+        MetricName: ${self:service}-${sls:stage}.lambda.seatoolData_task_failures
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    Nord0ConnectorAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:ecsFailureTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 2
+        EvaluationPeriods: 5
+        MetricName: ${self:service}-${sls:stage}.lambda.seatoolData_failures
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
     LambdaConfigureConnectorsSecurityGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
