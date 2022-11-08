@@ -167,7 +167,5 @@ export async function testConnectors(cluster, service, connectors) {
       console.log(`Testing connector: ${connector.name}`);
       return testConnector(workerIp, connector);
     })
-  ).then((res) => {
-    return res;
-  });
+  );
 }
