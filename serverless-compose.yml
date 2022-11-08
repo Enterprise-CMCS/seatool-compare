@@ -19,6 +19,6 @@ services:
       mmdlTableStreamArn: ${mmdl.TableStreamArn}
       seatoolTableName: ${seatool.TableName}
       seatoolTableArn: ${seatool.TableArn}
-      ecsFailureTopicArn: ${alerts.ECSFailureTopicArn}
+      alarmsTopicArn: ${alerts.AlarmsTopicArn}
   alerts:
     path: src/services/alerts

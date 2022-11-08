@@ -305,7 +305,7 @@ resources:
             clusterArn:
               - !GetAtt KafkaConnectCluster.Arn
         Targets:
-          - Arn: ${param:ecsFailureTopicArn}
+          - Arn: ${param:alarmsTopicArn}
             Id: "SeaToolCompareEcsTaskFailure"
             InputTransformer:
               InputPathsMap:
@@ -319,11 +319,11 @@ resources:
       Type: AWS::CloudWatch::Alarm
       Properties:
         AlarmActions:
-          - ${param:ecsFailureTopicArn}
+          - ${param:alarmsTopicArn}
         ComparisonOperator: GreaterThanOrEqualToThreshold
         DatapointsToAlarm: 2
         EvaluationPeriods: 5
-        MetricName: ${self:service}-${sls:stage}.lambda.seatoolData_task_failures
+        MetricName: ${self:service}-${sls:stage}.lambda.seatoolData_task
         Namespace: ${self:service}-${sls:stage}
         Period: 60
         Statistic: Sum
@@ -332,11 +332,24 @@ resources:
       Type: AWS::CloudWatch::Alarm
       Properties:
         AlarmActions:
-          - ${param:ecsFailureTopicArn}
+          - ${param:alarmsTopicArn}
         ComparisonOperator: GreaterThanOrEqualToThreshold
         DatapointsToAlarm: 2
         EvaluationPeriods: 5
-        MetricName: ${self:service}-${sls:stage}.lambda.seatoolData_failures
+        MetricName: ${self:service}-${sls:stage}.lambda.seatoolData
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    SeatoolDynamoUpdateAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 1
+        EvaluationPeriods: 5
+        MetricName: ${param:seatoolTableName}_dynamo_updates
         Namespace: ${self:service}-${sls:stage}
         Period: 60
         Statistic: Sum

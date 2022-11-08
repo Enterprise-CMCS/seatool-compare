@@ -10,6 +10,7 @@ export async function sendMetricData(params) {
   try {
     const response = await client.send(command);
     console.log("Response from sending metric data", JSON.stringify(response));
+    return response;
   } catch (e) {
     console.log("Error from sending metric data", e);
   }

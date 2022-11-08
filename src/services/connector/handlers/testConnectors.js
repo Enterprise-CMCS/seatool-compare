@@ -19,7 +19,7 @@ async function myHandler(event, context, callback) {
           Namespace: process.env.namespace,
           MetricData: [
             {
-              MetricName: `${name}_failures`,
+              MetricName: name,
               Value: connector.state === RUNNING ? 0 : 1,
             },
           ],
@@ -36,7 +36,7 @@ async function myHandler(event, context, callback) {
           Namespace: process.env.namespace,
           MetricData: [
             {
-              MetricName: `${name}_task_failures`,
+              MetricName: `${name}_task`,
               Value: tasksRunning ? 0 : 1,
             },
           ],
@@ -70,7 +70,7 @@ async function myHandler(event, context, callback) {
           Namespace: process.env.namespace,
           MetricData: [
             {
-              MetricName: `${connector.name}_failures`,
+              MetricName: connector.name,
               Value: 1,
             },
           ],

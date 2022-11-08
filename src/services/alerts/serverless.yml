@@ -27,10 +27,10 @@ custom:
 
 resources:
   Resources:
-    ECSTaskFailureTopic:
+    AlarmsTopic:
       Type: "AWS::SNS::Topic"
       Properties:
-        TopicName: ECSTaskFailure-${self:service}-${sls:stage}
+        TopicName: Alarms-${self:service}-${sls:stage}
 
     EventBridgeToToSnsPolicy:
       Type: AWS::SNS::TopicPolicy
@@ -41,11 +41,11 @@ resources:
               Principal:
                 Service: events.amazonaws.com
               Action: sns:Publish
-              Resource: !Ref ECSTaskFailureTopic
+              Resource: !Ref AlarmsTopic
         Topics:
-          - !Ref ECSTaskFailureTopic
+          - !Ref AlarmsTopic
 
   Outputs:
-    ECSFailureTopicArn:
+    AlarmsTopicArn:
       Description: ECS Failure SNS topic ARN
-      Value: !Ref ECSTaskFailureTopic
+      Value: !Ref AlarmsTopic
