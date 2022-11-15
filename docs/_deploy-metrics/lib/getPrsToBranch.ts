@@ -25,7 +25,7 @@ export const getPrsToBranch = async (branch: string) => {
     }));
   const averageTimeToMerge =
     timesToMergePrs.reduce((total, { hours }) => total + hours, 0) /
-    timesToMergePrs.length;
+      timesToMergePrs.length || 0;
 
   return { timesToMergePrs, averageTimeToMerge };
 };
