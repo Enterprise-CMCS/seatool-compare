@@ -314,7 +314,7 @@ resources:
                 "account": "$.account"
                 "stoppedReason": "$.detail.stoppedReason"
               InputTemplate: |
-                "A SEA Tool Cluster Task Failure Event has occured in bigmac. Account: <account> Cluster ARN: <clusterArn> Status: <status> Reason: <stoppedReason>"
+                "A Cluster Task Failure Event has occured in seatool-compare. Account: <account> Cluster ARN: <clusterArn> Status: <status> Reason: <stoppedReason>"
     Nord0TaskAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
