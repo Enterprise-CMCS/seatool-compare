@@ -27,3 +27,7 @@ The seatool-compare project is a microservice which compares legacy data and sea
 ## Archtecture
 
 ![Architecture Diagram](../../../assets/architecture.svg)
+
+## View Metrics
+
+[Metrics](https://cmsgov.github.io/seatool-compare/dora/)
