@@ -1,13 +1,9 @@
 name: Security Hub Sync
 
 on:
-  push:
-    branches:
-      - "*"
-      - "!skipci*"
-  #schedule:
-  #  - cron: "0 0 * * *" # At 12am everyday
-  #workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # At 12am everyday
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref_name }}-group
