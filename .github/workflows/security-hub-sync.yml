@@ -54,4 +54,3 @@ jobs:
         run: run syncSecurityHubFindings --auth ${{ env.auth }} --repository CMSgov/${{ github.event.repository.name }} --accountNickname $STAGE_NAME
         env:
           auth: ${{ secrets.GITHUB_TOKEN }}
-   
