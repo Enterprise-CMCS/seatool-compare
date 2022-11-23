@@ -153,7 +153,7 @@ resources:
       Properties:
         DatapointsToAlarm: 1
         AlarmActions:
-          - ${param:AlarmsTopicArn}
+          - ${param:alarmsTopicArn}
         AlarmName: ${self:service}-${sls:stage}-ConnectorLogsErrorCount
         ComparisonOperator: GreaterThanOrEqualToThreshold
         EvaluationPeriods: 2
@@ -180,7 +180,7 @@ resources:
       Properties:
         DatapointsToAlarm: 1
         AlarmActions:
-          - ${param:AlarmsTopicArn}
+          - ${param:alarmsTopicArn}
         AlarmName: ${self:service}-${sls:stage}-ConnectorLogsWarnCount
         ComparisonOperator: GreaterThanOrEqualToThreshold
         EvaluationPeriods: 2
