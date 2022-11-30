@@ -153,6 +153,7 @@ yargs(process.argv.slice(2))
           auth: options.auth,
           region: region,
           accountNickname: options.accountNickname,
+          severity: ["CRITICAL","HIGH", "MEDIUM"],          
         });
         await sync.sync();
       }
