@@ -2,7 +2,7 @@ name: Security Hub Sync
 
 on:
   schedule:
-    - cron: "0 0 * * *" # At 12am everyday
+    - cron: "0 0 * * *" ## At 12am everyday ##
   workflow_dispatch:
 
 concurrency:
