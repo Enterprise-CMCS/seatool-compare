@@ -53,7 +53,7 @@ resources:
         KeySchema:
           - AttributeName: id
             KeyType: HASH
-        BillingMode: PAY_PER_REQUEST    
+        BillingMode: PAY_PER_REQUEST
   Outputs:
     TableName:
       Value: !Ref TableRestored
