@@ -31,12 +31,16 @@ export async function connectRestApiWithRetry(params) {
           console.log(d.toString("utf-8"));
         })
         .on("error", (error) => {
-          console.log(error.toString("utf-8"));
+          console.log("res.on error:", error);
           retry.call(`${error}`);
         })
         .on("end", (d) => {
           resolver(req, resolve);
         });
+    });
+    req.on("error", (error) => {
+      console.log("req.on error:", error);
+      reject(error);
     });
     if (params.body) {
       req.write(JSON.stringify(params.body));
@@ -107,11 +111,16 @@ export async function deleteConnector(ip, name) {
           }
         })
         .on("error", (error) => {
+          console.log("res.on error:", error);
           return retry.call(`${error}`);
         })
         .on("end", (d) => {
           resolver(req, resolve);
         });
+    });
+    req.on("error", (error) => {
+      console.log("req.on error:", error);
+      reject(error);
     });
     req.write(JSON.stringify({}));
     req.end();
@@ -147,14 +156,17 @@ export async function testConnector(ip, config) {
           resolve(data);
         })
         .on("error", (error) => {
-          console.log(error);
+          console.log("res.on error:", error);
           reject(error);
         })
         .on("end", (d) => {
           resolver(req, resolve);
         });
     });
-
+    req.on("error", (error) => {
+      console.log("req.on error:", error);
+      reject(error);
+    });
     req.write(JSON.stringify({}));
     req.end();
   });
