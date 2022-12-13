@@ -60,6 +60,7 @@ custom:
       - production
   vpc: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/vpc, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/vpc}
   brokerString: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/brokerString, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/brokerString}
+  connectImage: ${ssm:/aws/reference/secretsmanager/ecr/images/${self:custom.project}/${self:service}, "confluentinc/cp-kafka-connect:6.0.9"}
   scripts:
     hooks:
       deploy:finalize: |
@@ -240,12 +241,16 @@ resources:
                   Action:
                     - lambda:InvokeFunction
                   Resource: !GetAtt SinkSeatoolDataLambdaFunction.Arn
+                - Effect: Allow
+                  Action:
+                    - ecr:BatchGetImage
+                  Resource: !Sub "arn:aws:ecr:${self:provider.region}:${AWS::AccountId}:repository/*"
     KafkaConnectWorkerTaskDefinition:
       Type: "AWS::ECS::TaskDefinition"
       Properties:
         ContainerDefinitions:
           - Name: connect
-            Image: "confluentinc/cp-kafka-connect:6.0.9"
+            Image: ${self:custom.connectImage}
             Memory: 4096
             Cpu: 2048
             Command:
