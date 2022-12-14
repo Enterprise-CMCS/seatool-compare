@@ -29,7 +29,7 @@ This Project uses Point In Time Recovery for backing up dynamodb tables. This do
 - Enable PITR on all dynamodb tables
 
 #### Table Restore steps
-## Step 1 :Restore table to table B
+## Step 1 :Restore table orignal table(A) to table B
 - Go to the AWS Console
 - Choose your region in the top right drop down.
 - Navigate to dynamodb service dashboard
@@ -63,6 +63,5 @@ This Project uses Point In Time Recovery for backing up dynamodb tables. This do
 
 
 
-#### Notes
-- None
+
 
