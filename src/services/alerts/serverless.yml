@@ -31,7 +31,7 @@ resources:
       Type: "AWS::SNS::Topic"
       Properties:
         TopicName: ECSTaskFailure-${self:service}-${sls:stage}
-        KmsMasterKeyId: !Ref KmsKeyForSns        
+        KmsMasterKeyId: !Ref KmsKeyForSns
 
     KmsKeyForSns:
       Type: AWS::KMS::Key
@@ -43,7 +43,7 @@ resources:
             - Sid: Allow access for Root User
               Effect: Allow
               Principal:
-                AWS: !Sub "arn:aws:iam::677829493285:role/*"
+                AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
               Action: "kms:*"
               Resource: "*"
             - Sid: Allow access for Key User (SNS Service Principal)
