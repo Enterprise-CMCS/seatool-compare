@@ -1,6 +1,16 @@
 import * as ecs from "./ecs-lib.js";
+import {
+  ECSClient,
+  DescribeTasksCommand,
+  ListTasksCommand,
+} from "@aws-sdk/client-ecs";
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
 var http = require("http");
 var _ = require("lodash");
+const axios = require("axios");
 
 const resolver = (req, resolve) => {
   console.log("Finished");
@@ -26,12 +36,13 @@ export async function connectRestApiWithRetry(params) {
       },
     };
     const req = http.request(options, (res) => {
+      console.log(`STATUS: ${res.statusCode}`);
       res
         .on("data", (d) => {
-          console.log(d.toString("utf-8"));
+          console.log("Data: ", d.toString("utf-8"));
         })
         .on("error", (error) => {
-          console.log(error.toString("utf-8"));
+          console.log("Error: ", error.toString("utf-8"));
           retry.call(`${error}`);
         })
         .on("end", (d) => {
@@ -45,25 +56,6 @@ export async function connectRestApiWithRetry(params) {
   });
 }
 
-export async function putConnectors(cluster, service, connectors) {
-  const workerIp = await ecs.findIpForEcsService(cluster, service);
-  await connectRestApiWithRetry({
-    hostname: workerIp,
-  });
-  for (var i = 0; i < connectors.length; i++) {
-    console.log(
-      `Putting connector with config: ${JSON.stringify(connectors[i], null, 2)}`
-    );
-    //This won't account for multiple tasks with multiple interfaces
-    await connectRestApiWithRetry({
-      hostname: workerIp,
-      path: `/connectors/${connectors[i].name}/config`,
-      method: "PUT",
-      body: connectors[i].config,
-    });
-  }
-}
-
 export async function restartConnectors(cluster, service, connectors) {
   const workerIp = await ecs.findIpForEcsService(cluster, service);
   for (var i = 0; i < connectors.length; i++) {
@@ -73,7 +65,7 @@ export async function restartConnectors(cluster, service, connectors) {
     //This won't account for multiple tasks with multiple interfaces
     await connectRestApiWithRetry({
       hostname: workerIp,
-      path: `/connectors/${connectors[i].name}/tasks/0/restart`,
+      path: `/connectors/${connectors[i].name}/restart?includeTasks=true?onlyFailed=true`,
       method: "POST",
     });
   }
@@ -167,5 +159,89 @@ export async function testConnectors(cluster, service, connectors) {
       console.log(`Testing connector: ${connector.name}`);
       return testConnector(workerIp, connector);
     })
+  ).then((res) => {
+    return res;
+  });
+}
+
+export async function findTaskIp(cluster) {
+  const client = new ECSClient();
+  const { taskArns } = await client.send(
+    new ListTasksCommand({
+      cluster: cluster,
+      desiredStatus: "RUNNING",
+    })
   );
+  if (taskArns.length === 0) {
+    throw `No task found for cluster ${cluster}`;
+  }
+  const tasks = (
+    await client.send(
+      new DescribeTasksCommand({
+        cluster: cluster,
+        tasks: [taskArns[0]],
+      })
+    )
+  ).tasks;
+  const task = tasks[0];
+  const ip = _.filter(
+    task.attachments[0].details,
+    (x) => x.name === "privateIPv4Address"
+  )[0].value;
+  console.log(ip);
+  return ip;
+}
+
+export async function checkIfConnectIsReady(ip) {
+  var ready = false;
+  try {
+    const res = await axios.get(`http://${ip}:8083/`);
+    if (res.status && res.status == 200) {
+      console.log("Kafka Connect service is ready");
+      ready = true;
+    }
+  } catch (error) {
+    console.log(
+      `Kafka Connect service is not ready; it responded with ${error}`
+    );
+  } finally {
+    return ready;
+  }
+}
+
+export async function createConnector(ip, connectorConfigSecret) {
+  const config = await fetchConnectorConfigFromSecretsManager(
+    connectorConfigSecret
+  );
+  var retVal = {
+    success: false,
+  };
+  try {
+    console.log(`POSTing connector:  ${config.name}`);
+    const res = await axios.put(
+      `http://${ip}:8083/connectors/${config.name}/config`,
+      config.config
+    );
+    console.log(res);
+    console.log("Connector was successfully created.");
+    retVal.success = true;
+  } catch (error) {
+    console.log(error);
+    console.log("Connector was NOT successfully created.");
+  } finally {
+    return retVal;
+  }
+}
+
+async function fetchConnectorConfigFromSecretsManager(connectorConfigSecret) {
+  console.log(
+    `Fetching connector config from Secrets Manager at:  ${connectorConfigSecret}`
+  );
+  const client = new SecretsManagerClient({});
+  const command = new GetSecretValueCommand({
+    SecretId: connectorConfigSecret,
+    VersionStage: "AWSCURRENT",
+  });
+  const response = await client.send(command);
+  return JSON.parse(response.SecretString);
 }

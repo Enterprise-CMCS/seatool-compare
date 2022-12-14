@@ -1,12 +1,38 @@
 import * as connect from "../../../libs/connect-lib";
 import { sendMetricData } from "../../../libs/cloudwatch-lib";
-import { connectors } from "../libs/connectors";
+import {
+  SecretsManagerClient,
+  ListSecretsCommand,
+  GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
 
 // test the connector status
 async function myHandler(event, context, callback) {
   const cluster = process.env.cluster;
   const service = process.env.service;
   const RUNNING = "RUNNING";
+
+  const client = new SecretsManagerClient({});
+  const listSecretsCommandResponse = await client.send(
+    new ListSecretsCommand({
+      Filters: [
+        {
+          Key: "name",
+          Values: [process.env.connectorConfigPrefix],
+        },
+      ],
+    })
+  );
+  var connectors = [];
+  for (var i = 0; i < listSecretsCommandResponse.SecretList.length; i++) {
+    const getSecretValueCommandResponse = await client.send(
+      new GetSecretValueCommand({
+        SecretId: listSecretsCommandResponse.SecretList[i].Name,
+        VersionStage: "AWSCURRENT",
+      })
+    );
+    connectors.push(JSON.parse(getSecretValueCommandResponse.SecretString));
+  }
 
   try {
     const results = await connect.testConnectors(cluster, service, connectors);

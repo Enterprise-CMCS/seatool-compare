@@ -9,6 +9,7 @@ plugins:
   - serverless-bundle
   - serverless-plugin-scripts
   - serverless-stack-termination-protection
+  - serverless-step-functions
   - "@stratiformdigital/serverless-iam-helper"
   - "@stratiformdigital/serverless-idempotency-helper"
   - "@stratiformdigital/serverless-online"
@@ -50,6 +51,16 @@ provider:
             - dynamodb:PutItem
           Resource:
             - ${param:seatoolTableArn}
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource:
+            - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/*"
+        - Effect: Allow
+          Action:
+            - secretsmanager:ListSecrets
+          Resource:
+            - "*"
 
 custom:
   project: ${env:PROJECT}
@@ -64,11 +75,15 @@ custom:
   scripts:
     hooks:
       deploy:finalize: |
-        set -e
-        call=`aws lambda invoke --region ${self:provider.region} --function-name ${self:service}-${sls:stage}-configureConnectors --invocation-type RequestResponse --log Tail /dev/stdout`
-        if ! echo $call | jq '.FunctionError'; then 
-          echo "The Lambda function did not succeed." && exit 1;
-        fi
+        configureConnector() {
+          echo "Configuring Connector $1"
+          execution=`aws stepfunctions start-sync-execution --cli-read-timeout 300 --state-machine-arn arn:aws:states:${self:provider.region}:${aws:accountId}:stateMachine:${self:service}-${sls:stage}-configure-connector --region ${self:provider.region} --input "{\"cluster\" : \"${self:service}-${sls:stage}-connect\", \"connectorConfigSecret\": \"${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/$1\"}"`
+          if ! echo $execution | grep -q "\"status\": \"SUCCEEDED\""; then
+            echo "ERROR:  The connector was not successfully configured.  Please check CloudWatch logs." && exit 1
+          fi
+        }
+        set +x
+        configureConnector ${self:service}-${sls:stage}.lambda.seatoolData
     commands:
       connect: |
         runningTasks=(`aws --region ${self:provider.region} ecs list-tasks --cluster ${self:service}-${sls:stage}-connect --desired-status RUNNING | jq -r ".taskArns[]"`)
@@ -92,17 +107,23 @@ params:
     topicNamespace: --${self:custom.project}--${sls:stage}--
 
 functions:
-  configureConnectors:
-    handler: handlers/configureConnectors.handler
-    environment:
-      cluster: !Ref KafkaConnectCluster
-      service: !Ref KafkaConnectService
-      namespace: ${self:service}-${sls:stage}
-      region: ${self:provider.region}
-      seatoolSinkFunctionArn: !GetAtt SinkSeatoolDataLambdaFunction.Arn
-      AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+  findTaskIp:
+    handler: handlers/connect.findTaskIp
     maximumRetryAttempts: 0
-    timeout: 300
+    timeout: 30
+  checkIfConnectIsReady:
+    handler: handlers/connect.checkIfConnectIsReady
+    maximumRetryAttempts: 0
+    timeout: 180
+    vpc:
+      securityGroupIds:
+        - Ref: LambdaConfigureConnectorsSecurityGroup
+      subnetIds: >-
+        ${self:custom.vpc.privateSubnets}
+  createConnector:
+    handler: handlers/connect.createConnector
+    maximumRetryAttempts: 0
+    timeout: 180
     vpc:
       securityGroupIds:
         - Ref: LambdaConfigureConnectorsSecurityGroup
@@ -115,12 +136,14 @@ functions:
       stage: ${sls.stage}
       region: ${self:provider.region}
       tableName: ${param:seatoolTableName}
+      namespace: ${self:service}-${sls:stage}
   testConnectors:
     handler: handlers/testConnectors.handler
     environment:
       cluster: !Ref KafkaConnectCluster
       service: !Ref KafkaConnectService
       namespace: ${self:service}-${sls:stage}
+      connectorConfigPrefix: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig
     timeout: 300
     events:
       - schedule: cron(0/1 * ? * * *)
@@ -129,6 +152,69 @@ functions:
         - Ref: LambdaConfigureConnectorsSecurityGroup
       subnetIds: >-
         ${self:custom.vpc.privateSubnets}
+
+stepFunctions:
+  stateMachines:
+    configure-connector:
+      name: ${self:service}-${sls:stage}-configure-connector
+      id: ConfigureConnectorStateMachine
+      type: EXPRESS
+      loggingConfig:
+        level: ALL
+        includeExecutionData: true
+        destinations:
+          - !GetAtt StateMachineLogGroup.Arn
+      definition:
+        Comment: "A state machine to configure Kafka Connectors."
+        StartAt: FindTaskIp
+        States:
+          FindTaskIp:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-findTaskIp"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: CheckConnect
+          CheckConnect:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-checkIfConnectIsReady"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: IsConnectReady
+          IsConnectReady:
+            Type: Choice
+            Choices:
+              - Variable: $.ready
+                BooleanEquals: true
+                Next: CreateConnector
+              - Variable: $.ready
+                BooleanEquals: false
+                Next: Wait5Seconds
+            Default: Wait5Seconds
+          Wait5Seconds:
+            Type: Wait
+            Seconds: 5
+            Next: CheckConnect
+          CreateConnector:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-createConnector"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: IsCreationSuccessful
+          IsCreationSuccessful:
+            Type: Choice
+            Choices:
+              - Variable: $.success
+                BooleanEquals: true
+                Next: SuccessState
+              - Variable: $.success
+                BooleanEquals: false
+                Next: Wait5Seconds
+            Default: Wait5Seconds
+          SuccessState:
+            Type: Succeed
 
 resources:
   Resources:
@@ -418,6 +504,31 @@ resources:
       Properties:
         GroupDescription: Security Group for configuring the connector.
         VpcId: ${self:custom.vpc.id}
+    ConnectorConfigSeatoolSource:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        Description: GENERATED BY DEPLOYMENT.  DO NOT MODIFY.  Connector configuration for the Seatool Compare Sink Connector.
+        Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}.lambda.seatoolData
+        SecretString: !Sub |
+          {
+            "name": "${self:service}-${sls:stage}.lambda.seatoolData",
+            "config": {
+              "tasks.max": "1",
+              "connector.class": "com.nordstrom.kafka.connect.lambda.LambdaSinkConnector",
+              "topics": "aws.ksqldb.seatool.agg.State_Plan",
+              "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+              "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+              "aws.region": "${self:provider.region}",
+              "aws.lambda.function.arn": "${SinkSeatoolDataLambdaFunction.Arn}",
+              "aws.lambda.batch.enabled": "false",
+              "aws.credentials.provider.class":
+                " com.amazonaws.auth.DefaultAWSCredentialsProviderChain"
+            }
+          }
+    StateMachineLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/vendedlogs/states/${self:service}-${sls:stage}-configure-connector
 
   Outputs:
     KafkaConnectWorkerSecurityGroupId:
