@@ -46,7 +46,7 @@ This Project uses Point In Time Recovery for backing up dynamodb tables. This do
 - Wait for table to be fully restored and check for total item count.
 
 ## Step 2: Delete table A
-- Click on table Table on the left pane to navigate to the main dashboard
+- Click on Table on the left pane to navigate to the main dashboard
 - Select table A
 - Click on Delete
 - Seclect both Delete all CloudWatch alarms for this table and Create a backup of this table before deleting it.
