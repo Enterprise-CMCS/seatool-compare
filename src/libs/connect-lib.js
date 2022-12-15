@@ -42,7 +42,7 @@ export async function connectRestApiWithRetry(params) {
           console.log("Data: ", d.toString("utf-8"));
         })
         .on("error", (error) => {
-          console.log("Error: ", error.toString("utf-8"));
+          console.error("Error: ", error.toString("utf-8"));
           retry.call(`${error}`);
         })
         .on("end", (d) => {
@@ -99,6 +99,7 @@ export async function deleteConnector(ip, name) {
           }
         })
         .on("error", (error) => {
+          console.error(error);
           return retry.call(`${error}`);
         })
         .on("end", (d) => {
@@ -139,7 +140,7 @@ export async function testConnector(ip, config) {
           resolve(data);
         })
         .on("error", (error) => {
-          console.log(error);
+          console.error(error);
           reject(error);
         })
         .on("end", (d) => {
@@ -159,9 +160,7 @@ export async function testConnectors(cluster, service, connectors) {
       console.log(`Testing connector: ${connector.name}`);
       return testConnector(workerIp, connector);
     })
-  ).then((res) => {
-    return res;
-  });
+  );
 }
 
 export async function findTaskIp(cluster) {
@@ -201,6 +200,7 @@ export async function checkIfConnectIsReady(ip) {
       ready = true;
     }
   } catch (error) {
+    console.error(error);
     console.log(
       `Kafka Connect service is not ready; it responded with ${error}`
     );
@@ -226,7 +226,7 @@ export async function createConnector(ip, connectorConfigSecret) {
     console.log("Connector was successfully created.");
     retVal.success = true;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     console.log("Connector was NOT successfully created.");
   } finally {
     return retVal;
