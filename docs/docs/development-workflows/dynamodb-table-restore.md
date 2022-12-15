@@ -1,6 +1,6 @@
 ---
 layout: default
-title: PITR-Dynamodb-Backup-Restore
+title: PITR Dynamodb Backup Restore
 parent: Development Workflows
 nav_order: 6
 ---
