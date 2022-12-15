@@ -60,6 +60,7 @@ This Project uses Point In Time Recovery for backing up dynamodb tables. This do
 
 ## Step 4: Delete Table B
 - Repeat step 2 to delete table B
+- Enable PITR on the new table
 
 
 
