@@ -8,9 +8,9 @@ import {
   SecretsManagerClient,
   GetSecretValueCommand,
 } from "@aws-sdk/client-secrets-manager";
-var http = require("http");
-var _ = require("lodash");
-const axios = require("axios");
+import http from "http";
+import _ from "lodash";
+import axios from "axios";
 
 const resolver = (req, resolve) => {
   console.log("Finished");
@@ -20,13 +20,14 @@ const resolver = (req, resolve) => {
 
 export async function connectRestApiWithRetry(params) {
   return new Promise((resolve, reject) => {
-    var retry = function (e) {
+    function retry(e) {
       console.log("Got error: " + e);
       setTimeout(async function () {
         return await connectRestApiWithRetry(params);
       }, 5000);
-    };
-    var options = {
+    }
+
+    const options = {
       hostname: params.hostname,
       port: params.port || 8083,
       path: params.path || "",
@@ -58,7 +59,7 @@ export async function connectRestApiWithRetry(params) {
 
 export async function restartConnectors(cluster, service, connectors) {
   const workerIp = await ecs.findIpForEcsService(cluster, service);
-  for (var i = 0; i < connectors.length; i++) {
+  for (let i = 0; i < connectors.length; i++) {
     let connector = _.omit(connectors[i], "config");
     connector.tasks = connectors[i].config["tasks.max"];
     console.log(`Restarting connector: ${JSON.stringify(connector, null, 2)}`);
@@ -73,14 +74,14 @@ export async function restartConnectors(cluster, service, connectors) {
 
 export async function deleteConnector(ip, name) {
   return new Promise((resolve, reject) => {
-    var retry = function (e) {
+    function retry(e) {
       console.log("Got error: " + e);
       setTimeout(async function () {
         return await deleteConnector(ip, name);
       }, 5000);
-    };
+    }
 
-    var options = {
+    const options = {
       hostname: ip,
       port: 8083,
       path: `/connectors/${name}`,
@@ -89,6 +90,7 @@ export async function deleteConnector(ip, name) {
         "Content-Type": "application/json",
       },
     };
+
     const req = http.request(options, (res) => {
       console.log(`statusCode: ${res.statusCode}`);
       res
@@ -113,7 +115,7 @@ export async function deleteConnector(ip, name) {
 
 export async function deleteConnectors(cluster, service, connectors) {
   const workerIp = await ecs.findIpForEcsService(cluster, service);
-  for (var i = 0; i < connectors.length; i++) {
+  for (let i = 0; i < connectors.length; i++) {
     console.log(`Deleting connector: ${connectors[i]}`);
     //This won't account for multiple tasks with multiple interfaces
     await deleteConnector(workerIp, connectors[i]);
@@ -122,7 +124,7 @@ export async function deleteConnectors(cluster, service, connectors) {
 
 export async function testConnector(ip, config) {
   return new Promise((resolve, reject) => {
-    var options = {
+    const options = {
       hostname: ip,
       port: 8083,
       path: `/connectors/${config.name}/status`,
@@ -130,14 +132,14 @@ export async function testConnector(ip, config) {
         "Content-Type": "application/json",
       },
     };
+
     console.log("Test Kafka-connect service", options);
     const req = http.request(options, (res) => {
       console.log(`statusCode: ${res.statusCode}`);
       res
         .on("data", (d) => {
           console.log(d.toString("utf-8"));
-          var data = JSON.parse(d);
-          resolve(data);
+          resolve(JSON.parse(d));
         })
         .on("error", (error) => {
           console.error(error);
@@ -192,7 +194,7 @@ export async function findTaskIp(cluster) {
 }
 
 export async function checkIfConnectIsReady(ip) {
-  var ready = false;
+  let ready = false;
   try {
     const res = await axios.get(`http://${ip}:8083/`);
     if (res.status && res.status == 200) {
@@ -213,7 +215,7 @@ export async function createConnector(ip, connectorConfigSecret) {
   const config = await fetchConnectorConfigFromSecretsManager(
     connectorConfigSecret
   );
-  var retVal = {
+  const results = {
     success: false,
   };
   try {
@@ -224,12 +226,12 @@ export async function createConnector(ip, connectorConfigSecret) {
     );
     console.log(res);
     console.log("Connector was successfully created.");
-    retVal.success = true;
+    results.success = true;
   } catch (error) {
     console.error(error);
     console.log("Connector was NOT successfully created.");
   } finally {
-    return retVal;
+    return results;
   }
 }
 
