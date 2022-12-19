@@ -16,7 +16,7 @@ async function myHandler(event, _context, _callback) {
     return;
   }
 
-  if (possibleTransmittalKeys.length > 0) {
+  if (possibleTransmittalKeys.length > 1) {
     console.log("Multiple transmittal ids available for the record", event);
     console.log(possibleTransmittalKeys);
     return;
