@@ -1,10 +1,17 @@
-import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBClient,
+  PutItemCommand,
+  PutItemCommandOutput,
+} from "@aws-sdk/client-dynamodb";
 import { sendMetricData } from "./cloudwatch-lib";
 const { marshall } = require("@aws-sdk/util-dynamodb");
 
 const client = new DynamoDBClient({ region: process.env.region });
 
-export const update = async ({ tableName, item }) => {
+export const update = async ({
+  tableName,
+  item,
+}): Promise<PutItemCommandOutput> => {
   const params = {
     TableName: tableName,
     Item: marshall(item),
@@ -31,8 +38,8 @@ export const update = async ({ tableName, item }) => {
     });
 
     return result;
-  } catch (error) {
-    console.log("ERROR updating record in dynamodb: ", error.toString("utf-8"));
+  } catch (error: any) {
+    console.log("ERROR updating record in dynamodb: ", error);
     await sendMetricData({
       Namespace: process.env.namespace,
       MetricData: [
@@ -42,5 +49,7 @@ export const update = async ({ tableName, item }) => {
         },
       ],
     });
+
+    throw Error(error);
   }
 };

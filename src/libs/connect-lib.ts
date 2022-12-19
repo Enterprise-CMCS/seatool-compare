@@ -8,8 +8,8 @@ import {
   SecretsManagerClient,
   GetSecretValueCommand,
 } from "@aws-sdk/client-secrets-manager";
-import http from "http";
-import _ from "lodash";
+import * as http from "http";
+import * as _ from "lodash";
 import axios from "axios";
 
 const resolver = (req, resolve) => {
@@ -19,7 +19,7 @@ const resolver = (req, resolve) => {
 };
 
 export async function connectRestApiWithRetry(params) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     function retry(e) {
       console.log("Got error: " + e);
       setTimeout(async function () {
@@ -39,17 +39,18 @@ export async function connectRestApiWithRetry(params) {
     const req = http.request(options, (res) => {
       console.log(`STATUS: ${res.statusCode}`);
       res
-        .on("data", (d) => {
-          console.log("Data: ", d.toString("utf-8"));
+        .on("data", (data) => {
+          console.log("Data: ", data.toString());
         })
         .on("error", (error) => {
-          console.error("Error: ", error.toString("utf-8"));
-          retry.call(`${error}`);
+          console.error("Error: ", error.toString());
+          retry(`${error}`);
         })
-        .on("end", (d) => {
+        .on("end", () => {
           resolver(req, resolve);
         });
     });
+
     if (params.body) {
       req.write(JSON.stringify(params.body));
     }
@@ -73,7 +74,7 @@ export async function restartConnectors(cluster, service, connectors) {
 }
 
 export async function deleteConnector(ip, name) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     function retry(e) {
       console.log("Got error: " + e);
       setTimeout(async function () {
@@ -97,14 +98,14 @@ export async function deleteConnector(ip, name) {
         .on("data", (d) => {
           console.log(d.toString("utf-8"));
           if (JSON.parse(d).message != `Connector ${name} not found`) {
-            return retry.call(d.toString("utf-8"));
+            return retry(d);
           }
         })
         .on("error", (error) => {
           console.error(error);
-          return retry.call(`${error}`);
+          return retry(`${error}`);
         })
-        .on("end", (d) => {
+        .on("end", () => {
           resolver(req, resolve);
         });
     });
@@ -145,7 +146,7 @@ export async function testConnector(ip, config) {
           console.error(error);
           reject(error);
         })
-        .on("end", (d) => {
+        .on("end", () => {
           resolver(req, resolve);
         });
     });
@@ -165,32 +166,33 @@ export async function testConnectors(cluster, service, connectors) {
   );
 }
 
-export async function findTaskIp(cluster) {
-  const client = new ECSClient();
+export async function findTaskIp(cluster: string) {
+  const client = new ECSClient({});
   const { taskArns } = await client.send(
     new ListTasksCommand({
       cluster: cluster,
       desiredStatus: "RUNNING",
     })
   );
-  if (taskArns.length === 0) {
+  if (!taskArns || taskArns.length === 0) {
     throw `No task found for cluster ${cluster}`;
+  } else {
+    const tasks = (
+      await client.send(
+        new DescribeTasksCommand({
+          cluster: cluster,
+          tasks: [taskArns[0]],
+        })
+      )
+    ).tasks;
+    const task = tasks?.[0];
+    const ip = _.filter(
+      task?.attachments?.[0].details,
+      (x) => x.name === "privateIPv4Address"
+    )[0].value;
+    console.log(ip);
+    return ip;
   }
-  const tasks = (
-    await client.send(
-      new DescribeTasksCommand({
-        cluster: cluster,
-        tasks: [taskArns[0]],
-      })
-    )
-  ).tasks;
-  const task = tasks[0];
-  const ip = _.filter(
-    task.attachments[0].details,
-    (x) => x.name === "privateIPv4Address"
-  )[0].value;
-  console.log(ip);
-  return ip;
 }
 
 export async function checkIfConnectIsReady(ip) {
@@ -245,5 +247,6 @@ async function fetchConnectorConfigFromSecretsManager(connectorConfigSecret) {
     VersionStage: "AWSCURRENT",
   });
   const response = await client.send(command);
-  return JSON.parse(response.SecretString);
+
+  return JSON.parse(response?.SecretString ?? "");
 }

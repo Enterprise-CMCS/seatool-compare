@@ -3,9 +3,11 @@ import {
   CloudWatchClient,
 } from "@aws-sdk/client-cloudwatch";
 
-export async function sendMetricData(params) {
+import type { PutMetricDataCommandInput } from "@aws-sdk/client-cloudwatch";
+
+export async function sendMetricData(params: PutMetricDataCommandInput) {
   console.log("Sending metric data: ", JSON.stringify(params));
-  const client = new CloudWatchClient();
+  const client = new CloudWatchClient({});
   const command = new PutMetricDataCommand(params);
   try {
     const response = await client.send(command);
@@ -13,5 +15,6 @@ export async function sendMetricData(params) {
     return response;
   } catch (e) {
     console.log("Error from sending metric data", e);
+    return;
   }
 }
