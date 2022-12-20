@@ -6,7 +6,7 @@ import {
   waitUntilTasksRunning,
 } from "@aws-sdk/client-ecs";
 
-export async function findIpForEcsService(cluster: string, _service) {
+export async function findIpForEcsService(cluster: string) {
   const client = new ECSClient({});
   const listStacksCommandResponse = await client.send(
     new ListTasksCommand({

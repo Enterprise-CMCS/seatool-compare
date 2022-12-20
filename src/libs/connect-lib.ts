@@ -20,7 +20,7 @@ const resolver = (req, resolve) => {
 
 export async function connectRestApiWithRetry(params) {
   return new Promise((resolve, _reject) => {
-    function retry(e) {
+    function retry(e: string) {
       console.log("Got error: " + e);
       setTimeout(async function () {
         return await connectRestApiWithRetry(params);
