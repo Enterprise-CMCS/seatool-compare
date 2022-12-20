@@ -4,7 +4,7 @@ import {
   PutItemCommandOutput,
 } from "@aws-sdk/client-dynamodb";
 import { sendMetricData } from "./cloudwatch-lib";
-const { marshall } = require("@aws-sdk/util-dynamodb");
+import { marshall } from "@aws-sdk/util-dynamodb";
 
 const client = new DynamoDBClient({ region: process.env.region });
 

@@ -18,7 +18,14 @@ const resolver = (req, resolve) => {
   resolve(req.statusCode);
 };
 
-export async function connectRestApiWithRetry(params) {
+export async function connectRestApiWithRetry(params: {
+  hostname: string;
+  path: string;
+  method: string;
+  port?: number;
+  headers?: any;
+  body?: any;
+}) {
   return new Promise((resolve, _reject) => {
     function retry(e: string) {
       console.log("Got error: " + e);
@@ -58,24 +65,24 @@ export async function connectRestApiWithRetry(params) {
   });
 }
 
-export async function restartConnectors(cluster, service, connectors) {
-  const workerIp = await ecs.findIpForEcsService(cluster, service);
+export async function restartConnectors(cluster: string, connectors: any[]) {
+  const workerIp = await ecs.findIpForEcsService(cluster);
   for (let i = 0; i < connectors.length; i++) {
     let connector = _.omit(connectors[i], "config");
     connector.tasks = connectors[i].config["tasks.max"];
     console.log(`Restarting connector: ${JSON.stringify(connector, null, 2)}`);
     //This won't account for multiple tasks with multiple interfaces
     await connectRestApiWithRetry({
-      hostname: workerIp,
+      hostname: workerIp!,
       path: `/connectors/${connectors[i].name}/restart?includeTasks=true?onlyFailed=true`,
       method: "POST",
     });
   }
 }
 
-export async function deleteConnector(ip, name) {
+export async function deleteConnector(ip: string, name: string) {
   return new Promise((resolve, _reject) => {
-    function retry(e) {
+    function retry(e: string) {
       console.log("Got error: " + e);
       setTimeout(async function () {
         return await deleteConnector(ip, name);
@@ -114,16 +121,16 @@ export async function deleteConnector(ip, name) {
   });
 }
 
-export async function deleteConnectors(cluster, service, connectors) {
-  const workerIp = await ecs.findIpForEcsService(cluster, service);
+export async function deleteConnectors(cluster: string, connectors: any[]) {
+  const workerIp = await ecs.findIpForEcsService(cluster);
   for (let i = 0; i < connectors.length; i++) {
     console.log(`Deleting connector: ${connectors[i]}`);
     //This won't account for multiple tasks with multiple interfaces
-    await deleteConnector(workerIp, connectors[i]);
+    await deleteConnector(workerIp!, connectors[i]);
   }
 }
 
-export async function testConnector(ip, config) {
+export async function testConnector(ip: string, config: any) {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: ip,
@@ -156,12 +163,12 @@ export async function testConnector(ip, config) {
   });
 }
 
-export async function testConnectors(cluster, service, connectors) {
-  const workerIp = await ecs.findIpForEcsService(cluster, service);
+export async function testConnectors(cluster: string, connectors: any[]) {
+  const workerIp = await ecs.findIpForEcsService(cluster);
   return await Promise.all(
     connectors.map((connector) => {
       console.log(`Testing connector: ${connector.name}`);
-      return testConnector(workerIp, connector);
+      return testConnector(workerIp!, connector);
     })
   );
 }
@@ -195,7 +202,7 @@ export async function findTaskIp(cluster: string) {
   }
 }
 
-export async function checkIfConnectIsReady(ip) {
+export async function checkIfConnectIsReady(ip: string) {
   let ready = false;
   try {
     const res = await axios.get(`http://${ip}:8083/`);
@@ -213,7 +220,10 @@ export async function checkIfConnectIsReady(ip) {
   }
 }
 
-export async function createConnector(ip, connectorConfigSecret) {
+export async function createConnector(
+  ip: string,
+  connectorConfigSecret: string
+) {
   const config = await fetchConnectorConfigFromSecretsManager(
     connectorConfigSecret
   );
@@ -237,7 +247,9 @@ export async function createConnector(ip, connectorConfigSecret) {
   }
 }
 
-async function fetchConnectorConfigFromSecretsManager(connectorConfigSecret) {
+async function fetchConnectorConfigFromSecretsManager(
+  connectorConfigSecret: string
+) {
   console.log(
     `Fetching connector config from Secrets Manager at:  ${connectorConfigSecret}`
   );

@@ -7,7 +7,7 @@ import {
 } from "@aws-sdk/client-secrets-manager";
 
 // test the connector status
-async function myHandler(event, context, callback) {
+async function myHandler() {
   const cluster = process.env.cluster;
   const service = process.env.service;
   const RUNNING = "RUNNING";
@@ -35,7 +35,7 @@ async function myHandler(event, context, callback) {
   }
 
   try {
-    const results = await connect.testConnectors(cluster, service, connectors);
+    const results = await connect.testConnectors(cluster, connectors);
     console.log("Kafka connector status results", JSON.stringify(results));
 
     // send a metric for each connector status - 0 = ✅ or 1 = ⛔️
@@ -84,7 +84,7 @@ async function myHandler(event, context, callback) {
         failingResults.some((result) => result.name === connector.name)
       );
 
-      await connect.restartConnectors(cluster, service, connectorsToRestart);
+      await connect.restartConnectors(cluster, connectorsToRestart);
     }
   } catch (e) {
     console.log("Error caught while testing connectors", JSON.stringify(e));
