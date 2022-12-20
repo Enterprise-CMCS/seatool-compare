@@ -6,8 +6,8 @@ package:
   individually: true
 
 plugins:
-  - serverless-stack-termination-protection
   - serverless-plugin-typescript
+  - serverless-stack-termination-protection
   - "@stratiformdigital/serverless-s3-security-helper"
 
 provider:

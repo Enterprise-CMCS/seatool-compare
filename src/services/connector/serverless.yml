@@ -6,11 +6,11 @@ package:
   individually: true
 
 plugins:
+  - serverless-plugin-typescript
   - serverless-bundle
   - serverless-plugin-scripts
   - serverless-stack-termination-protection
   - serverless-step-functions
-  - serverless-plugin-typescript
   - "@stratiformdigital/serverless-iam-helper"
   - "@stratiformdigital/serverless-idempotency-helper"
   - "@stratiformdigital/serverless-online"
