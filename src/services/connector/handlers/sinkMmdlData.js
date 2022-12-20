@@ -40,6 +40,7 @@ async function myHandler(event, _context, _callback) {
         "Error - No valid transmittal ID value for this record",
         event
       );
+      return;
     }
 
     await dynamodb.update({
