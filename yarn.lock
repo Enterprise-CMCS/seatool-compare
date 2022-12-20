@@ -1851,6 +1851,13 @@
     "@aws-sdk/types" "3.226.0"
     tslib "^2.3.1"
 
+"@aws-sdk/util-dynamodb@^3.235.0":
+  version "3.235.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/util-dynamodb/-/util-dynamodb-3.235.0.tgz#e84ab447951d286e4941b88f05d7d9b700126b07"
+  integrity sha512-y3gC1o16yN7F/Vt4UM9QKOx3qNxZmu/y8YAWS0vC+ZCZqjh4vf+0AuzQWmat+2pHV5qUAgBxOcpr+K3uz1kTiw==
+  dependencies:
+    tslib "^2.3.1"
+
 "@aws-sdk/util-endpoints@3.226.0":
   version "3.226.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/util-endpoints/-/util-endpoints-3.226.0.tgz#3728b2e30f6f757ae862a0b7cf3991e75f252c3f"
