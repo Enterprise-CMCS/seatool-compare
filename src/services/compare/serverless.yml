@@ -62,6 +62,8 @@ custom:
       - val
       - production
   secretId: ${self:custom.project}/${sls:stage}/alerts
+  serverlessPluginTypescript:
+    tsConfigFileLocation: "./tsconfig.json"
 
 functions:
   workflowStarter:
