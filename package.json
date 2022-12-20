@@ -38,8 +38,8 @@
     "serverless-plugin-scripts": "^1.0.2",
     "serverless-plugin-warmup": "^7.1.0",
     "serverless-stack-termination-protection": "^2.0.0",
-    "vitest": "^0.25.8",
-    "serverless-step-functions": "^3.11.0"
+    "serverless-step-functions": "^3.11.0",
+    "vitest": "^0.25.8"
   },
   "release": {
     "branches": [
@@ -51,5 +51,8 @@
       "@semantic-release/github",
       "@semantic-release/npm"
     ]
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.235.0"
   }
 }
