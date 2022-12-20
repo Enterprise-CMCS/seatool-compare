@@ -51,10 +51,6 @@ provider:
             - dynamodb:PutItem
           Resource:
             - ${param:seatoolTableArn}
-        - Effect: "Allow"
-          Action:
-            - dynamodb:PutItem
-          Resource:
             - ${param:mmdlTableArn}
         - Effect: Allow
           Action:
@@ -340,11 +336,9 @@ resources:
                 - Effect: Allow
                   Action:
                     - lambda:InvokeFunction
-                  Resource: !GetAtt SinkSeatoolDataLambdaFunction.Arn
-                - Effect: Allow
-                  Action:
-                    - lambda:InvokeFunction
-                  Resource: !GetAtt SinkMmdlDataLambdaFunction.Arn
+                  Resource:
+                    - !GetAtt SinkSeatoolDataLambdaFunction.Arn
+                    - !GetAtt SinkMmdlDataLambdaFunction.Arn
                 - Effect: Allow
                   Action:
                     - ecr:BatchGetImage
