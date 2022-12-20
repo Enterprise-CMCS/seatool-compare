@@ -7,7 +7,6 @@ package:
 
 plugins:
   - serverless-plugin-typescript
-  - serverless-bundle
   - serverless-plugin-scripts
   - serverless-stack-termination-protection
   - serverless-step-functions
