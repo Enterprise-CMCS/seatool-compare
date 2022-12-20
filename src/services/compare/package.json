@@ -11,6 +11,7 @@
     "@aws-sdk/client-sfn": "^3.180.0"
   },
   "devDependencies": {
+    "serverless-plugin-typescript": "^2.1.4",
     "serverless-step-functions": "^3.10.0"
   }
 }

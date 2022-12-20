@@ -6,5 +6,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "serverless-plugin-typescript": "^2.1.4"
+  }
 }

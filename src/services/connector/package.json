@@ -5,5 +5,7 @@
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.216.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "serverless-plugin-typescript": "^2.1.4"
+  }
 }
