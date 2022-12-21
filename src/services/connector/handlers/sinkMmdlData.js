@@ -1,8 +1,6 @@
 import * as dynamodb from "../../../libs/dynamodb-lib";
 
 async function myHandler(event, _context, _callback) {
-  console.log("Received event:", JSON.stringify(event, null, 2));
-
   // determine the type of record ex: chp | mac | hhs
 
   const mapOfProgramTypeToTransmittalNumberKey = {
