@@ -2,7 +2,6 @@ import * as dynamodb from "../../../libs/dynamodb-lib";
 
 async function myHandler(event, _context, _callback) {
   try {
-    console.log("Received event:", JSON.stringify(event, null, 2));
     const recordValueObject = JSON.parse(event.value);
 
     // Typically the PROGRAM_TYPE_CODE will match this _transNbr key

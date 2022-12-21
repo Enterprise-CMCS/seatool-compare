@@ -11,7 +11,7 @@ export const update = async ({ tableName, item }) => {
   };
 
   try {
-    console.log(`Putting item: ${item.id}:`, JSON.stringify(params, null, 2));
+    console.log(`Putting item with id: ${item.id}:`);
 
     const command = new PutItemCommand(params);
     const result = await client.send(command);
@@ -32,7 +32,10 @@ export const update = async ({ tableName, item }) => {
 
     return result;
   } catch (error) {
-    console.log("ERROR updating record in dynamodb: ", error.toString("utf-8"));
+    console.error(
+      "ERROR updating record in dynamodb: ",
+      error.toString("utf-8")
+    );
     await sendMetricData({
       Namespace: process.env.namespace,
       MetricData: [
