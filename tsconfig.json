@@ -1,5 +1,5 @@
 {
-  "exclude": ["./docs/**/*", "./src/tests/**/*"],
+  "exclude": ["./docs/**/*", "./src/tests/**/*", "build_run"],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
 
