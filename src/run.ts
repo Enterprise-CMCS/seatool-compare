@@ -94,11 +94,11 @@ yargs(process.argv.slice(2))
       await runner.run_command_and_output(`SLS Deploy`, deployCmd, ".");
     }
   )
-  .command("test", "run any available tests for a stage.", {}, async () => {
+  .command("test", "run all available tests.", {}, async () => {
     await install_deps_for_services();
     await runner.run_command_and_output(`Unit Tests`, ["yarn", "test-ci"], ".");
   })
-  .command("test-gui", "run any available tests for a stage.", {}, async () => {
+  .command("test-gui", "open unit-testing gui for vitest.", {}, async () => {
     await install_deps_for_services();
     await runner.run_command_and_output(
       `Unit Tests`,
