@@ -53,6 +53,16 @@ provider:
             - secretsmanager:ListSecrets
           Resource: "*"
 
+params:
+  master:
+    initialWaitSec: 172800
+  val:
+    initialWaitSec: 172800
+  production:
+    initialWaitSec: 172800
+  default:
+    initialWaitSec: 2
+
 custom:
   project: ${env:PROJECT}
   serverlessTerminationProtection:
@@ -80,12 +90,24 @@ functions:
       region: ${self:provider.region}
       mmdlTableName: ${param:mmdlTableName}
       seatoolTableName: ${param:seatoolTableName}
+  seatoolRecordExist:
+    handler: handlers/seatoolRecordExist.handler
+    environment:
+      region: ${self:provider.region}
+      seatoolTableName: ${param:seatoolTableName}
   sendAlert:
     handler: handlers/sendAlert.handler
     environment:
       region: ${self:provider.region}
       project: ${self:custom.project}
       stage: ${sls:stage}
+  daysSinceMmdlSubmission:
+    handler: handlers/daysSinceMmdlSubmission.handler
+    environment:
+      region: ${self:provider.region}
+      project: ${self:custom.project}
+      stage: ${sls:stage}
+      mmdlTableName: ${param:mmdlTableName}
 
 stepFunctions:
   stateMachines:
@@ -94,16 +116,60 @@ stepFunctions:
       id: MMDLAlertingStateMachine
       definition:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for MMDL."
-        StartAt: WaitFifteenSeconds
+        StartAt: WaitTwoDays
         States:
-          WaitFifteenSeconds:
+          WaitTwoDays:
             Type: Wait
-            Seconds: 15
-            Next: Compare
-          WaitTenSeconds:
-            Type: Wait
-            Seconds: 10
-            Next: Compare
+            Seconds: ${param:initialWaitSec}
+            Next: DoesSeatoolRecordExist
+          DoesSeatoolRecordExist:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-seatoolRecordExist"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: HandleSeatoolRecordExistChoice
+          HandleSeatoolRecordExistChoice:
+            Type: Choice
+            Choices:
+              - Variable: $.seatoolExist
+                BooleanEquals: true
+                Next: Compare
+              - Variable: $.seatoolExist
+                BooleanEquals: false
+                Next: DaysSinceMmdlSubmission
+            Default: DaysSinceMmdlSubmission
+          DaysSinceMmdlSubmission:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-daysSinceMmdlSubmission"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: MoreThanThreeDaysChoice
+          MoreThanThreeDaysChoice:
+            Type: Choice
+            Choices:
+              - And:
+                  - Variable: $.daysSinceMmdlSigned
+                    NumericGreaterThanEquals: 4
+                  - Variable: $.mmdlSigned
+                    BooleanEquals: true
+                Next: SendRecordDoesNotExist
+            Default: IsOlderThan250DaysChoice
+          SendRecordDoesNotExist:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendAlert"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: IsOlderThan250DaysChoice
+          IsOlderThan250DaysChoice:
+            Type: Choice
+            Choices:
+              - Variable: $.daysSinceMmdlSigned
+                NumericGreaterThanEquals: 251
+                Next: SuccessState
+            Default: FailState
           Compare:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
@@ -127,6 +193,8 @@ stepFunctions:
             Parameters:
               Payload.$: $
               Context.$: $$
-            Next: WaitTenSeconds
+            Next: SuccessState
           SuccessState:
             Type: Succeed
+          FailState:
+            Type: Fail

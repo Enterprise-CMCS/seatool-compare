@@ -1,7 +1,4 @@
-import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
-const client = new DynamoDBClient({
-  region: process.env.region,
-});
+import { getItem } from "../../../libs/dynamodb-lib";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
@@ -28,19 +25,3 @@ exports.handler = async function (event, context, callback) {
     callback(null, response);
   }
 };
-
-async function getItem(tableName, id) {
-  const item = (
-    await client.send(
-      new GetItemCommand({
-        TableName: tableName,
-        Key: {
-          id: {
-            S: id,
-          },
-        },
-      })
-    )
-  ).Item;
-  return item;
-}

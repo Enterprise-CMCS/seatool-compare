@@ -3,6 +3,10 @@ exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const client = new SFNClient({ region: process.env.region });
   const id = event.Records[0].dynamodb.Keys.id.S;
+
+  // should we ignore records that arent signed?
+  // should we ignore records that over 250 days old?
+
   const params = {
     input: JSON.stringify({
       id: id,
