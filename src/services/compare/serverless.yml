@@ -56,12 +56,20 @@ provider:
 params:
   master:
     initialWaitSec: 172800
+    signedSinceChoiceDays: 4
+    recordAgeChoiceDays: 251
   val:
     initialWaitSec: 172800
+    signedSinceChoiceDays: 4
+    recordAgeChoiceDays: 251
   production:
     initialWaitSec: 172800
+    signedSinceChoiceDays: 4
+    recordAgeChoiceDays: 251
   default:
     initialWaitSec: 2
+    signedSinceChoiceDays: 0
+    recordAgeChoiceDays: 0
 
 custom:
   project: ${env:PROJECT}
@@ -116,13 +124,13 @@ stepFunctions:
       id: MMDLAlertingStateMachine
       definition:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for MMDL."
-        StartAt: WaitTwoDays
+        StartAt: InitialWait
         States:
-          WaitTwoDays:
+          InitialWait:
             Type: Wait
             Seconds: ${param:initialWaitSec}
-            Next: DoesSeatoolRecordExist
-          DoesSeatoolRecordExist:
+            Next: DoesSeatoolRecordExistTask
+          DoesSeatoolRecordExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-seatoolRecordExist"
             Parameters:
@@ -134,50 +142,50 @@ stepFunctions:
             Choices:
               - Variable: $.seatoolExist
                 BooleanEquals: true
-                Next: Compare
+                Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
-                Next: DaysSinceMmdlSubmission
-            Default: DaysSinceMmdlSubmission
-          DaysSinceMmdlSubmission:
+                Next: DaysSinceMmdlSubmissionTask
+            Default: DaysSinceMmdlSubmissionTask # maybe default tasks could be an error handler since choice should match
+          DaysSinceMmdlSubmissionTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-daysSinceMmdlSubmission"
             Parameters:
               Payload.$: $
               Context.$: $$
-            Next: MoreThanThreeDaysChoice
-          MoreThanThreeDaysChoice:
+            Next: SignedSinceChoice
+          SignedSinceChoice:
             Type: Choice
             Choices:
               - And:
                   - Variable: $.daysSinceMmdlSigned
-                    NumericGreaterThanEquals: 4
+                    NumericGreaterThanEquals: ${param:signedSinceChoiceDays}
                   - Variable: $.mmdlSigned
                     BooleanEquals: true
-                Next: SendRecordDoesNotExist
-            Default: IsOlderThan250DaysChoice
-          SendRecordDoesNotExist:
+                Next: SendRecordDoesNotExistTask
+            Default: RecordAgeChoice
+          SendRecordDoesNotExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendAlert"
             Parameters:
               Payload.$: $
               Context.$: $$
-            Next: IsOlderThan250DaysChoice
-          IsOlderThan250DaysChoice:
+            Next: RecordAgeChoice
+          RecordAgeChoice:
             Type: Choice
             Choices:
               - Variable: $.daysSinceMmdlSigned
-                NumericGreaterThanEquals: 251
+                NumericGreaterThanEquals: ${param:recordAgeChoiceDays}
                 Next: SuccessState
             Default: FailState
-          Compare:
+          CompareTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
             Parameters:
               Payload.$: $
               Context.$: $$
-            Next: Decide
-          Decide:
+            Next: RecordsMatchChoice
+          RecordsMatchChoice:
             Type: Choice
             Choices:
               - Variable: $.match
@@ -185,9 +193,9 @@ stepFunctions:
                 Next: SuccessState
               - Variable: $.match
                 BooleanEquals: false
-                Next: SendAlert
-            Default: SendAlert
-          SendAlert:
+                Next: SendAlertTask
+            Default: SendAlertTask
+          SendAlertTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendAlert"
             Parameters:

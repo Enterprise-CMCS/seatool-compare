@@ -1,6 +1,5 @@
 import { getItem } from "../../../libs/dynamodb-lib";
 
-// check to see how long ago record was submitted
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const result = { ...event.Payload };
@@ -23,6 +22,7 @@ exports.handler = async function (event, context, callback) {
       result.daysSinceMmdlSigned = Math.floor(diff);
       result.mmdlSigned = true;
       result.mmdlSigDate = dateSigned;
+      result.mmdlItem = item;
     }
   } catch (error) {
     console.log(error);
