@@ -10,16 +10,21 @@ exports.handler = async function (event, context, callback) {
     // see if there is a stMedDirSgnDt.FIELD_VALUE format: "MM/DD/YYYY"
     if (item && item.stMedDirSgnDt && item.stMedDirSgnDt.FIELD_VALUE) {
       // mmdl record was signed
+
       // Record is signed
       const dateSigned = item.stMedDirSgnDt.FIELD_VALUE;
 
-      // get days since
+      // get milliseconds since
       const today = new Date();
       const signedOn = new Date(dateSigned);
-      const msInDay = 24 * 60 * 60 * 1000;
 
-      const diff = (+today - +signedOn) / msInDay;
-      result.daysSinceMmdlSigned = Math.floor(diff);
+      const diffInSec = (today - signedOn) / 1000; // from ms to sec we div by 1000
+
+      if (diffInSec < 0) {
+        throw `Signed date is future date for MMDL record: ${result.id}`;
+      }
+
+      result.secSinceMmdlSigned = diffInSec;
       result.mmdlSigned = true;
       result.mmdlSigDate = dateSigned;
       result.mmdlItem = item;

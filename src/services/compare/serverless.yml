@@ -55,21 +55,21 @@ provider:
 
 params:
   master:
-    initialWaitSec: 172800
-    signedSinceChoiceDays: 4
-    recordAgeChoiceDays: 251
+    initialWaitSec: 172800 # 2 days
+    signedSinceChoiceSec: 345600 # 4 days
+    recordAgeChoiceSec: 21686400 # 251 days
   val:
     initialWaitSec: 172800
-    signedSinceChoiceDays: 4
-    recordAgeChoiceDays: 251
+    signedSinceChoiceSec: 345600
+    recordAgeChoiceSec: 21686400
   production:
     initialWaitSec: 172800
-    signedSinceChoiceDays: 4
-    recordAgeChoiceDays: 251
+    signedSinceChoiceSec: 345600
+    recordAgeChoiceSec: 21686400
   default:
     initialWaitSec: 2
-    signedSinceChoiceDays: 0
-    recordAgeChoiceDays: 0
+    signedSinceChoiceSec: 8
+    recordAgeChoiceSec: 15
 
 custom:
   project: ${env:PROJECT}
@@ -116,12 +116,23 @@ functions:
       project: ${self:custom.project}
       stage: ${sls:stage}
       mmdlTableName: ${param:mmdlTableName}
+resources:
+  Resources:
+    StateMachineLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/vendedlogs/states/${self:service}-${sls:stage}-alert
 
 stepFunctions:
   stateMachines:
     compareAlertFunc:
-      name: ${self:service}-${sls:stage}-alerting
+      name: ${self:service}-${sls:stage}-compare-alerting
       id: MMDLAlertingStateMachine
+      loggingConfig:
+        level: ALL
+        includeExecutionData: true
+        destinations:
+          - !GetAtt StateMachineLogGroup.Arn
       definition:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for MMDL."
         StartAt: InitialWait
@@ -158,13 +169,15 @@ stepFunctions:
             Type: Choice
             Choices:
               - And:
-                  - Variable: $.daysSinceMmdlSigned
-                    NumericGreaterThanEquals: ${param:signedSinceChoiceDays}
+                  - Variable: $.secSinceMmdlSigned
+                    IsPresent: true
+                  - Variable: $.secSinceMmdlSigned
+                    NumericGreaterThanEquals: ${param:signedSinceChoiceSec}
                   - Variable: $.mmdlSigned
                     BooleanEquals: true
-                Next: SendRecordDoesNotExistTask
+                Next: SendNotExistTask
             Default: RecordAgeChoice
-          SendRecordDoesNotExistTask:
+          SendNotExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendAlert"
             Parameters:
@@ -174,8 +187,18 @@ stepFunctions:
           RecordAgeChoice:
             Type: Choice
             Choices:
-              - Variable: $.daysSinceMmdlSigned
-                NumericGreaterThanEquals: ${param:recordAgeChoiceDays}
+              - Variable: $.secSinceMmdlSigned
+                NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
+                Next: LastLoopAMatch
+            Default: InitialWait
+          LastLoopAMatch: # TODO: What does it mean for the last loo to be a match???
+            Type: Choice
+            Choices:
+              - And:
+                  - Variable: $.match
+                    IsPresent: true
+                  - Variable: $.match
+                    BooleanEquals: true
                 Next: SuccessState
             Default: FailState
           CompareTask:
@@ -190,18 +213,18 @@ stepFunctions:
             Choices:
               - Variable: $.match
                 BooleanEquals: true
-                Next: SuccessState
+                Next: RecordAgeChoice
               - Variable: $.match
                 BooleanEquals: false
-                Next: SendAlertTask
-            Default: SendAlertTask
-          SendAlertTask:
+                Next: SendNotMatchTask
+            Default: SendNotMatchTask
+          SendNotMatchTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendAlert"
             Parameters:
               Payload.$: $
               Context.$: $$
-            Next: SuccessState
+            Next: RecordAgeChoice
           SuccessState:
             Type: Succeed
           FailState:
