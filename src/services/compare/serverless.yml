@@ -68,8 +68,8 @@ params:
     recordAgeChoiceSec: 21686400
   default:
     initialWaitSec: 2
-    signedSinceChoiceSec: 8
-    recordAgeChoiceSec: 15
+    signedSinceChoiceSec: 3
+    recordAgeChoiceSec: 4
 
 custom:
   project: ${env:PROJECT}
@@ -187,8 +187,15 @@ stepFunctions:
           RecordAgeChoice:
             Type: Choice
             Choices:
-              - Variable: $.secSinceMmdlSigned
-                NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
+              - And:
+                  - Variable: $.mmdlSigned
+                    IsPresent: true
+                  - Variable: $.secSinceMmdlSigned
+                    IsPresent: true
+                  - Variable: $.mmdlSigned
+                    BooleanEquals: true
+                  - Variable: $.secSinceMmdlSigned
+                    NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
                 Next: LastLoopAMatch
             Default: InitialWait
           LastLoopAMatch: # TODO: What does it mean for the last loo to be a match???
