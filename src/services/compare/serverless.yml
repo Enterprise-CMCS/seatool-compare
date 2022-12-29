@@ -196,7 +196,9 @@ stepFunctions:
                     BooleanEquals: true
                   - Variable: $.secSinceMmdlSigned
                     NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
-                Next: LastLoopAMatch
+              - Variable: $.mmdlSigned
+                IsPresent: false
+                Next: FailState
             Default: InitialWait
           LastLoopAMatch: # TODO: What does it mean for the last loo to be a match???
             Type: Choice
