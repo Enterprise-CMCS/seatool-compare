@@ -196,6 +196,7 @@ stepFunctions:
                     BooleanEquals: true
                   - Variable: $.secSinceMmdlSigned
                     NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
+                Next: LastLoopAMatch
               - Variable: $.mmdlSigned
                 IsPresent: false
                 Next: FailState
