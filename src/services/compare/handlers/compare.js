@@ -5,28 +5,28 @@ exports.handler = async function (event, context, callback) {
   const data = { ...event.Payload, match: false };
 
   try {
-    const mmdlItem = await getItem(process.env.mmdlTableName, data.id);
+    const mmdlRecord = await getItem(process.env.mmdlTableName, data.id);
 
-    console.log("Item from MMDL:  " + mmdlItem);
+    console.log("Record from MMDL:  " + mmdlRecord);
 
-    if (!mmdlItem) {
+    if (!mmdlRecord) {
       console.log("No mmdl item found");
     }
-    data.mmdlRecord = mmdlItem;
+    data.mmdlRecord = mmdlRecord;
 
     if (
-      data.mmdlItem.stMedDirSgnDt &&
-      data.mmdlItem.stMedDirSgnDt.FIELD_VALUE
+      data.mmdlRecord.stMedDirSgnDt &&
+      data.mmdlRecord.stMedDirSgnDt.FIELD_VALUE
     ) {
-      data.mmdlSignedDate = mmdlItem.stMedDirSgnDt.FIELD_VALUE;
+      data.mmdlSignedDate = data.mmdlRecord.stMedDirSgnDt.FIELD_VALUE;
     }
 
     if (
-      data.seatoolItem &&
-      data.seatoolItem.STATE_PLAN &&
-      data.seatoolItem.STATE_PLAN.SUBMISSION_DATE
+      data.seatoolRecord &&
+      data.seatoolRecord.STATE_PLAN &&
+      data.seatoolRecord.STATE_PLAN.SUBMISSION_DATE
     ) {
-      const rawDate = data.seatoolItem.STATE_PLAN.SUBMISSION_DATE;
+      const rawDate = data.seatoolRecord.STATE_PLAN.SUBMISSION_DATE;
       const date = new Date(rawDate);
       const fullDate = date.toLocaleDateString("en-US", {
         year: "numeric",

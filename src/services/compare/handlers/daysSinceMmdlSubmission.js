@@ -4,15 +4,19 @@ exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload };
   try {
-    const item = await getItem(process.env.mmdlTableName, data.id);
-    console.log("Received item:", JSON.stringify(item, null, 2));
+    const mmdlRecord = await getItem(process.env.mmdlTableName, data.id);
+    console.log("Received mmdl record:", JSON.stringify(mmdlRecord, null, 2));
 
     // see if there is a stMedDirSgnDt.FIELD_VALUE format: "MM/DD/YYYY"
-    if (item && item.stMedDirSgnDt && item.stMedDirSgnDt.FIELD_VALUE) {
+    if (
+      mmdlRecord &&
+      mmdlRecord.stMedDirSgnDt &&
+      mmdlRecord.stMedDirSgnDt.FIELD_VALUE
+    ) {
       // mmdl record was signed
 
       // Record is signed
-      const dateSigned = item.stMedDirSgnDt.FIELD_VALUE;
+      const dateSigned = mmdlRecord.stMedDirSgnDt.FIELD_VALUE;
 
       // get milliseconds since
       const today = new Date();
@@ -27,7 +31,7 @@ exports.handler = async function (event, context, callback) {
       data.secSinceMmdlSigned = diffInSec;
       data.mmdlSigned = true;
       data.mmdlSigDate = dateSigned;
-      data.mmdlItem = item;
+      data.mmdlRecord = mmdlRecord;
     }
   } catch (error) {
     console.log(error);
