@@ -1,4 +1,8 @@
-import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBClient,
+  PutItemCommand,
+  GetItemCommand,
+} from "@aws-sdk/client-dynamodb";
 import { sendMetricData } from "./cloudwatch-lib";
 const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 

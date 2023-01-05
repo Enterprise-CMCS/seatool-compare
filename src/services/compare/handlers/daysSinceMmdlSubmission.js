@@ -2,9 +2,9 @@ import { getItem } from "../../../libs/dynamodb-lib";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
-  const result = { ...event.Payload };
+  const data = { ...event.Payload };
   try {
-    const item = await getItem(process.env.mmdlTableName, result.id);
+    const item = await getItem(process.env.mmdlTableName, data.id);
     console.log("Received item:", JSON.stringify(item, null, 2));
 
     // see if there is a stMedDirSgnDt.FIELD_VALUE format: "MM/DD/YYYY"
@@ -21,19 +21,19 @@ exports.handler = async function (event, context, callback) {
       const diffInSec = (today - signedOn) / 1000; // from ms to sec we div by 1000
 
       if (diffInSec < 0) {
-        throw `Signed date is future date for MMDL record: ${result.id}`;
+        throw `Signed date is future date for MMDL record: ${data.id}`;
       }
 
-      result.secSinceMmdlSigned = diffInSec;
-      result.mmdlSigned = true;
-      result.mmdlSigDate = dateSigned;
-      result.mmdlItem = item;
+      data.secSinceMmdlSigned = diffInSec;
+      data.mmdlSigned = true;
+      data.mmdlSigDate = dateSigned;
+      data.mmdlItem = item;
     }
   } catch (error) {
     console.log(error);
   } finally {
-    console.log(`Returning result `, JSON.stringify(result, null, 2));
+    console.log(`Returning data `, JSON.stringify(data, null, 2));
 
-    callback(null, result);
+    callback(null, data);
   }
 };

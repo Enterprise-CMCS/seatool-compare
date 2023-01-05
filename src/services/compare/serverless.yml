@@ -103,8 +103,14 @@ functions:
     environment:
       region: ${self:provider.region}
       seatoolTableName: ${param:seatoolTableName}
-  sendAlert:
-    handler: handlers/sendAlert.handler
+  sendDoesNotExistAlert:
+    handler: handlers/sendDoesNotExistAlert.handler
+    environment:
+      region: ${self:provider.region}
+      project: ${self:custom.project}
+      stage: ${sls:stage}
+  sendNoMatchAlert:
+    handler: handlers/sendNoMatchAlert.handler
     environment:
       region: ${self:provider.region}
       project: ${self:custom.project}
@@ -179,7 +185,7 @@ stepFunctions:
             Default: RecordAgeChoice
           SendNotExistTask:
             Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendAlert"
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendDoesNotExistAlert"
             Parameters:
               Payload.$: $
               Context.$: $$
@@ -230,7 +236,7 @@ stepFunctions:
             Default: SendNotMatchTask
           SendNotMatchTask:
             Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendAlert"
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
             Parameters:
               Payload.$: $
               Context.$: $$
