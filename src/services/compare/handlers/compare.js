@@ -6,38 +6,33 @@ exports.handler = async function (event, context, callback) {
 
   try {
     const mmdlItem = await getItem(process.env.mmdlTableName, data.id);
-    const seatoolItem = await getItem(process.env.seatoolTableName, data.id);
 
     console.log("Item from MMDL:  " + mmdlItem);
-    console.log("Item from SEA Tool:  " + seatoolItem);
 
     if (!mmdlItem) {
       console.log("No mmdl item found");
     }
-    if (!seatoolItem) {
-      console.log("No seatool item found");
-    }
+    data.mmdlRecord = mmdlItem;
 
-    // get the signature date from mmdl - this is provided in DD/MM/YYYY
     if (
-      mmdlItem &&
-      mmdlItem.stMedDirSgnDt &&
-      mmdlItem.stMedDirSgnDt.FIELD_VALUE
+      data.mmdlItem.stMedDirSgnDt &&
+      data.mmdlItem.stMedDirSgnDt.FIELD_VALUE
     ) {
       data.mmdlSignedDate = mmdlItem.stMedDirSgnDt.FIELD_VALUE;
     }
 
     if (
-      seatoolItem &&
-      seatoolItem.STATE_PLAN &&
-      seatoolItem.STATE_PLAN.SUBMISSION_DATE
+      data.seatoolItem &&
+      data.seatoolItem.STATE_PLAN &&
+      data.seatoolItem.STATE_PLAN.SUBMISSION_DATE
     ) {
-      const rawDate = seatoolItem.STATE_PLAN.SUBMISSION_DATE;
+      const rawDate = data.seatoolItem.STATE_PLAN.SUBMISSION_DATE;
       const date = new Date(rawDate);
-      const day = date.getDate();
-      const month = date.getMonth();
-      const year = date.getFullYear();
-      const fullDate = day + "/" + (month + 1) + "/" + year;
+      const fullDate = date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
       data.seatoolSignedDate = fullDate;
       console.log(fullDate);
     }
@@ -50,8 +45,6 @@ exports.handler = async function (event, context, callback) {
       console.log("DATES MATCH!!");
       data.match = true;
     }
-
-    // get the submitted date from seatool - this is epic time x 1000 - turn it into a readable date to compare with mmdl date
   } catch (error) {
     console.log("Eror comparing records:", error);
   } finally {
