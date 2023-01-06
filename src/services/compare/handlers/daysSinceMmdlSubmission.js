@@ -28,7 +28,7 @@ exports.handler = async function (event, context, callback) {
         throw `Signed date is future date for MMDL record: ${data.id}`;
       }
 
-      data.secSinceMmdlSigned = diffInSec;
+      data.secSinceMmdlSigned = Math.floor(diffInSec);
       data.mmdlSigned = true;
       data.mmdlSigDate = dateSigned;
       data.mmdlRecord = mmdlRecord;

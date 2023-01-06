@@ -114,6 +114,11 @@ functions:
     environment:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
+  updateStatus:
+    handler: handlers/updateStatus.handler
+    environment:
+      region: ${self:provider.region}
+      statusTableName: ${param:statusTableName}
   sendDoesNotExistAlert:
     handler: handlers/sendDoesNotExistAlert.handler
     environment:
@@ -152,9 +157,9 @@ stepFunctions:
           - !GetAtt StateMachineLogGroup.Arn
       definition:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for MMDL."
-        StartAt: Initialize
+        StartAt: InitializeTask
         States:
-          Initialize:
+          InitializeTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-initStatus"
             Parameters:
@@ -164,13 +169,18 @@ stepFunctions:
           InitialWait:
             Type: Wait
             Seconds: ${param:initialWaitSec}
+            Next: DaysSinceMmdlSubmissionTask
+          DaysSinceMmdlSubmissionTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-daysSinceMmdlSubmission"
+            Parameters:
+              Payload.$: $
             Next: DoesSeatoolRecordExistTask
           DoesSeatoolRecordExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-seatoolRecordExist"
             Parameters:
               Payload.$: $
-              Context.$: $$
             Next: HandleSeatoolRecordExistChoice
           HandleSeatoolRecordExistChoice:
             Type: Choice
@@ -180,15 +190,8 @@ stepFunctions:
                 Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
-                Next: DaysSinceMmdlSubmissionTask
-            Default: DaysSinceMmdlSubmissionTask # maybe default tasks could be an error handler since choice should match
-          DaysSinceMmdlSubmissionTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-daysSinceMmdlSubmission"
-            Parameters:
-              Payload.$: $
-              Context.$: $$
-            Next: SignedSinceChoice
+                Next: SignedSinceChoice
+            Default: SignedSinceChoice
           SignedSinceChoice:
             Type: Choice
             Choices:
@@ -200,14 +203,13 @@ stepFunctions:
                   - Variable: $.mmdlSigned
                     BooleanEquals: true
                 Next: SendNotExistTask
-            Default: RecordAgeChoice
+            Default: UpdateStatus
           SendNotExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendDoesNotExistAlert"
             Parameters:
               Payload.$: $
-              Context.$: $$
-            Next: RecordAgeChoice
+            Next: UpdateStatus
           RecordAgeChoice:
             Type: Choice
             Choices:
@@ -220,12 +222,12 @@ stepFunctions:
                     BooleanEquals: true
                   - Variable: $.secSinceMmdlSigned
                     NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
-                Next: LastLoopAMatch
+                Next: LastLoopAMatchChoice
               - Variable: $.mmdlSigned
                 IsPresent: false
                 Next: FailState
             Default: InitialWait
-          LastLoopAMatch: # TODO: What does it mean for the last loo to be a match???
+          LastLoopAMatchChoice:
             Type: Choice
             Choices:
               - And:
@@ -240,14 +242,13 @@ stepFunctions:
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
             Parameters:
               Payload.$: $
-              Context.$: $$
             Next: RecordsMatchChoice
           RecordsMatchChoice:
             Type: Choice
             Choices:
               - Variable: $.match
                 BooleanEquals: true
-                Next: RecordAgeChoice
+                Next: UpdateStatusTask
               - Variable: $.match
                 BooleanEquals: false
                 Next: SendNotMatchTask
@@ -257,7 +258,12 @@ stepFunctions:
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
             Parameters:
               Payload.$: $
-              Context.$: $$
+            Next: UpdateStatusTask
+          UpdateStatusTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-updateStatus"
+            Parameters:
+              Payload.$: $
             Next: RecordAgeChoice
           SuccessState:
             Type: Succeed
