@@ -203,13 +203,13 @@ stepFunctions:
                   - Variable: $.mmdlSigned
                     BooleanEquals: true
                 Next: SendNotExistTask
-            Default: UpdateStatus
+            Default: UpdateStatusTask
           SendNotExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendDoesNotExistAlert"
             Parameters:
               Payload.$: $
-            Next: UpdateStatus
+            Next: UpdateStatusTask
           RecordAgeChoice:
             Type: Choice
             Choices:
