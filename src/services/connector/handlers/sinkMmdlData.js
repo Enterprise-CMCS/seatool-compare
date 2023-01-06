@@ -47,7 +47,7 @@ async function myHandler(event, _context, _callback) {
       return;
     }
 
-    await dynamodb.update({
+    await dynamodb.putItem({
       tableName: process.env.tableName,
       item: { id, ...recordValueObject },
     });

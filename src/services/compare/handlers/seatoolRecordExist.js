@@ -2,10 +2,9 @@ import { getItem } from "../../../libs/dynamodb-lib";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
-  const id = event.Context.Execution.Input.id;
-  const data = { seatoolExist: false, id };
+  const data = { ...event.Payload, seatoolExist: false };
   try {
-    const item = await getItem(process.env.seatoolTableName, id);
+    const item = await getItem(process.env.seatoolTableName, data.id);
 
     if (item) {
       data.seatoolExist = true;

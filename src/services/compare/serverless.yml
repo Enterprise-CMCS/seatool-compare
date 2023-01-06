@@ -32,6 +32,12 @@ provider:
           Resource:
             - ${param:mmdlTableArn}
             - ${param:seatoolTableArn}
+            - ${param:statusTableArn}
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+          Resource:
+            - ${param:statusTableArn}
         - Effect: Allow
           Action:
             - states:StartExecution
@@ -103,6 +109,11 @@ functions:
     environment:
       region: ${self:provider.region}
       seatoolTableName: ${param:seatoolTableName}
+  initStatus:
+    handler: handlers/initStatus.handler
+    environment:
+      region: ${self:provider.region}
+      statusTableName: ${param:statusTableName}
   sendDoesNotExistAlert:
     handler: handlers/sendDoesNotExistAlert.handler
     environment:
@@ -141,8 +152,15 @@ stepFunctions:
           - !GetAtt StateMachineLogGroup.Arn
       definition:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for MMDL."
-        StartAt: InitialWait
+        StartAt: Initialize
         States:
+          Initialize:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-initStatus"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: InitialWait
           InitialWait:
             Type: Wait
             Seconds: ${param:initialWaitSec}
