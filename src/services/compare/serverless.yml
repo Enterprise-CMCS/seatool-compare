@@ -100,10 +100,6 @@ functions:
     maximumRetryAttempts: 0
   compare:
     handler: handlers/compare.handler
-    environment:
-      region: ${self:provider.region}
-      mmdlTableName: ${param:mmdlTableName}
-      seatoolTableName: ${param:seatoolTableName}
   seatoolRecordExist:
     handler: handlers/seatoolRecordExist.handler
     environment:
