@@ -1,3 +1,5 @@
+import { has } from "lodash";
+
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload };
@@ -5,12 +7,7 @@ exports.handler = async function (event, context, callback) {
     console.log("Received payload:", JSON.stringify(data, null, 2));
 
     // see if there is a stMedDirSgnDt.FIELD_VALUE format: "MM/DD/YYYY"
-    if (
-      data &&
-      data.mmdlRecord &&
-      data.mmdlRecord.stMedDirSgnDt &&
-      data.mmdlRecord.stMedDirSgnDt.FIELD_VALUE
-    ) {
+    if (has(data, ["mmdlRecord", "stMedDirSgnDt", "FIELD_VALUE"])) {
       const dateSigned = data.mmdlRecord.stMedDirSgnDt.FIELD_VALUE;
 
       // get milliseconds since

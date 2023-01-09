@@ -1,13 +1,11 @@
+import { has } from "lodash";
+
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload, match: false };
 
   try {
-    if (
-      data.seatoolRecord &&
-      data.seatoolRecord.STATE_PLAN &&
-      data.seatoolRecord.STATE_PLAN.SUBMISSION_DATE
-    ) {
+    if (has(data, ["seatoolRecord", "STATE_PLAN", "SUBMISSION_DATE"])) {
       const rawDate = data.seatoolRecord.STATE_PLAN.SUBMISSION_DATE;
       const date = new Date(rawDate);
       const fullDate = date.toLocaleDateString("en-US", {

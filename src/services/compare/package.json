@@ -7,7 +7,8 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.180.0",
-    "@aws-sdk/client-sfn": "^3.180.0"
+    "@aws-sdk/client-sfn": "^3.180.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "serverless-step-functions": "^3.10.0"
