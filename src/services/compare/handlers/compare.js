@@ -18,7 +18,7 @@ exports.handler = async function (event, context, callback) {
       data.mmdlRecord.stMedDirSgnDt &&
       data.mmdlRecord.stMedDirSgnDt.FIELD_VALUE
     ) {
-      data.mmdlSignedDate = data.mmdlRecord.stMedDirSgnDt.FIELD_VALUE;
+      data.mmdlSigDate = data.mmdlRecord.stMedDirSgnDt.FIELD_VALUE;
     }
 
     if (
@@ -33,14 +33,14 @@ exports.handler = async function (event, context, callback) {
         month: "2-digit",
         day: "2-digit",
       });
-      data.seatoolSignedDate = fullDate;
+      data.seatoolSigDate = fullDate;
       console.log(fullDate);
     }
 
     if (
-      data.mmdlSignedDate &&
-      data.seatoolSignedDate &&
-      data.mmdlSignedDate === data.seatoolSignedDate
+      data.mmdlSigDate &&
+      data.seatoolSigDate &&
+      data.mmdlSigDate === data.seatoolSigDate
     ) {
       console.log("DATES MATCH!!");
       data.match = true;

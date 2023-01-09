@@ -114,6 +114,7 @@ functions:
     environment:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
+      mmdlTableName: ${param:mmdlTableName}
   updateStatus:
     handler: handlers/updateStatus.handler
     environment:
@@ -137,7 +138,6 @@ functions:
       region: ${self:provider.region}
       project: ${self:custom.project}
       stage: ${sls:stage}
-      mmdlTableName: ${param:mmdlTableName}
 resources:
   Resources:
     StateMachineLogGroup:

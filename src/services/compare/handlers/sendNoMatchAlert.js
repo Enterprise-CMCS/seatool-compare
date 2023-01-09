@@ -31,6 +31,7 @@ exports.handler = async function (event, context, callback) {
         secretId,
       });
 
+      // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
       const params = getRecordDoesNotMatchParams({
         emailRecipients,
         sourceEmail,
