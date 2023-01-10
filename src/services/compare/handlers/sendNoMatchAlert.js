@@ -1,4 +1,4 @@
-import { sendAlert, getRecordDoesNotMatchParams } from "../../../libs/ses-lib";
+import { sendAlert } from "../../../libs/ses-lib";
 import {
   doesSecretExist,
   getSecretsValue,
@@ -17,6 +17,7 @@ exports.handler = async function (event, context, callback) {
 
   const secretExists = await doesSecretExist(region, secretId);
 
+  /* This is checking to see if the secret exists. If it does not exist, it will not send an email. */
   try {
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
@@ -50,3 +51,28 @@ exports.handler = async function (event, context, callback) {
     callback(null, data);
   }
 };
+
+function getRecordDoesNotMatchParams({
+  emailRecipients = ["nomatchrecipients@example.com"],
+  sourceEmail = "officialcms@example.com",
+  id,
+}) {
+  return {
+    Destination: {
+      ToAddresses: emailRecipients,
+    },
+    Message: {
+      Body: {
+        Text: {
+          Charset: "UTF-8",
+          Data: `Record with id: ${id} does not match in SEA Tool.`,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: `ACTION REQUIRED - MMDL record for ${id} needs corrected in SEA Tool`,
+      },
+    },
+    Source: sourceEmail,
+  };
+}

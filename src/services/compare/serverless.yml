@@ -97,6 +97,7 @@ functions:
     environment:
       stateMachineArn: !Ref MMDLAlertingStateMachine
       region: ${self:provider.region}
+      mmdlTableName: ${param:mmdlTableName}
     maximumRetryAttempts: 0
   compare:
     handler: handlers/compare.handler
@@ -110,7 +111,6 @@ functions:
     environment:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
-      mmdlTableName: ${param:mmdlTableName}
   updateStatus:
     handler: handlers/updateStatus.handler
     environment:
@@ -128,12 +128,13 @@ functions:
       region: ${self:provider.region}
       project: ${self:custom.project}
       stage: ${sls:stage}
-  daysSinceMmdlSubmission:
-    handler: handlers/daysSinceMmdlSubmission.handler
+  getMmdlData:
+    handler: handlers/getMmdlData.handler
     environment:
       region: ${self:provider.region}
       project: ${self:custom.project}
       stage: ${sls:stage}
+      mmdlTableName: ${param:mmdlTableName}
 resources:
   Resources:
     StateMachineLogGroup:
@@ -165,10 +166,10 @@ stepFunctions:
           InitialWait:
             Type: Wait
             Seconds: ${param:initialWaitSec}
-            Next: DaysSinceMmdlSubmissionTask
-          DaysSinceMmdlSubmissionTask:
+            Next: GetMmdlDataTask
+          GetMmdlDataTask:
             Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-daysSinceMmdlSubmission"
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getMmdlData"
             Parameters:
               Payload.$: $
             Next: DoesSeatoolRecordExistTask
@@ -209,19 +210,12 @@ stepFunctions:
           RecordAgeChoice:
             Type: Choice
             Choices:
-              - And:
-                  - Variable: $.mmdlSigned
-                    IsPresent: true
-                  - Variable: $.secSinceMmdlSigned
-                    IsPresent: true
-                  - Variable: $.mmdlSigned
-                    BooleanEquals: true
-                  - Variable: $.secSinceMmdlSigned
-                    NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
+              - Variable: $.secSinceMmdlSigned
+                NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
                 Next: LastLoopAMatchChoice
               - Variable: $.mmdlSigned
                 IsPresent: false
-                Next: FailState
+                Next: FailState # dont forget to change this
             Default: InitialWait
           LastLoopAMatchChoice:
             Type: Choice
@@ -232,7 +226,7 @@ stepFunctions:
                   - Variable: $.match
                     BooleanEquals: true
                 Next: SuccessState
-            Default: FailState
+            Default: FailState # some other email template maybe, if aged out it gets automatically approved. This would be bad.
           CompareTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"

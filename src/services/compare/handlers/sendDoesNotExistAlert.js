@@ -1,4 +1,4 @@
-import { sendAlert, getRecordDoesNotExistParams } from "../../../libs/ses-lib";
+import { sendAlert } from "../../../libs/ses-lib";
 import {
   doesSecretExist,
   getSecretsValue,
@@ -50,3 +50,28 @@ exports.handler = async function (event, context, callback) {
     callback(null, data);
   }
 };
+
+function getRecordDoesNotExistParams({
+  emailRecipients = ["notexistrecipients@example.com"],
+  sourceEmail = "officialcms@example.com",
+  id,
+}) {
+  return {
+    Destination: {
+      ToAddresses: emailRecipients,
+    },
+    Message: {
+      Body: {
+        Text: {
+          Charset: "UTF-8",
+          Data: `Record with id: ${id} does not exist in SEA Tool.`,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: `ACTION REQUIRED - MMDL record for ${id} needs added in SEA Tool`,
+      },
+    },
+    Source: sourceEmail,
+  };
+}
