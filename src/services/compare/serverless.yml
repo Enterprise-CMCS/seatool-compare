@@ -58,6 +58,11 @@ provider:
           Action:
             - secretsmanager:ListSecrets
           Resource: "*"
+        - Effect: Allow
+          Action:
+            - logs:PutLogEvents
+          Resource:
+            - ${param:sesLogGroupArn}
 
 params:
   master:
@@ -122,12 +127,14 @@ functions:
       region: ${self:provider.region}
       project: ${self:custom.project}
       stage: ${sls:stage}
+      sesLogGroupName: ${param:sesLogGroupName}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
     environment:
       region: ${self:provider.region}
       project: ${self:custom.project}
       stage: ${sls:stage}
+      sesLogGroupName: ${param:sesLogGroupName}
   getMmdlData:
     handler: handlers/getMmdlData.handler
     environment:
@@ -137,6 +144,16 @@ functions:
       mmdlTableName: ${param:mmdlTableName}
 resources:
   Resources:
+    NoMatchStream:
+      Type: AWS::Logs::LogStream
+      Properties:
+        LogGroupName: ${param:sesLogGroupName}
+        LogStreamName: NOMATCH
+    NotFoundStream:
+      Type: AWS::Logs::LogStream
+      Properties:
+        LogGroupName: ${param:sesLogGroupName}
+        LogStreamName: NOTFOUND
     StateMachineLogGroup:
       Type: AWS::Logs::LogGroup
       Properties:

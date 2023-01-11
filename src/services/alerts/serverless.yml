@@ -19,6 +19,7 @@ provider:
 
 custom:
   project: ${env:PROJECT}
+  sesLogGroupName: /aws/ses/${self:service}-${sls:stage}-sent-alerts
   serverlessTerminationProtection:
     stages: # Apply CloudFormation termination protection for these stages
       - master
@@ -27,6 +28,11 @@ custom:
 
 resources:
   Resources:
+    SentAlertsGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        RetentionInDays: 365
+        LogGroupName: ${self:custom.sesLogGroupName}
     AlarmsTopic:
       Type: "AWS::SNS::Topic"
       Properties:
@@ -91,3 +97,9 @@ resources:
     AlarmsTopicArn:
       Description: ECS Failure SNS topic ARN
       Value: !Ref AlarmsTopic
+    SesLogGroupArn:
+      Description: Arn of the ses log group
+      Value: !GetAtt SentAlertsGroup.Arn
+    SesLogGroupName:
+      Description: Name of the ses log group
+      Value: ${self:custom.sesLogGroupName}

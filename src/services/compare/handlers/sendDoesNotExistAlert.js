@@ -3,6 +3,7 @@ import {
   doesSecretExist,
   getSecretsValue,
 } from "../../../libs/secrets-manager-lib";
+import { putLogsEvent } from "../../../libs/cloudwatch-lib";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
@@ -22,9 +23,13 @@ exports.handler = async function (event, context, callback) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
       const params = getRecordDoesNotExistParams({ id: data.id });
       console.log(
-        "EMAIL NOT SENT - Secret does not exist for this stage which would define recipients and source"
+        "EMAIL NOT SENT - Secret does not exist for this stage. Example email details: ",
+        JSON.stringify(params, null, 2)
       );
-      console.log("Example email details: ", JSON.stringify(params, null, 2));
+      await putLogsEvent({
+        type: "NOTFOUND",
+        message: `Alert for ${data.id} - TEST `,
+      });
     } else {
       const { emailRecipients, sourceEmail } = await getSecretsValue({
         region,
@@ -43,6 +48,12 @@ exports.handler = async function (event, context, callback) {
         "Result from sending alert:",
         JSON.stringify(result, null, 2)
       );
+      await putLogsEvent({
+        type: "NOTFOUND",
+        message: `Alert for ${data.id} - sent to ${JSON.stringify(
+          emailRecipients
+        )}`,
+      });
     }
   } catch (e) {
     console.error("ERROR sending alert:", JSON.stringify(e, null, 2));

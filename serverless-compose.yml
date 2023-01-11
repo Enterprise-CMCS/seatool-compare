@@ -1,4 +1,6 @@
 services:
+  alerts:
+    path: src/services/alerts
   mmdl:
     path: src/services/mmdl
   seatool:
@@ -6,6 +8,7 @@ services:
   status:
     path: src/services/status
   compare:
+    dependsOn: alerts
     path: src/services/compare
     params:
       mmdlTableName: ${mmdl.TableName}
@@ -15,6 +18,8 @@ services:
       seatoolTableArn: ${seatool.TableArn}
       statusTableName: ${status.TableName}
       statusTableArn: ${status.TableArn}
+      sesLogGroupArn: ${alerts.SesLogGroupArn}
+      sesLogGroupName: ${alerts.SesLogGroupName}
   # connector:
   #   path: src/services/connector
   #   params:
@@ -24,5 +29,3 @@ services:
   #     seatoolTableName: ${seatool.TableName}
   #     seatoolTableArn: ${seatool.TableArn}
   #     alarmsTopicArn: ${alerts.AlarmsTopicArn}
-  alerts:
-    path: src/services/alerts
