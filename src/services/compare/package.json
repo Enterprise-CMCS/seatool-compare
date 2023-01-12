@@ -1,10 +1,5 @@
 {
   "name": "compare",
-  "version": "1.0.0",
-  "description": "",
-  "main": "handler.js",
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.180.0",
     "@aws-sdk/client-sfn": "^3.180.0",

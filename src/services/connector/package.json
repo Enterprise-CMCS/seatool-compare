@@ -1,7 +1,5 @@
 {
   "name": "connector",
-  "version": "1.0.0",
-  "description": "",
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.216.0"
   },

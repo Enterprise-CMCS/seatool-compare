@@ -26,7 +26,8 @@ export async function sendMetricData(params) {
 }
 
 /**
- * It takes a type and a message, and sends the message to the log stream of that type
+ * We log an event for each email that is (or would be) sent.
+ * There are two log streams 'NOMATCH' | 'NOTFOUND'
  */
 export async function putLogsEvent({ type, message }) {
   const client = new CloudWatchLogsClient({ region: process.env.region });

@@ -13,6 +13,7 @@ exports.handler = async function (event, context, callback) {
   const project = process.env.project;
   const stage = process.env.stage;
 
+  // use this secret path to define the { emailRecipients, sourceEmail } for the does not exist email
   const secretId = `${project}/${stage}/alerts`;
 
   const data = { ...event.Payload };
