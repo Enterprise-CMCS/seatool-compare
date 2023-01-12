@@ -20,12 +20,12 @@ services:
       statusTableArn: ${status.TableArn}
       sesLogGroupArn: ${alerts.SesLogGroupArn}
       sesLogGroupName: ${alerts.SesLogGroupName}
-  # connector:
-  #   path: src/services/connector
-  #   params:
-  #     mmdlTableName: ${mmdl.TableName}
-  #     mmdlTableArn: ${mmdl.TableArn}
-  #     mmdlTableStreamArn: ${mmdl.TableStreamArn}
-  #     seatoolTableName: ${seatool.TableName}
-  #     seatoolTableArn: ${seatool.TableArn}
-  #     alarmsTopicArn: ${alerts.AlarmsTopicArn}
+  connector:
+    path: src/services/connector
+    params:
+      mmdlTableName: ${mmdl.TableName}
+      mmdlTableArn: ${mmdl.TableArn}
+      mmdlTableStreamArn: ${mmdl.TableStreamArn}
+      seatoolTableName: ${seatool.TableName}
+      seatoolTableArn: ${seatool.TableArn}
+      alarmsTopicArn: ${alerts.AlarmsTopicArn}

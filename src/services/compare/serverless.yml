@@ -80,7 +80,7 @@ params:
   default:
     initialWaitSec: 2
     signedSinceChoiceSec: 3
-    recordAgeChoiceSec: 4
+    recordAgeChoiceSec: 21686400 # 251 days
 
 custom:
   project: ${env:PROJECT}
@@ -230,10 +230,11 @@ stepFunctions:
               - Variable: $.secSinceMmdlSigned
                 NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
                 Next: LastLoopAMatchChoice
-              - Variable: $.mmdlSigned
-                IsPresent: false
-                Next: FailState # dont forget to change this
-            Default: InitialWait
+            Default: TempWait
+          TempWait:
+            Type: Wait
+            Seconds: 43200
+            Next: InitialWait
           LastLoopAMatchChoice:
             Type: Choice
             Choices:
