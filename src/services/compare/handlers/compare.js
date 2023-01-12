@@ -1,5 +1,5 @@
 import { has } from "lodash";
-import { trackError } from "../../../libs/sns-lib.js";
+import { trackError } from "../../../libs";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));

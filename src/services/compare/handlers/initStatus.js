@@ -1,5 +1,4 @@
-import { putItem } from "../../../libs/dynamodb-lib";
-import { trackError } from "../../../libs/sns-lib.js";
+import { putItem, trackError } from "../../../libs";
 
 /* This is the handler function that is called when the Lambda function is invoked. */
 exports.handler = async function (event, context, callback) {

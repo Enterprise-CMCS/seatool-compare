@@ -1,7 +1,6 @@
 import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
-import { getItem } from "../../../libs/dynamodb-lib";
+import { getItem, trackError } from "../../../libs";
 import { getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
-import { trackError } from "../../../libs/sns-lib.js";
 
 /* This is the Lambda function that is triggered by the DynamoDB stream. It is responsible for starting
 the Step Function execution. */

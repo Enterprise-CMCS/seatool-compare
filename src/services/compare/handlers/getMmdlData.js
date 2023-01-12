@@ -1,6 +1,5 @@
-import { getItem } from "../../../libs/dynamodb-lib";
+import { getItem, trackError } from "../../../libs";
 import { getMmdlProgType, getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
-import { trackError } from "../../../libs/sns-lib.js";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));

@@ -1,10 +1,10 @@
-import { sendAlert } from "../../../libs/ses-lib";
 import {
+  sendAlert,
   doesSecretExist,
   getSecretsValue,
-} from "../../../libs/secrets-manager-lib";
-import { putLogsEvent } from "../../../libs/cloudwatch-lib";
-import { trackError } from "../../../libs/sns-lib.js";
+  putLogsEvent,
+  trackError,
+} from "../../../libs";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));

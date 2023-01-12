@@ -1,5 +1,4 @@
-import { getItem } from "../../../libs/dynamodb-lib";
-import { trackError } from "../../../libs/sns-lib.js";
+import { getItem, trackError } from "../../../libs";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
