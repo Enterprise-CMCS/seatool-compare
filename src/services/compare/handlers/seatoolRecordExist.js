@@ -3,12 +3,9 @@ import { getItem, trackError } from "../../../libs";
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload, seatoolExist: false };
-  /* Trying to find the seatool record in the seatool table. */
   try {
     const item = await getItem(process.env.seatoolTableName, data.id);
 
-    /* Checking if the item exists in the seatool table.
-    If it does, it will set the seatoolExist to true and set the seatoolRecord to the record. */
     if (item) {
       data.seatoolExist = true;
       data.seatoolRecord = item;

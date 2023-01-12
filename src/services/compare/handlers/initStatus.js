@@ -1,6 +1,5 @@
 import { putItem, trackError } from "../../../libs";
 
-/* This is the handler function that is called when the Lambda function is invoked. */
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const id = event.Context.Execution.Input.id;

@@ -46,11 +46,8 @@ exports.handler = async function (event, context, callback) {
         id: data.id,
       });
 
-      const result = await sendAlert(params);
-      console.log(
-        "Result from sending alert:",
-        JSON.stringify(result, null, 2)
-      );
+      await sendAlert(params);
+
       await putLogsEvent({
         type: "NOTFOUND",
         message: `Alert for ${data.id} - sent to ${JSON.stringify(
