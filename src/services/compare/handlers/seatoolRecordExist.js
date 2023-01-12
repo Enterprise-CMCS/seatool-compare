@@ -1,4 +1,5 @@
 import { getItem } from "../../../libs/dynamodb-lib";
+import { trackError } from "../../../libs/sns-lib.js";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
@@ -15,8 +16,8 @@ exports.handler = async function (event, context, callback) {
     } else {
       console.log(`No Seatool record found for mmdl record: ${data.id}`);
     }
-  } catch (error) {
-    console.log(error);
+  } catch (e) {
+    await trackError(e);
   } finally {
     console.log(
       `data after finding seatool item: ${JSON.stringify(data, null, 2)}`

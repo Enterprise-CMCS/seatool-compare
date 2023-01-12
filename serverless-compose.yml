@@ -20,6 +20,7 @@ services:
       statusTableArn: ${status.TableArn}
       sesLogGroupArn: ${alerts.SesLogGroupArn}
       sesLogGroupName: ${alerts.SesLogGroupName}
+      errorsTopicArn: ${alerts.ErrorsTopicArn}
   connector:
     path: src/services/connector
     params:

@@ -1,4 +1,5 @@
 import { putItem } from "../../../libs/dynamodb-lib";
+import { trackError } from "../../../libs/sns-lib.js";
 
 /* This is the handler function that is called when the Lambda function is invoked. */
 exports.handler = async function (event, context, callback) {
@@ -11,11 +12,10 @@ exports.handler = async function (event, context, callback) {
       tableName: process.env.statusTableName,
       item: data,
     });
-  } catch (error) {
-    console.log(error);
+  } catch (e) {
+    await trackError(e);
   } finally {
     console.log(`data after putting item: ${JSON.stringify(data, null, 2)}`);
-
     callback(null, data);
   }
 };

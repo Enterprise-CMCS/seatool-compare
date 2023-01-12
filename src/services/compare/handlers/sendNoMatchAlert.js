@@ -4,6 +4,7 @@ import {
   getSecretsValue,
 } from "../../../libs/secrets-manager-lib";
 import { putLogsEvent } from "../../../libs/cloudwatch-lib";
+import { trackError } from "../../../libs/sns-lib.js";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
@@ -58,7 +59,7 @@ exports.handler = async function (event, context, callback) {
       });
     }
   } catch (e) {
-    console.error("ERROR sending alert:", JSON.stringify(e, null, 2));
+    await trackError(e);
   } finally {
     callback(null, data);
   }

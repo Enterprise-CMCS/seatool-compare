@@ -1,4 +1,5 @@
 import { has } from "lodash";
+import { trackError } from "../../../libs/sns-lib.js";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
@@ -23,8 +24,8 @@ exports.handler = async function (event, context, callback) {
     ) {
       data.match = true;
     }
-  } catch (error) {
-    console.log("Eror comparing records:", error);
+  } catch (e) {
+    await trackError(e);
   } finally {
     console.log("Data after compare task:", JSON.stringify(data, null, 2));
     callback(null, data);

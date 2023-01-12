@@ -1,4 +1,5 @@
 import { putItem } from "../../../libs/dynamodb-lib";
+import { trackError } from "../../../libs/sns-lib.js";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
@@ -8,8 +9,8 @@ exports.handler = async function (event, context, callback) {
       tableName: process.env.statusTableName,
       item: data,
     });
-  } catch (error) {
-    console.log(error);
+  } catch (e) {
+    await trackError(e);
   } finally {
     console.log(`data after updating item: ${JSON.stringify(data, null, 2)}`);
 

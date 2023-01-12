@@ -38,6 +38,11 @@ resources:
       Properties:
         TopicName: Alarms-${self:service}-${sls:stage}
         KmsMasterKeyId: !Ref KmsKeyForSns
+    ErrorsTopic:
+      Type: "AWS::SNS::Topic"
+      Properties:
+        TopicName: Errors-${self:service}-${sls:stage}
+        KmsMasterKeyId: !Ref KmsKeyForSns
 
     KmsKeyForSns:
       Type: AWS::KMS::Key
@@ -97,6 +102,9 @@ resources:
     AlarmsTopicArn:
       Description: ECS Failure SNS topic ARN
       Value: !Ref AlarmsTopic
+    ErrorsTopicArn:
+      Description: Errors topic ARN
+      Value: !Ref ErrorsTopic
     SesLogGroupArn:
       Description: Arn of the ses log group
       Value: !GetAtt SentAlertsGroup.Arn

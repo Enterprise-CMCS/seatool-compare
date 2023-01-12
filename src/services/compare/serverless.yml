@@ -35,6 +35,11 @@ provider:
             - ${param:statusTableArn}
         - Effect: Allow
           Action:
+            - sns:Publish
+          Resource:
+            - ${param:errorsTopicArn}
+        - Effect: Allow
+          Action:
             - dynamodb:PutItem
           Resource:
             - ${param:statusTableArn}
@@ -103,24 +108,31 @@ functions:
       stateMachineArn: !Ref MMDLAlertingStateMachine
       region: ${self:provider.region}
       mmdlTableName: ${param:mmdlTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
     maximumRetryAttempts: 0
   compare:
     handler: handlers/compare.handler
+    environment:
+      region: ${self:provider.region}
+      errorsTopicArn: ${param:errorsTopicArn}
   seatoolRecordExist:
     handler: handlers/seatoolRecordExist.handler
     environment:
       region: ${self:provider.region}
       seatoolTableName: ${param:seatoolTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
   initStatus:
     handler: handlers/initStatus.handler
     environment:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
   updateStatus:
     handler: handlers/updateStatus.handler
     environment:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
   sendDoesNotExistAlert:
     handler: handlers/sendDoesNotExistAlert.handler
     environment:
@@ -128,6 +140,7 @@ functions:
       project: ${self:custom.project}
       stage: ${sls:stage}
       sesLogGroupName: ${param:sesLogGroupName}
+      errorsTopicArn: ${param:errorsTopicArn}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
     environment:
@@ -135,6 +148,7 @@ functions:
       project: ${self:custom.project}
       stage: ${sls:stage}
       sesLogGroupName: ${param:sesLogGroupName}
+      errorsTopicArn: ${param:errorsTopicArn}
   getMmdlData:
     handler: handlers/getMmdlData.handler
     environment:
@@ -142,6 +156,7 @@ functions:
       project: ${self:custom.project}
       stage: ${sls:stage}
       mmdlTableName: ${param:mmdlTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
 resources:
   Resources:
     NoMatchStream:
@@ -244,7 +259,7 @@ stepFunctions:
                   - Variable: $.match
                     BooleanEquals: true
                 Next: SuccessState
-            Default: FailState # some other email template maybe, if aged out it gets automatically approved. This would be bad.
+            Default: FailState
           CompareTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"

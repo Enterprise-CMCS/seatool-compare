@@ -1,5 +1,6 @@
 import { getItem } from "../../../libs/dynamodb-lib";
 import { getMmdlProgType, getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
+import { trackError } from "../../../libs/sns-lib.js";
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
@@ -17,8 +18,8 @@ exports.handler = async function (event, context, callback) {
     data.secSinceMmdlSigned = sigInfo.secSinceMmdlSigned;
     data.mmdlSigned = sigInfo.mmdlSigned;
     data.mmdlSigDate = sigInfo.mmdlSigDate;
-  } catch (error) {
-    console.log(error);
+  } catch (e) {
+    await trackError(e);
   } finally {
     console.log(`Returning data `, JSON.stringify(data, null, 2));
 
