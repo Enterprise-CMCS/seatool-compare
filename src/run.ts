@@ -4,6 +4,7 @@ import LabeledProcessRunner from "./runner.js";
 import * as fs from "fs";
 import { ServerlessStageDestroyer } from "@stratiformdigital/serverless-stage-destroyer";
 import { SechubGithubSync } from "@stratiformdigital/security-hub-sync";
+import { ServerlessRunningStages } from "@enterprise-cmcs/macpro-serverless-running-stages";
 
 // load .env
 dotenv.config();
@@ -198,6 +199,19 @@ yargs(process.argv.slice(2))
         ["bundle", "exec", "jekyll", "serve", "-t"],
         "docs"
       );
+    }
+  )
+  .command(
+    ["listRunningStages", "runningEnvs", "listRunningEnvs"],
+    "Reports on running environments in your currently connected AWS account.",
+    {},
+    async () => {
+      await install_deps_for_services();
+      for (const region of [process.env.REGION_A]) {
+        const runningStages =
+          await ServerlessRunningStages.getAllStagesForRegion(region!);
+        console.log(`runningStages=${runningStages.join(",")}`);
+      }
     }
   )
   .strict() // This errors and prints help if you pass an unknown command
