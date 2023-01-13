@@ -50,7 +50,7 @@ export async function putItem(tableName, item) {
       ],
     });
   }
-};
+}
 
 export async function getItem(tableName, id) {
   const item = (
