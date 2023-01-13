@@ -8,7 +8,7 @@ const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 
 const client = new DynamoDBClient({ region: process.env.region });
 
-export const putItem = async ({ tableName, item }) => {
+export async function putItem(tableName, id) {
   const params = {
     TableName: tableName,
     Item: marshall(item),
