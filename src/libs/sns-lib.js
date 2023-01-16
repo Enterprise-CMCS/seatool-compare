@@ -13,7 +13,7 @@ export async function trackError(e) {
     return data; // For unit tests.
   } catch (err) {
     console.error(
-      "Error traking the error - a meta error",
+      "Error tracking the error - a meta error",
       JSON.stringify(err, null, 2)
     );
   }
