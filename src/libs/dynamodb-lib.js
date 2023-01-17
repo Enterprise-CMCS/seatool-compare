@@ -1,10 +1,14 @@
-import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBClient,
+  PutItemCommand,
+  GetItemCommand,
+} from "@aws-sdk/client-dynamodb";
 import { sendMetricData } from "./cloudwatch-lib";
-const { marshall } = require("@aws-sdk/util-dynamodb");
+const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 
 const client = new DynamoDBClient({ region: process.env.region });
 
-export const update = async ({ tableName, item }) => {
+export async function putItem(tableName, item) {
   const params = {
     TableName: tableName,
     Item: marshall(item),
@@ -46,4 +50,23 @@ export const update = async ({ tableName, item }) => {
       ],
     });
   }
-};
+}
+
+export async function getItem(tableName, id) {
+  const item = (
+    await client.send(
+      new GetItemCommand({
+        TableName: tableName,
+        Key: {
+          id: {
+            S: id,
+          },
+        },
+      })
+    )
+  ).Item;
+  if (!item) return null;
+
+  /* Converting the DynamoDB record to a JavaScript object. */
+  return unmarshall(item);
+}
