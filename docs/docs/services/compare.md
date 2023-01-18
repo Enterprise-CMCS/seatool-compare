@@ -28,7 +28,7 @@ The record is then updated in the status table to reflect the new data, and if t
 
 #### Functions
 
-- `workflowStarter` its trigger is set to be the mmdl service’s dynamo stream. In this way, when a new mmdl record arrives in the table, the workflow creator is triggered.
+- `workflowStarter` its trigger is set to be the mmdl service’s dynamo stream. In this way, when a new mmdl record arrives, this function will determine if the record has been signed and the record had been signed within 250 days in the table the workflow creator is triggered.
 - `initStatus` puts initial record to the status table with iterations value set to 0.
 - `getMmdlData` gets mmdl record and extracts signature date and program type to be used in comparison.
 - `seatoolRecordExist` gets seatool item using id. checks if seatoolItem exists.
