@@ -1,10 +1,12 @@
 import {
   PutMetricDataCommand,
   CloudWatchClient,
+  PutMetricDataCommandInput,
 } from "@aws-sdk/client-cloudwatch";
 import {
   CloudWatchLogsClient,
   PutLogEventsCommand,
+  PutLogEventsCommandInput,
 } from "@aws-sdk/client-cloudwatch-logs";
 
 /**
@@ -12,9 +14,9 @@ import {
  * @param params - {
  * @returns The response from the PutMetricDataCommand.
  */
-export async function sendMetricData(params) {
+export async function sendMetricData(params: PutMetricDataCommandInput) {
   console.log("Sending metric data: ", JSON.stringify(params));
-  const client = new CloudWatchClient();
+  const client = new CloudWatchClient({});
   const command = new PutMetricDataCommand(params);
   try {
     const response = await client.send(command);
@@ -23,15 +25,22 @@ export async function sendMetricData(params) {
   } catch (e) {
     console.log("Error from sending metric data", e);
   }
+  return;
 }
 
 /**
  * We log an event for each email that is (or would be) sent.
  * There are two log streams 'NOMATCH' | 'NOTFOUND'
  */
-export async function putLogsEvent({ type, message }) {
+export async function putLogsEvent({
+  type,
+  message,
+}: {
+  type: string;
+  message: string;
+}) {
   const client = new CloudWatchLogsClient({ region: process.env.region });
-  const input = {
+  const input: PutLogEventsCommandInput = {
     logEvents: [{ message, timestamp: new Date().getTime() }],
     logGroupName: process.env.sesLogGroupName,
     logStreamName: type,
