@@ -10,7 +10,11 @@ nav_order: 1
 
 #### Summary
 
-The alerts service deploys a Simple Notification Service (SNS) topic to REGION_A.  This topic can be leveraged by any other service for sending alerts.
+The alerts service deploys several notification resources:
+- A Simple Notification Service (SNS) topic.  This topic can be leveraged by any other service for sending alerts.
+- An SNS topic used exclusively to collect errors thrown from the compare service handlers.
+- A Log Group used by two log streams to collect data about when emails are or would be sent.
+
 
 #### Notes
 
