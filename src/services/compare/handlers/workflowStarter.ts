@@ -4,7 +4,7 @@ import { getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
 
 /* This is the Lambda function that is triggered by the DynamoDB stream. It is responsible for starting
 the Step Function execution. */
-exports.handler = async function (event, context, callback) {
+exports.handler = async function (event, context, callback: Function) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const client = new SFNClient({ region: process.env.region });
   const id = event.Records[0].dynamodb.Keys.id.S;

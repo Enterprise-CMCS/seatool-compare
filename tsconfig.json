@@ -1,6 +1,8 @@
 {
+  // "include": ["./src/**/*"], // TODO: do I need this?
   "exclude": ["./docs*", "build_run"],
   "compilerOptions": {
+    "sourceMap": true,
     "incremental": true,
     "target": "ES2020",
     "module": "es2020",
@@ -8,7 +10,7 @@
     "outDir": "build_run",
     "rootDir": "src",
     "strict": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
@@ -22,6 +24,9 @@
     "moduleResolution": "node",
     "allowJs": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noEmitOnError": true
   }
 }

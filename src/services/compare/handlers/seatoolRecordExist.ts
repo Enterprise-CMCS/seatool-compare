@@ -1,6 +1,6 @@
 import { getItem, trackError } from "../../../libs";
 
-exports.handler = async function (event, context, callback) {
+exports.handler = async function (event, context, callback: Function) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload, seatoolExist: false };
   try {

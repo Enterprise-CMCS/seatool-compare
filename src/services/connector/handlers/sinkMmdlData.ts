@@ -1,6 +1,6 @@
 import * as dynamodb from "../../../libs/dynamodb-lib";
 
-async function myHandler(event, _context, _callback) {
+async function myHandler(event, _context, _callback: Function) {
   try {
     const recordValueObject = JSON.parse(event.value);
 

@@ -1,6 +1,6 @@
 import * as dynamodb from "../../../libs/dynamodb-lib";
 
-async function myHandler(event, _context, _callback) {
+async function myHandler(event, _context, _callback: Function) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   await dynamodb.putItem({
     tableName: process.env.tableName,
