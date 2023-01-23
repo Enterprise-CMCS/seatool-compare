@@ -7,7 +7,7 @@
     "target": "ES2020",
     "module": "es2020",
     "lib": ["es6", "dom"],
-    "outDir": "build_run",
+    "outDir": "src",
     "rootDir": "src",
     "strict": true,
     "noImplicitAny": true,
