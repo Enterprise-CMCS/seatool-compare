@@ -40,4 +40,8 @@ elif [ "yarn.lock" -nt ".yarn_install" ]; then  # We're local, and the install f
 fi
 
 # build and run dev.ts
-./node_modules/.bin/tsc && node ./src/run.js "$@"
+./node_modules/.bin/tsc --skipLibCheck --module esnext --moduleResolution node ./src/run.ts && node ./src/run.js "$@"
+
+# clean up
+rm ./src/run.js
+rm ./src/runner.js
