@@ -10,7 +10,10 @@ exports.handler = async function (event, context, callback) {
   const id = event.Records[0].dynamodb.Keys.id.S;
 
   /* Retrieving the record from the DynamoDB table. */
-  const mmdlRecord = await getItem(process.env.mmdlTableName, id);
+  const mmdlRecord = await getItem({
+    tableName: process.env.mmdlTableName,
+    id,
+  });
 
   /* A function that returns an object with the following properties:
   - mmdlSigned: boolean
