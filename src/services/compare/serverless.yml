@@ -52,6 +52,7 @@ provider:
         - Effect: Allow
           Action:
             - ses:SendEmail
+            - ses:SendRawEmail
           Resource:
             - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/*"
         - Effect: Allow
@@ -110,6 +111,10 @@ functions:
       mmdlTableName: ${param:mmdlTableName}
       errorsTopicArn: ${param:errorsTopicArn}
     maximumRetryAttempts: 0
+  sendReport:
+    handler: handlers/sendReport.handler
+    environment:
+      region: ${self:provider.region}
   compare:
     handler: handlers/compare.handler
     environment:
