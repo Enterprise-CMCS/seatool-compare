@@ -8,10 +8,12 @@ const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 
 const client = new DynamoDBClient({ region: process.env.region });
 
-export async function putItem(tableName, item) {
+export async function putItem({ tableName, item }) {
   const params = {
     TableName: tableName,
-    Item: marshall(item),
+    Item: marshall(item, {
+      removeUndefinedValues: true,
+    }),
   };
 
   try {
@@ -52,7 +54,7 @@ export async function putItem(tableName, item) {
   }
 }
 
-export async function getItem(tableName, id) {
+export async function getItem({ tableName, id }) {
   const item = (
     await client.send(
       new GetItemCommand({

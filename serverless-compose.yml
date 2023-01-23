@@ -22,6 +22,7 @@ services:
       sesLogGroupName: ${alerts.SesLogGroupName}
       errorsTopicArn: ${alerts.ErrorsTopicArn}
   connector:
+    dependsOn: compare
     path: src/services/connector
     params:
       mmdlTableName: ${mmdl.TableName}

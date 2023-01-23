@@ -5,7 +5,10 @@ exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload };
   try {
-    const mmdlRecord = await getItem(process.env.mmdlTableName, data.id);
+    const mmdlRecord = await getItem({
+      tableName: process.env.mmdlTableName,
+      id: data.id,
+    });
     data.mmdlRecord = mmdlRecord;
 
     const { programType } = getMmdlProgType(mmdlRecord);

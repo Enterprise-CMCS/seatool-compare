@@ -6,10 +6,7 @@ exports.handler = async function (event, context, callback) {
   const data = { iterations: 0, id };
 
   try {
-    await putItem({
-      tableName: process.env.statusTableName,
-      item: data,
-    });
+    await putItem(process.env.statusTableName, data);
   } catch (e) {
     await trackError(e);
   } finally {
