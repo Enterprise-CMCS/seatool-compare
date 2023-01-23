@@ -6,10 +6,7 @@ import {
   waitUntilTasksRunning,
 } from "@aws-sdk/client-ecs";
 
-export async function findIpForEcsService(
-  cluster: string | undefined,
-  service: string | undefined
-) {
+export async function findIpForEcsService(cluster: string | undefined) {
   const client = new ECSClient({
     // cluster, // TODO: Prior to JS to TS conversion, this cluster parameter was provided here.  TS pointed out that its not accepted by this, I do not think it's needed.  This TODO is to confirm that commenting it out did not break anything.
   });

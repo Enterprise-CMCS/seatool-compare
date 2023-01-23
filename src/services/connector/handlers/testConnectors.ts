@@ -9,7 +9,6 @@ import {
 // test the connector status
 async function myHandler() {
   const cluster = process.env.cluster;
-  const service = process.env.service;
   const RUNNING = "RUNNING";
 
   if (!process.env.connectorConfigPrefix) {
@@ -41,13 +40,13 @@ async function myHandler() {
   }
 
   try {
-    const results = await connect.testConnectors(cluster, service, connectors);
+    const results = await connect.testConnectors(cluster, connectors);
     console.log("Kafka connector status results", JSON.stringify(results));
 
     // send a metric for each connector status - 0 = ✅ or 1 = ⛔️
     if (results)
       await Promise.all(
-        results.map((name) => {
+        results.map(({ name, connector }) => {
           sendMetricData({
             Namespace: process.env.namespace,
             MetricData: [
@@ -62,38 +61,40 @@ async function myHandler() {
 
     // send a metric for connectors tasks status.
     // 0 = all tasks for a connector ✅ or 1 = some taks for a connector ⛔️
-    await Promise.all(
-      results.map(({ name, tasks }) => {
-        const tasksRunning = tasks.every(
-          (task: { state: string }) => task.state === RUNNING
+    if (results) {
+      await Promise.all(
+        results.map(({ name, tasks }) => {
+          const tasksRunning = tasks.every(
+            (task: { state: string }) => task.state === RUNNING
+          );
+          sendMetricData({
+            Namespace: process.env.namespace,
+            MetricData: [
+              {
+                MetricName: `${name}_task`,
+                Value: tasksRunning ? 0 : 1,
+              },
+            ],
+          });
+        })
+      );
+
+      // get any failing results
+      const failingResults = results.filter(({ tasks, connector }) => {
+        return (
+          connector.state !== RUNNING ||
+          tasks.some((task: { state: string }) => task.state !== RUNNING)
         );
-        sendMetricData({
-          Namespace: process.env.namespace,
-          MetricData: [
-            {
-              MetricName: `${name}_task`,
-              Value: tasksRunning ? 0 : 1,
-            },
-          ],
-        });
-      })
-    );
+      });
 
-    // get any failing results
-    const failingResults = results.filter(({ tasks, connector }) => {
-      return (
-        connector.state !== RUNNING ||
-        tasks.some((task: { state: string }) => task.state !== RUNNING)
-      );
-    });
+      // if any of the results are ⛔️ restart only the failing connectors/tasks
+      if (connectors && failingResults.length > 0) {
+        const connectorsToRestart = connectors.filter((connector) =>
+          failingResults.some((result) => result.name === connector.name)
+        );
 
-    // if any of the results are ⛔️ restart only the failing connectors/tasks
-    if (connectors && failingResults.length > 0) {
-      const connectorsToRestart = connectors.filter((connector) =>
-        failingResults.some((result) => result.name === connector.name)
-      );
-
-      await connect.restartConnectors(cluster, service, connectorsToRestart);
+        await connect.restartConnectors(cluster, connectorsToRestart);
+      }
     }
   } catch (e) {
     console.log("Error caught while testing connectors", JSON.stringify(e));

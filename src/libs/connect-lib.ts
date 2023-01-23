@@ -66,10 +66,9 @@ export async function connectRestApiWithRetry(params: {
 
 export async function restartConnectors(
   cluster: string | undefined,
-  service: string | undefined,
   connectors: string | any[]
 ) {
-  const workerIp = await ecs.findIpForEcsService(cluster, service);
+  const workerIp = await ecs.findIpForEcsService(cluster);
   for (let i = 0; i < connectors.length; i++) {
     let connector = _.omit(connectors[i], "config");
     connector.tasks = connectors[i].config["tasks.max"];
@@ -126,10 +125,9 @@ export async function deleteConnector(ip: string, name: string) {
 
 export async function deleteConnectors(
   cluster: string | undefined,
-  service: string | undefined,
   connectors: string | any[]
 ) {
-  const workerIp = await ecs.findIpForEcsService(cluster, service);
+  const workerIp = await ecs.findIpForEcsService(cluster);
   for (let i = 0; i < connectors.length; i++) {
     console.log(`Deleting connector: ${connectors[i]}`);
     //This won't account for multiple tasks with multiple interfaces
@@ -139,13 +137,13 @@ export async function deleteConnectors(
 
 export async function testConnector(
   ip: string,
-  configName: string
-): Promise<string> {
+  config: { name: string; connector: any; tasks: any }
+): Promise<{ name: string; connector: any; tasks: any }> {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: ip,
       port: 8083,
-      path: `/connectors/${configName}/status`,
+      path: `/connectors/${config.name}/status`,
       headers: {
         "Content-Type": "application/json",
       },
@@ -175,14 +173,13 @@ export async function testConnector(
 
 export async function testConnectors(
   cluster: string | undefined,
-  service: string | undefined,
-  connectors: string[] | undefined
-): Promise<string[] | undefined> {
-  const workerIp = await ecs.findIpForEcsService(cluster, service);
+  connectors: { name: string; connector: any; tasks: any }[] | undefined
+): Promise<{ name: string; connector: any; tasks: any }[] | undefined> {
+  const workerIp = await ecs.findIpForEcsService(cluster);
   if (connectors)
     return await Promise.all(
       connectors.map((connector) => {
-        console.log(`Testing connector: ${connector}`);
+        console.log(`Testing connector: ${connector.name}`);
         return testConnector(workerIp, connector);
       })
     );
