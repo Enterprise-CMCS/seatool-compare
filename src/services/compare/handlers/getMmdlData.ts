@@ -1,7 +1,11 @@
 import { getItem, trackError } from "../../../libs";
 import { getMmdlProgType, getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
 
-exports.handler = async function (event, context, callback: Function) {
+exports.handler = async function (
+  event: { Payload: any },
+  _context: any,
+  callback: Function
+) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload };
   try {
@@ -12,9 +16,11 @@ exports.handler = async function (event, context, callback: Function) {
     const sigInfo = getMmdlSigInfo(mmdlRecord);
 
     data.programType = programType;
-    data.secSinceMmdlSigned = sigInfo.secSinceMmdlSigned;
+    if ("secSinceMmdlSigned" in sigInfo)
+      // TODO: note, tsc checking seems to think secSinceMmdlSigned will never exist in sigInfo.
+      data.secSinceMmdlSigned = sigInfo.secSinceMmdlSigned;
     data.mmdlSigned = sigInfo.mmdlSigned;
-    data.mmdlSigDate = sigInfo.mmdlSigDate;
+    if ("mmdlSigDate" in sigInfo) data.mmdlSigDate = sigInfo.mmdlSigDate; // TODO: note, tsc checking seems to think mmdlSigDate will never exist in sigInfo.
   } catch (e) {
     await trackError(e);
   } finally {

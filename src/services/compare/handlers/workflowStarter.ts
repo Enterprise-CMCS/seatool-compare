@@ -4,7 +4,9 @@ import { getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
 
 /* This is the Lambda function that is triggered by the DynamoDB stream. It is responsible for starting
 the Step Function execution. */
-exports.handler = async function (event, context, callback: Function) {
+exports.handler = async function (event: {
+  Records: { dynamodb: { Keys: { id: { S: any } } } }[];
+}) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const client = new SFNClient({ region: process.env.region });
   const id = event.Records[0].dynamodb.Keys.id.S;
@@ -18,7 +20,11 @@ exports.handler = async function (event, context, callback: Function) {
   const sigInfo = getMmdlSigInfo(mmdlRecord);
 
   /* Checking if the mmdl was signed within the last 250 days. */
-  if (sigInfo.mmdlSigned && sigInfo.secSinceMmdlSigned < 21686400) {
+  if (
+    sigInfo.mmdlSigned &&
+    sigInfo.secSinceMmdlSigned &&
+    sigInfo.secSinceMmdlSigned < 21686400
+  ) {
     /* Creating an object that will be passed to the StartExecutionCommand. */
     const params = {
       input: JSON.stringify({

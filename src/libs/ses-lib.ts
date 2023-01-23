@@ -1,8 +1,12 @@
-import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import {
+  SESClient,
+  SendEmailCommand,
+  SendEmailCommandInput,
+} from "@aws-sdk/client-ses";
 
 const client = new SESClient({ region: process.env.region });
 
-export async function sendAlert(params) {
+export async function sendAlert(params: SendEmailCommandInput) {
   console.log("Sending email with params:", JSON.stringify(params, null, 2));
   try {
     const command = new SendEmailCommand(params);
@@ -12,4 +16,5 @@ export async function sendAlert(params) {
   } catch (e) {
     console.error(JSON.stringify(e, null, 2));
   }
+  return;
 }

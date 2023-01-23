@@ -6,12 +6,18 @@ import {
   trackError,
 } from "../../../libs";
 
-exports.handler = async function (event, context, callback: Function) {
+exports.handler = async function (
+  event: { Payload: any },
+  _context: any,
+  callback: Function
+) {
   console.log("Received event:", JSON.stringify(event, null, 2));
 
   const region = process.env.region;
   const project = process.env.project;
   const stage = process.env.stage;
+
+  if (!region) throw "process.env.region needs to be defined.";
 
   // use this secret path to define the { emailRecipients, sourceEmail } for the does not exist email
   const secretId = `${project}/${stage}/alerts`;
@@ -23,7 +29,11 @@ exports.handler = async function (event, context, callback: Function) {
   try {
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
-      const params = getRecordDoesNotExistParams({ id: data.id });
+      const params = getRecordDoesNotExistParams({
+        emailRecipients: undefined,
+        sourceEmail: undefined,
+        id: data.id,
+      });
       console.log(
         "EMAIL NOT SENT - Secret does not exist for this stage. Example email details: ",
         JSON.stringify(params, null, 2)
@@ -33,10 +43,10 @@ exports.handler = async function (event, context, callback: Function) {
         message: `Alert for ${data.id} - TEST `,
       });
     } else {
-      const { emailRecipients, sourceEmail } = await getSecretsValue({
+      const { emailRecipients, sourceEmail } = await getSecretsValue(
         region,
-        secretId,
-      });
+        secretId
+      );
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
       const params = getRecordDoesNotExistParams({
@@ -65,6 +75,10 @@ function getRecordDoesNotExistParams({
   emailRecipients = ["notexistrecipients@example.com"],
   sourceEmail = "officialcms@example.com",
   id,
+}: {
+  emailRecipients: string[] | undefined;
+  sourceEmail: string | undefined;
+  id: string;
 }) {
   return {
     Destination: {

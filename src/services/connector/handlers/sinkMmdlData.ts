@@ -1,6 +1,14 @@
 import * as dynamodb from "../../../libs/dynamodb-lib";
 
-async function myHandler(event, _context, _callback: Function) {
+async function myHandler(
+  event: { value: string },
+  _context: any,
+  _callback: Function
+) {
+  if (!process.env.tableName) {
+    throw "process.env.tableName needs to be defined.";
+  }
+
   try {
     const recordValueObject = JSON.parse(event.value);
 

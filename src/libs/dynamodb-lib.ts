@@ -8,21 +8,28 @@ const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 
 const client = new DynamoDBClient({ region: process.env.region });
 
-export async function putItem(tableName, item) {
+export async function putItem({
+  tableName,
+  item,
+}: {
+  tableName: string;
+  item: any;
+}) {
   const params = {
     TableName: tableName,
     Item: marshall(item),
   };
 
   try {
-    console.log(`Putting item with id: ${item.id}:`);
+    if (item && item.id) console.log(`Putting item with id: ${item.id}:`);
 
     const command = new PutItemCommand(params);
     const result = await client.send(command);
-    console.log(
-      `Record processed for item: ${item.id}:`,
-      JSON.stringify(result, null, 2)
-    );
+    if (item && item.id)
+      console.log(
+        `Record processed for item: ${item.id}:`,
+        JSON.stringify(result, null, 2)
+      );
 
     await sendMetricData({
       Namespace: process.env.namespace,
@@ -36,10 +43,7 @@ export async function putItem(tableName, item) {
 
     return result;
   } catch (error) {
-    console.error(
-      "ERROR updating record in dynamodb: ",
-      error.toString("utf-8")
-    );
+    console.error("ERROR updating record in dynamodb: ", error);
     await sendMetricData({
       Namespace: process.env.namespace,
       MetricData: [
@@ -49,10 +53,11 @@ export async function putItem(tableName, item) {
         },
       ],
     });
+    return;
   }
 }
 
-export async function getItem(tableName, id) {
+export async function getItem(tableName: string | undefined, id: string) {
   const item = (
     await client.send(
       new GetItemCommand({

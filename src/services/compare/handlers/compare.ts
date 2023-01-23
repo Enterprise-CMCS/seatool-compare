@@ -1,7 +1,11 @@
 import { has } from "lodash";
 import { trackError } from "../../../libs";
 
-exports.handler = async function (event, context, callback: Function) {
+exports.handler = async function (
+  event: { Payload: any },
+  _context: any,
+  callback: Function
+) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload, match: false };
 
