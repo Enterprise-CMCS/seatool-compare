@@ -1,5 +1,6 @@
 import { getItem, trackError } from "../../../libs";
 import { getMmdlProgType, getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
+import { MmdlRecord } from "./interfaces";
 
 exports.handler = async function (
   event: { Payload: any },
@@ -12,8 +13,8 @@ exports.handler = async function (
     const mmdlRecord = await getItem(process.env.mmdlTableName, data.id);
     data.mmdlRecord = mmdlRecord;
 
-    const { programType } = getMmdlProgType(mmdlRecord);
-    const sigInfo = getMmdlSigInfo(mmdlRecord);
+    const { programType } = getMmdlProgType(mmdlRecord as MmdlRecord);
+    const sigInfo = getMmdlSigInfo(mmdlRecord as MmdlRecord);
 
     data.programType = programType;
     if ("secSinceMmdlSigned" in sigInfo)
