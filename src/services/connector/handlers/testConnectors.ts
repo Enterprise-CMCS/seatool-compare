@@ -46,13 +46,13 @@ async function myHandler() {
     // send a metric for each connector status - 0 = ✅ or 1 = ⛔️
     if (results)
       await Promise.all(
-        results.map(({ name, connector }) => {
+        results.map(({ name, state }) => {
           sendMetricData({
             Namespace: process.env.namespace,
             MetricData: [
               {
                 MetricName: name,
-                Value: connector.state === RUNNING ? 0 : 1,
+                Value: state === RUNNING ? 0 : 1,
               },
             ],
           });
@@ -80,9 +80,9 @@ async function myHandler() {
       );
 
       // get any failing results
-      const failingResults = results.filter(({ tasks, connector }) => {
+      const failingResults = results.filter(({ tasks, state }) => {
         return (
-          connector.state !== RUNNING ||
+          state !== RUNNING ||
           tasks.some((task: { state: string }) => task.state !== RUNNING)
         );
       });

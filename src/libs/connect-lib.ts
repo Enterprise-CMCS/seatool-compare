@@ -12,10 +12,19 @@ import * as http from "http";
 import * as _ from "lodash";
 import axios from "axios";
 
-const resolver = (req: http.ClientRequest, resolve: (value: any) => void) => {
+const resolver = (
+  res: http.IncomingMessage,
+  resolve: (value: { name: string; tasks: any; state: any }) => void
+) => {
   console.log("Finished");
-  if (req.socket) req.socket.destroy();
-  resolve(req); // TODO: was req.statusCode, message property 'statusCode' does not exist on type 'ClientRequest'.
+  const data = {
+    name: "...", // TODO: make this useful or remove it.
+    connector: res.headers,
+    tasks: res.statusCode,
+    state: "...", // TODO: make this useful or remove it.
+  };
+  if (res.socket) res.socket.destroy();
+  resolve(data);
 };
 
 export async function connectRestApiWithRetry(params: {
@@ -26,6 +35,8 @@ export async function connectRestApiWithRetry(params: {
   headers?: any;
   body?: object;
 }) {
+  console.log("TODO: determine typeof params.headers:", typeof params.headers);
+  console.log("TODO: params.headers:", JSON.stringify(params.headers, null, 2));
   return new Promise((resolve) => {
     function retry(e: string) {
       console.log("Got error: " + e);
@@ -54,7 +65,11 @@ export async function connectRestApiWithRetry(params: {
           retry(error.toString());
         })
         .on("end", () => {
-          resolver(req, resolve);
+          console.log(
+            "TODO: figure out types of res in on('end') connectRestApiWithRetry:",
+            JSON.stringify(res, null, 2)
+          );
+          resolver(res, resolve);
         });
     });
     if (params.body) {
@@ -115,7 +130,11 @@ export async function deleteConnector(ip: string, name: string) {
           return retry(error.toString());
         })
         .on("end", () => {
-          resolver(req, resolve);
+          console.log(
+            "TODO: figure out types of res in on('end') deleteConnector:",
+            JSON.stringify(res, null, 2)
+          );
+          resolver(res, resolve);
         });
     });
     req.write(JSON.stringify({}));
@@ -137,8 +156,8 @@ export async function deleteConnectors(
 
 export async function testConnector(
   ip: string,
-  config: { name: string; connector: any; tasks: any }
-): Promise<{ name: string; connector: any; tasks: any }> {
+  config: { name: string; tasks: any; state: any }
+): Promise<{ name: string; tasks: any; state: any }> {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: ip,
@@ -162,7 +181,11 @@ export async function testConnector(
           reject(error);
         })
         .on("end", () => {
-          resolver(req, resolve);
+          console.log(
+            "TODO: figure out types of res in on('end') testConnector:",
+            JSON.stringify(res, null, 2)
+          );
+          resolver(res, resolve);
         });
     });
 
@@ -173,8 +196,8 @@ export async function testConnector(
 
 export async function testConnectors(
   cluster: string | undefined,
-  connectors: { name: string; connector: any; tasks: any }[] | undefined
-): Promise<{ name: string; connector: any; tasks: any }[] | undefined> {
+  connectors: { name: string; tasks: any; state: any }[] | undefined
+): Promise<{ name: string; tasks: any; state: any }[] | undefined> {
   const workerIp = await ecs.findIpForEcsService(cluster);
   if (connectors)
     return await Promise.all(
@@ -240,7 +263,10 @@ export async function checkIfConnectIsReady(ip: string) {
   }
 }
 
-export async function createConnector(ip: string, connectorConfigSecret: any) {
+export async function createConnector(
+  ip: string,
+  connectorConfigSecret: string
+) {
   const config = await fetchConnectorConfigFromSecretsManager(
     connectorConfigSecret
   );
