@@ -23,6 +23,7 @@ exports.handler = async function (
   const secretId = `${project}/${stage}/alerts`;
 
   const data = { ...event.Payload };
+  const id: string = data.id;
 
   const secretExists = await doesSecretExist(region, secretId);
 
@@ -30,11 +31,7 @@ exports.handler = async function (
   try {
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
-      const params = getRecordDoesNotMatchParams({
-        emailRecipients: undefined,
-        sourceEmail: undefined,
-        id: data.id,
-      });
+      const params = getRecordDoesNotMatchParams({ id });
       console.log(
         "EMAIL NOT SENT - Secret does not exist for this stage. Example email details: ",
         JSON.stringify(params, null, 2)
@@ -42,7 +39,7 @@ exports.handler = async function (
 
       await putLogsEvent({
         type: "NOTFOUND",
-        message: `Alert for ${data.id} - TEST `,
+        message: `Alert for ${id} - TEST `,
       });
     } else {
       const { emailRecipients, sourceEmail } = await getSecretsValue(
@@ -54,16 +51,14 @@ exports.handler = async function (
       const params = getRecordDoesNotMatchParams({
         emailRecipients,
         sourceEmail,
-        id: data.id,
+        id,
       });
 
       await sendAlert(params);
 
       await putLogsEvent({
         type: "NOTFOUND",
-        message: `Alert for ${data.id} - sent to ${JSON.stringify(
-          emailRecipients
-        )}`,
+        message: `Alert for ${id} - sent to ${JSON.stringify(emailRecipients)}`,
       });
     }
   } catch (e) {
@@ -78,8 +73,8 @@ function getRecordDoesNotMatchParams({
   sourceEmail = "officialcms@example.com",
   id,
 }: {
-  emailRecipients: string[] | undefined;
-  sourceEmail: string | undefined;
+  emailRecipients?: string[];
+  sourceEmail?: string;
   id: string;
 }) {
   return {

@@ -13,7 +13,7 @@ export async function putItem({
   item,
 }: {
   tableName: string;
-  item: any;
+  item: { [key: string]: any };
 }) {
   const params = {
     TableName: tableName,

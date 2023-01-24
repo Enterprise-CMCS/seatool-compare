@@ -20,11 +20,9 @@ exports.handler = async function (
     const sigInfo = getMmdlSigInfo(mmdlRecord as MmdlRecord);
 
     data.programType = programType;
-    if ("secSinceMmdlSigned" in sigInfo)
-      // TODO: note, tsc checking seems to think secSinceMmdlSigned will never exist in sigInfo.
-      data.secSinceMmdlSigned = sigInfo.secSinceMmdlSigned;
+    data.secSinceMmdlSigned = sigInfo.secSinceMmdlSigned;
     data.mmdlSigned = sigInfo.mmdlSigned;
-    if ("mmdlSigDate" in sigInfo) data.mmdlSigDate = sigInfo.mmdlSigDate; // TODO: note, tsc checking seems to think mmdlSigDate will never exist in sigInfo.
+    data.mmdlSigDate = sigInfo.mmdlSigDate;
   } catch (e) {
     await trackError(e);
   } finally {

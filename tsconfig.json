@@ -1,5 +1,4 @@
 {
-  // "include": ["./src/**/*"], // TODO: do I need this?
   "exclude": ["./docs*", "build_run"],
   "compilerOptions": {
     "sourceMap": true,

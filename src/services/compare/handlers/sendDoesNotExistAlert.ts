@@ -23,24 +23,21 @@ exports.handler = async function (
   const secretId = `${project}/${stage}/alerts`;
 
   const data = { ...event.Payload };
+  const id = data.id;
 
   const secretExists = await doesSecretExist(region, secretId);
 
   try {
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
-      const params = getRecordDoesNotExistParams({
-        emailRecipients: undefined,
-        sourceEmail: undefined,
-        id: data.id,
-      });
+      const params = getRecordDoesNotExistParams({ id });
       console.log(
         "EMAIL NOT SENT - Secret does not exist for this stage. Example email details: ",
         JSON.stringify(params, null, 2)
       );
       await putLogsEvent({
         type: "NOTFOUND",
-        message: `Alert for ${data.id} - TEST `,
+        message: `Alert for ${id} - TEST `,
       });
     } else {
       const { emailRecipients, sourceEmail } = await getSecretsValue(
@@ -52,16 +49,14 @@ exports.handler = async function (
       const params = getRecordDoesNotExistParams({
         emailRecipients,
         sourceEmail,
-        id: data.id,
+        id,
       });
 
       await sendAlert(params);
 
       await putLogsEvent({
         type: "NOTFOUND",
-        message: `Alert for ${data.id} - sent to ${JSON.stringify(
-          emailRecipients
-        )}`,
+        message: `Alert for ${id} - sent to ${JSON.stringify(emailRecipients)}`,
       });
     }
   } catch (e) {
@@ -76,8 +71,8 @@ function getRecordDoesNotExistParams({
   sourceEmail = "officialcms@example.com",
   id,
 }: {
-  emailRecipients: string[] | undefined;
-  sourceEmail: string | undefined;
+  emailRecipients?: string[];
+  sourceEmail?: string;
   id: string;
 }) {
   return {

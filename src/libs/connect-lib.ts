@@ -14,17 +14,11 @@ import axios from "axios";
 
 const resolver = (
   res: http.IncomingMessage,
-  resolve: (value: { name: string; tasks: any; state: any }) => void
+  resolve: (statusCode: number | undefined) => void
 ) => {
   console.log("Finished");
-  const data = {
-    name: "...", // TODO: make this useful or remove it.
-    connector: res.headers,
-    tasks: res.statusCode,
-    state: "...", // TODO: make this useful or remove it.
-  };
-  if (res.socket) res.socket.destroy();
-  resolve(data);
+  res.socket.destroy();
+  resolve(res.statusCode);
 };
 
 export async function connectRestApiWithRetry(params: {
@@ -35,8 +29,6 @@ export async function connectRestApiWithRetry(params: {
   headers?: any;
   body?: object;
 }) {
-  console.log("TODO: determine typeof params.headers:", typeof params.headers);
-  console.log("TODO: params.headers:", JSON.stringify(params.headers, null, 2));
   return new Promise((resolve) => {
     function retry(e: string) {
       console.log("Got error: " + e);
@@ -57,18 +49,14 @@ export async function connectRestApiWithRetry(params: {
     const req = http.request(options, (res) => {
       console.log(`STATUS: ${res.statusCode}`);
       res
-        .on("data", (d) => {
-          console.log("Data: ", d.toString("utf-8"));
+        .on("data", (d: string) => {
+          console.log("Data: ", d.toString());
         })
         .on("error", (error) => {
           console.error("Error: ", error.toString());
           retry(error.toString());
         })
         .on("end", () => {
-          console.log(
-            "TODO: figure out types of res in on('end') connectRestApiWithRetry:",
-            JSON.stringify(res, null, 2)
-          );
           resolver(res, resolve);
         });
     });
@@ -119,10 +107,10 @@ export async function deleteConnector(ip: string, name: string) {
     const req = http.request(options, (res) => {
       console.log(`statusCode: ${res.statusCode}`);
       res
-        .on("data", (d) => {
-          console.log(d.toString("utf-8"));
+        .on("data", (d: string) => {
+          console.log(d.toString());
           if (JSON.parse(d).message != `Connector ${name} not found`) {
-            return retry(d.toString("utf-8"));
+            return retry(d.toString());
           }
         })
         .on("error", (error) => {
@@ -130,10 +118,6 @@ export async function deleteConnector(ip: string, name: string) {
           return retry(error.toString());
         })
         .on("end", () => {
-          console.log(
-            "TODO: figure out types of res in on('end') deleteConnector:",
-            JSON.stringify(res, null, 2)
-          );
           resolver(res, resolve);
         });
     });
@@ -154,10 +138,7 @@ export async function deleteConnectors(
   }
 }
 
-export async function testConnector(
-  ip: string,
-  config: { name: string; tasks: any; state: any }
-): Promise<{ name: string; tasks: any; state: any }> {
+export async function testConnector(ip: string, config: { name: string }) {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: ip,
@@ -172,8 +153,8 @@ export async function testConnector(
     const req = http.request(options, (res) => {
       console.log(`statusCode: ${res.statusCode}`);
       res
-        .on("data", (d) => {
-          console.log(d.toString("utf-8"));
+        .on("data", (d: string) => {
+          console.log(d.toString());
           resolve(JSON.parse(d));
         })
         .on("error", (error) => {
@@ -181,10 +162,6 @@ export async function testConnector(
           reject(error);
         })
         .on("end", () => {
-          console.log(
-            "TODO: figure out types of res in on('end') testConnector:",
-            JSON.stringify(res, null, 2)
-          );
           resolver(res, resolve);
         });
     });
@@ -196,8 +173,21 @@ export async function testConnector(
 
 export async function testConnectors(
   cluster: string | undefined,
-  connectors: { name: string; tasks: any; state: any }[] | undefined
-): Promise<{ name: string; tasks: any; state: any }[] | undefined> {
+  connectors: {
+    name: string;
+    config: {
+      "tasks.max": number;
+      "connector.class": string;
+      topics: string;
+      "key.converter": string;
+      "value.converter": string;
+      "aws.region": string;
+      "aws.lambda.function.arn": string;
+      "aws.lambda.batch.enabled": boolean;
+      "aws.credentials.provider.class": string;
+    };
+  }[]
+): Promise<any> {
   const workerIp = await ecs.findIpForEcsService(cluster);
   if (connectors)
     return await Promise.all(

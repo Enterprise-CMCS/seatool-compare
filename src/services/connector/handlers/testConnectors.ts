@@ -10,6 +10,20 @@ import {
 async function myHandler() {
   const cluster = process.env.cluster;
   const RUNNING = "RUNNING";
+  const connectors: {
+    name: string;
+    config: {
+      "tasks.max": number;
+      "connector.class": string;
+      topics: string;
+      "key.converter": string;
+      "value.converter": string;
+      "aws.region": string;
+      "aws.lambda.function.arn": string;
+      "aws.lambda.batch.enabled": boolean;
+      "aws.credentials.provider.class": string;
+    };
+  }[] = [];
 
   if (!process.env.connectorConfigPrefix) {
     throw "Need process.env.connectorConfigPrefix to be defined.";
@@ -26,7 +40,6 @@ async function myHandler() {
     })
   );
   if (listSecretsCommandResponse.SecretList) {
-    var connectors = [];
     for (var i = 0; i < listSecretsCommandResponse.SecretList.length; i++) {
       const getSecretValueCommandResponse = await client.send(
         new GetSecretValueCommand({
@@ -40,19 +53,23 @@ async function myHandler() {
   }
 
   try {
-    const results = await connect.testConnectors(cluster, connectors);
+    const results: {
+      name: string;
+      tasks: { state: string }[];
+      connector: { state: string };
+    }[] = (await connect.testConnectors(cluster, connectors)) ?? [];
     console.log("Kafka connector status results", JSON.stringify(results));
 
     // send a metric for each connector status - 0 = ✅ or 1 = ⛔️
     if (results)
       await Promise.all(
-        results.map(({ name, state }) => {
+        results.map(({ name, connector }) => {
           sendMetricData({
             Namespace: process.env.namespace,
             MetricData: [
               {
                 MetricName: name,
-                Value: state === RUNNING ? 0 : 1,
+                Value: connector.state === RUNNING ? 0 : 1,
               },
             ],
           });
@@ -64,9 +81,7 @@ async function myHandler() {
     if (results) {
       await Promise.all(
         results.map(({ name, tasks }) => {
-          const tasksRunning = tasks.every(
-            (task: { state: string }) => task.state === RUNNING
-          );
+          const tasksRunning = tasks.every((task) => task.state === RUNNING);
           sendMetricData({
             Namespace: process.env.namespace,
             MetricData: [
@@ -80,9 +95,9 @@ async function myHandler() {
       );
 
       // get any failing results
-      const failingResults = results.filter(({ tasks, state }) => {
+      const failingResults = results.filter(({ tasks, connector }) => {
         return (
-          state !== RUNNING ||
+          connector.state !== RUNNING ||
           tasks.some((task: { state: string }) => task.state !== RUNNING)
         );
       });

@@ -8,6 +8,7 @@ package:
 plugins:
   - serverless-stack-termination-protection
   - "@stratiformdigital/serverless-s3-security-helper"
+  - serverless-plugin-typescript
 
 provider:
   name: aws

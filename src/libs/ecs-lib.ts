@@ -7,9 +7,7 @@ import {
 } from "@aws-sdk/client-ecs";
 
 export async function findIpForEcsService(cluster: string | undefined) {
-  const client = new ECSClient({
-    // cluster, // TODO: Prior to JS to TS conversion, this cluster parameter was provided here.  TS pointed out that its not accepted by this, I do not think it's needed.  This TODO is to confirm that commenting it out did not break anything.
-  });
+  const client = new ECSClient({});
   const listStacksCommandResponse = await client.send(
     new ListTasksCommand({
       cluster,
@@ -24,7 +22,7 @@ export async function findIpForEcsService(cluster: string | undefined) {
     throw "taskArns empty";
   }
   waitUntilTasksRunning(
-    { client, maxWaitTime: 600 }, // TODO: confirm 600 is a good value for max wait time.
+    { client, maxWaitTime: 600 },
     {
       cluster,
       tasks: [taskArns[0]], // TODO: figure out why this is only waiting for the first task.

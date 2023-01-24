@@ -14,6 +14,7 @@ plugins:
   - "@stratiformdigital/serverless-idempotency-helper"
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-s3-security-helper"
+  - serverless-plugin-typescript
 
 provider:
   name: aws
