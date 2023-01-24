@@ -13,7 +13,7 @@ exports.handler = async function (
     throw "process.env.statusTableName needs to be defined.";
   }
   try {
-    await putItem(process.env.statusTableName, data);
+    await putItem({ tableName: process.env.statusTableName, item: data });
   } catch (e) {
     await trackError(e);
   } finally {

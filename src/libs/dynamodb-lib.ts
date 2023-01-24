@@ -59,7 +59,13 @@ export async function putItem({
   }
 }
 
-export async function getItem(tableName: string | undefined, id: string) {
+export async function getItem({
+  tableName,
+  id,
+}: {
+  tableName: string | undefined;
+  id: string;
+}) {
   const item = (
     await client.send(
       new GetItemCommand({
