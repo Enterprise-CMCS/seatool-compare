@@ -4,7 +4,10 @@ exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload, seatoolExist: false };
   try {
-    const item = await getItem(process.env.seatoolTableName, data.id);
+    const item = await getItem({
+      tableName: process.env.seatoolTableName,
+      id: data.id,
+    });
 
     if (item) {
       data.seatoolExist = true;
