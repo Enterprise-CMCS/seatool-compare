@@ -17,7 +17,9 @@ export async function putItem({
 }) {
   const params = {
     TableName: tableName,
-    Item: marshall(item),
+    Item: marshall(item, {
+      removeUndefinedValues: true,
+    }),
   };
 
   try {
