@@ -1,5 +1,5 @@
 {
-  "include": ["../../libs/**/*.ts"],
+  "include": ["../../../", "../../libs/**/*.ts"],
   "compilerOptions": {
     "preserveConstEnums": true,
     "strictNullChecks": true,
