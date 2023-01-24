@@ -6,7 +6,6 @@ package:
   individually: true
 
 plugins:
-  - serverless-bundle
   - serverless-plugin-scripts
   - serverless-stack-termination-protection
   - serverless-step-functions
