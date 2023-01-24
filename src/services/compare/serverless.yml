@@ -68,8 +68,6 @@ provider:
             - logs:PutLogEvents
           Resource:
             - ${param:sesLogGroupArn}
-  serverlessPluginTypescript:
-    tsConfigFileLocation: "./tsconfig.build.json"
 
 params:
   master:
@@ -97,6 +95,8 @@ custom:
       - val
       - production
   secretId: ${self:custom.project}/${sls:stage}/alerts
+  serverlessPluginTypescript:
+    tsConfigFileLocation: "./tsconfig.build.json"
 
 functions:
   workflowStarter:
