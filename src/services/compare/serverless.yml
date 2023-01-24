@@ -68,6 +68,8 @@ provider:
             - logs:PutLogEvents
           Resource:
             - ${param:sesLogGroupArn}
+  serverlessPluginTypescript:
+    tsConfigFileLocation: "./tsconfig.build.json"
 
 params:
   master:
