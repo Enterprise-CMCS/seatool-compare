@@ -1,5 +1,5 @@
 {
-  "exclude": ["./docs*", "build_run"],
+  "exclude": ["./docs*", "build_run", "src/services"],
   "compilerOptions": {
     "sourceMap": true,
     "incremental": true,
