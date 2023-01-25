@@ -7,8 +7,8 @@ services:
     path: src/services/seatool
   status:
     path: src/services/status
-  test:
-    path: src/services/test
+  # test:
+  #   path: src/services/test
   compare:
     dependsOn: alerts
     path: src/services/compare
