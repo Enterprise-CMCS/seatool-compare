@@ -13,7 +13,7 @@ plugins:
   - "@stratiformdigital/serverless-idempotency-helper"
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-s3-security-helper"
-  - serverless-bundle
+  - serverless-esbuild
 
 provider:
   name: aws
@@ -97,8 +97,9 @@ custom:
           aws --region ${self:provider.region} ecs execute-command --cluster ${self:service}-${sls:stage}-connect --task ${task##*/} --container connect --interactive --command "/bin/sh"
           """
         done
-  bundle:
-    tsConfig: '../../'
+  esbuild:
+    bundle: true
+    minify: false
 
 params:
   master:

@@ -12,7 +12,7 @@ plugins:
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-iam-helper"
   - serverless-step-functions
-  - serverless-bundle
+  - serverless-esbuild
 
 provider:
   name: aws
@@ -95,8 +95,9 @@ custom:
       - val
       - production
   secretId: ${self:custom.project}/${sls:stage}/alerts
-  bundle:
-    tsConfig: "../../"
+  esbuild:
+    bundle: true
+    minify: false
 
 functions:
   workflowStarter:
