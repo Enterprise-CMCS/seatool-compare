@@ -94,7 +94,7 @@ export default class LabeledProcessRunner {
         reject(error);
       });
 
-      proc.on("close", (code) => {
+      proc.on("close", async (code) => {
         const paddedPrefix = this.formattedPrefix(prefix);
         process.stdout.write(`${paddedPrefix} Exit: ${code}\n`);
         // If there's a failure and we haven't asked to catch all...
@@ -102,6 +102,13 @@ export default class LabeledProcessRunner {
           // This is not my area.
           // Deploy failures don't get handled and show up here with non zero exit codes
           // Here we throw an error.  Not sure what's best.
+
+          await run_command_and_output(
+            "cat .serverless/compose.log",
+            ["cat", ".serverless/compose.log"],
+            "."
+          );
+
           throw `Exit ${code}`;
         }
         resolve();

@@ -11,3 +11,9 @@ functions:
 
 plugins:
   - serverless-esbuild
+
+custom:
+  esbuild:
+    # bundle: true
+    # minify: false
+    disableIncremental: true
