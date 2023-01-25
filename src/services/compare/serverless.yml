@@ -12,7 +12,6 @@ plugins:
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-iam-helper"
   - serverless-step-functions
-  - serverless-plugin-typescript
   - serverless-bundle
 
 provider:
@@ -96,8 +95,8 @@ custom:
       - val
       - production
   secretId: ${self:custom.project}/${sls:stage}/alerts
-  serverlessPluginTypescript:
-    tsConfigFileLocation: "./tsconfig.build.json"
+  bundle:
+    tsConfig: "../../"
 
 functions:
   workflowStarter:

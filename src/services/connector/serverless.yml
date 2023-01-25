@@ -13,7 +13,6 @@ plugins:
   - "@stratiformdigital/serverless-idempotency-helper"
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-s3-security-helper"
-  - serverless-plugin-typescript
   - serverless-bundle
 
 provider:
@@ -98,8 +97,8 @@ custom:
           aws --region ${self:provider.region} ecs execute-command --cluster ${self:service}-${sls:stage}-connect --task ${task##*/} --container connect --interactive --command "/bin/sh"
           """
         done
-  serverlessPluginTypescript:
-    tsConfigFileLocation: './tsconfig.build.json'
+  bundle:
+    tsConfig: '../../'
 
 params:
   master:
