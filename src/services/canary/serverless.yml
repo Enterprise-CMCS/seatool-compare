@@ -1,0 +1,13 @@
+service: aws-node-typescript # NOTE: update this with your service name
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+
+functions:
+  hello:
+    handler: handler.hello
+
+plugins:
+  - serverless-esbuild

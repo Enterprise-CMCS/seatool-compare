@@ -7,20 +7,22 @@ services:
     path: src/services/seatool
   status:
     path: src/services/status
-  compare:
-    dependsOn: alerts
-    path: src/services/compare
-    params:
-      mmdlTableName: ${mmdl.TableName}
-      mmdlTableArn: ${mmdl.TableArn}
-      mmdlTableStreamArn: ${mmdl.TableStreamArn}
-      seatoolTableName: ${seatool.TableName}
-      seatoolTableArn: ${seatool.TableArn}
-      statusTableName: ${status.TableName}
-      statusTableArn: ${status.TableArn}
-      sesLogGroupArn: ${alerts.SesLogGroupArn}
-      sesLogGroupName: ${alerts.SesLogGroupName}
-      errorsTopicArn: ${alerts.ErrorsTopicArn}
+  canary:
+    path: src/services/canary
+  # compare:
+  #   dependsOn: alerts
+  #   path: src/services/compare
+  #   params:
+  #     mmdlTableName: ${mmdl.TableName}
+  #     mmdlTableArn: ${mmdl.TableArn}
+  #     mmdlTableStreamArn: ${mmdl.TableStreamArn}
+  #     seatoolTableName: ${seatool.TableName}
+  #     seatoolTableArn: ${seatool.TableArn}
+  #     statusTableName: ${status.TableName}
+  #     statusTableArn: ${status.TableArn}
+  #     sesLogGroupArn: ${alerts.SesLogGroupArn}
+  #     sesLogGroupName: ${alerts.SesLogGroupName}
+  #     errorsTopicArn: ${alerts.ErrorsTopicArn}
   # connector:
   #   dependsOn: compare
   #   path: src/services/connector
