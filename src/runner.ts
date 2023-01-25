@@ -104,13 +104,14 @@ export default class LabeledProcessRunner {
           // Deploy failures don't get handled and show up here with non zero exit codes
           // Here we throw an error.  Not sure what's best.
 
-          try {
-            const data = fs.readFile(".serverless/compose.log", "utf8");
+          fs.readFile(".serverless/compose.log", "utf8", (err, data) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
             console.log(".serverless/compose.log:");
             console.log(data);
-          } catch (err) {
-            console.error(err);
-          }
+          });
 
           throw `Exit ${code}`;
         }
