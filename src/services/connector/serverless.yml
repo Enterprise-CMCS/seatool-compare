@@ -100,6 +100,7 @@ custom:
   esbuild:
     bundle: true
     minify: false
+    disableIncremental: true
 
 params:
   master:
