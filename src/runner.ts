@@ -103,7 +103,7 @@ export default class LabeledProcessRunner {
           // Deploy failures don't get handled and show up here with non zero exit codes
           // Here we throw an error.  Not sure what's best.
 
-          await run_command_and_output(
+          await this.run_command_and_output(
             "cat .serverless/compose.log",
             ["cat", ".serverless/compose.log"],
             "."
