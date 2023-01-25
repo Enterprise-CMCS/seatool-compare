@@ -95,10 +95,6 @@ custom:
       - val
       - production
   secretId: ${self:custom.project}/${sls:stage}/alerts
-  esbuild:
-    bundle: true
-    minify: false
-    disableIncremental: true
 
 functions:
   workflowStarter:
