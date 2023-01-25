@@ -93,6 +93,11 @@ yargs(process.argv.slice(2))
         ];
       }
       await runner.run_command_and_output(`SLS Deploy`, deployCmd, ".");
+      await runner.run_command_and_output(
+        "cat .serverless/compose.log",
+        ["cat", ".serverless/compose.log"],
+        "."
+      );
     }
   )
   .command("test", "run all available tests.", {}, async () => {
