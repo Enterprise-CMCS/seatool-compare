@@ -98,6 +98,7 @@ custom:
   esbuild:
     bundle: true
     minify: false
+    disableIncremental: true
 
 functions:
   workflowStarter:
