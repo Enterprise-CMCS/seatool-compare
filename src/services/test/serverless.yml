@@ -10,6 +10,7 @@ functions:
     handler: handler.hello
 
 plugins:
+  - "@stratiformdigital/serverless-iam-helper"
   - serverless-esbuild
 # custom:
 #   esbuild:
