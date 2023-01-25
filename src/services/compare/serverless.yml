@@ -13,6 +13,7 @@ plugins:
   - "@stratiformdigital/serverless-iam-helper"
   - serverless-step-functions
   - serverless-plugin-typescript
+  - serverless-bundle
 
 provider:
   name: aws

@@ -14,6 +14,7 @@ plugins:
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-s3-security-helper"
   - serverless-plugin-typescript
+  - serverless-bundle
 
 provider:
   name: aws
