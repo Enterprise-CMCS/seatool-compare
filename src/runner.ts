@@ -1,5 +1,4 @@
 import { spawn } from "child_process";
-import * as fs from "fs";
 
 // LabeledProcessRunner is a command runner that interleaves the output from different
 // calls to run_command_and_output each with their own prefix
@@ -103,7 +102,6 @@ export default class LabeledProcessRunner {
           // This is not my area.
           // Deploy failures don't get handled and show up here with non zero exit codes
           // Here we throw an error.  Not sure what's best.
-
           throw `Exit ${code}`;
         }
         resolve();
