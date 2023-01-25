@@ -95,7 +95,7 @@ export default class LabeledProcessRunner {
         reject(error);
       });
 
-      proc.on("close", async (code) => {
+      proc.on("close", (code) => {
         const paddedPrefix = this.formattedPrefix(prefix);
         process.stdout.write(`${paddedPrefix} Exit: ${code}\n`);
         // If there's a failure and we haven't asked to catch all...
@@ -105,7 +105,7 @@ export default class LabeledProcessRunner {
           // Here we throw an error.  Not sure what's best.
 
           try {
-            const data = fs.readFileSync(".serverless/compose.log", "utf8");
+            const data = fs.readFile(".serverless/compose.log", "utf8");
             console.log(".serverless/compose.log:");
             console.log(data);
           } catch (err) {
