@@ -6,6 +6,8 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "serverless-step-functions": "^3.10.0"
+    "serverless-step-functions": "^3.10.0",
+    "esbuild": "0.16.17",
+    "serverless-esbuild": "^1.37.2"
   }
 }
