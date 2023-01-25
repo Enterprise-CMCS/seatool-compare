@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import * as fs from "fs";
 
 // LabeledProcessRunner is a command runner that interleaves the output from different
 // calls to run_command_and_output each with their own prefix
@@ -103,11 +104,13 @@ export default class LabeledProcessRunner {
           // Deploy failures don't get handled and show up here with non zero exit codes
           // Here we throw an error.  Not sure what's best.
 
-          await this.run_command_and_output(
-            "cat .serverless/compose.log",
-            ["cat", ".serverless/compose.log"],
-            "."
-          );
+          try {
+            const data = fs.readFileSync(".serverless/compose.log", "utf8");
+            console.log(".serverless/compose.log:");
+            console.log(data);
+          } catch (err) {
+            console.error(err);
+          }
 
           throw `Exit ${code}`;
         }
