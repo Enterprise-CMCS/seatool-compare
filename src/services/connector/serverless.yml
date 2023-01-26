@@ -96,10 +96,6 @@ custom:
           aws --region ${self:provider.region} ecs execute-command --cluster ${self:service}-${sls:stage}-connect --task ${task##*/} --container connect --interactive --command "/bin/sh"
           """
         done
-  esbuild:
-    bundle: true
-    minify: false
-    disableIncremental: true
 
 params:
   master:
