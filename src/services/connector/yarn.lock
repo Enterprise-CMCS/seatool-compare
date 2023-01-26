@@ -56,7 +56,7 @@
     "@aws-sdk/types" "3.257.0"
     tslib "^2.3.1"
 
-"@aws-sdk/client-secrets-manager@^3.216.0":
+"@aws-sdk/client-secrets-manager@^3.258.0":
   version "3.258.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/client-secrets-manager/-/client-secrets-manager-3.258.0.tgz#0bf51d1715fb6252ca94268e456b8a746374af6e"
   integrity sha512-Gk0BRn/5ZNpxjgWzOlbk4DeQloqKkBMn8hxmDJ03xkkhdSIv048uXIxFV1LpSYKAfgmWfmFQT5Z/p7/BLWiY9w==
@@ -838,6 +838,13 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@stratiformdigital/serverless-iam-helper@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@stratiformdigital/serverless-iam-helper/-/serverless-iam-helper-3.2.0.tgz#2825d36412bf03cd0407d33411f22cb66fc5d285"
+  integrity sha512-SvyWxSxbqqW6MGV1CZdsz1cVw+L9K68R6Mk6viXurzJKh34ecFg1ZsjtrcGQVcK+EviV8Ee7J9CUnEDKOAwGfw==
+  dependencies:
+    lodash "^4.17.21"
+
 acorn-walk@^8.2.0:
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/acorn-walk/-/acorn-walk-8.2.0.tgz#741210f2e2426454508853a2f44d0ab83b7f69c1"
@@ -1364,6 +1371,11 @@ lodash.union@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/lodash.union/-/lodash.union-4.6.0.tgz#48bb5088409f16f1821666641c44dd1aaae3cd88"
   integrity sha512-c4pB2CdGrGdjMKYLA+XiRDO7Y0PRQbm/Gzg8qMj+QH+pFVAoTp5sBpO0odL3FjoPCGjK96p6qsP+yQoiLoOBcw==
+
+lodash@^4.17.21:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
 lru-cache@^6.0.0:
   version "6.0.0"

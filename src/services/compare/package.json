@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@aws-sdk/client-sfn": "^3.258.0",
     "@stratiformdigital/serverless-iam-helper": "^3.2.0",
     "@stratiformdigital/serverless-online": "^3.2.0",
     "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
