@@ -2,7 +2,9 @@ import {
   DynamoDBClient,
   PutItemCommand,
   GetItemCommand,
+  ScanCommand,
 } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { sendMetricData } from "./cloudwatch-lib";
 const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 
@@ -72,3 +74,25 @@ export async function getItem({ tableName, id }) {
   /* Converting the DynamoDB record to a JavaScript object. */
   return unmarshall(item);
 }
+
+const marshallOptions = {
+  convertEmptyValues: true, // false, by default.
+  removeUndefinedValues: true, // false, by default.
+};
+
+// Create the DynamoDB document client.
+const ddbDocClient = DynamoDBDocumentClient.from(client, {
+  marshallOptions,
+});
+
+export const scanTable = async (tableName) => {
+  const params = {
+    TableName: tableName,
+  };
+  try {
+    const data = await ddbDocClient.send(new ScanCommand(params));
+    console.log("DATA:", data.Items);
+  } catch (err) {
+    console.log("Error", err);
+  }
+};
