@@ -277,137 +277,6 @@
     tslib "^2.3.1"
     uuid "^8.3.2"
 
-"@aws-sdk/client-cloudwatch-logs@^3.254.0":
-  version "3.254.0"
-  resolved "https://registry.npmjs.org/@aws-sdk/client-cloudwatch-logs/-/client-cloudwatch-logs-3.254.0.tgz"
-  integrity sha512-CtLcm53u1kVep9MF4803b+A9h75AK9HOhCyrdnzElYPD0CBlSqBcvfXskUzi9KK+RBprnHW9u7fZ9lLMzu471A==
-  dependencies:
-    "@aws-crypto/sha256-browser" "3.0.0"
-    "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.254.0"
-    "@aws-sdk/config-resolver" "3.254.0"
-    "@aws-sdk/credential-provider-node" "3.254.0"
-    "@aws-sdk/fetch-http-handler" "3.254.0"
-    "@aws-sdk/hash-node" "3.254.0"
-    "@aws-sdk/invalid-dependency" "3.254.0"
-    "@aws-sdk/middleware-content-length" "3.254.0"
-    "@aws-sdk/middleware-endpoint" "3.254.0"
-    "@aws-sdk/middleware-host-header" "3.254.0"
-    "@aws-sdk/middleware-logger" "3.254.0"
-    "@aws-sdk/middleware-recursion-detection" "3.254.0"
-    "@aws-sdk/middleware-retry" "3.254.0"
-    "@aws-sdk/middleware-serde" "3.254.0"
-    "@aws-sdk/middleware-signing" "3.254.0"
-    "@aws-sdk/middleware-stack" "3.254.0"
-    "@aws-sdk/middleware-user-agent" "3.254.0"
-    "@aws-sdk/node-config-provider" "3.254.0"
-    "@aws-sdk/node-http-handler" "3.254.0"
-    "@aws-sdk/protocol-http" "3.254.0"
-    "@aws-sdk/smithy-client" "3.254.0"
-    "@aws-sdk/types" "3.254.0"
-    "@aws-sdk/url-parser" "3.254.0"
-    "@aws-sdk/util-base64" "3.208.0"
-    "@aws-sdk/util-body-length-browser" "3.188.0"
-    "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.254.0"
-    "@aws-sdk/util-defaults-mode-node" "3.254.0"
-    "@aws-sdk/util-endpoints" "3.254.0"
-    "@aws-sdk/util-retry" "3.254.0"
-    "@aws-sdk/util-user-agent-browser" "3.254.0"
-    "@aws-sdk/util-user-agent-node" "3.254.0"
-    "@aws-sdk/util-utf8-browser" "3.188.0"
-    "@aws-sdk/util-utf8-node" "3.208.0"
-    tslib "^2.3.1"
-
-"@aws-sdk/client-cloudwatch@^3.254.0":
-  version "3.254.0"
-  resolved "https://registry.npmjs.org/@aws-sdk/client-cloudwatch/-/client-cloudwatch-3.254.0.tgz"
-  integrity sha512-CWH8lHp51oO1EROx1QXqPPDiINx82YOnbXKMcN7eKjOGaUL5VD4CUOzwS6BxwVwxArYEgjZBkSkWbHx+F6fPBw==
-  dependencies:
-    "@aws-crypto/sha256-browser" "3.0.0"
-    "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.254.0"
-    "@aws-sdk/config-resolver" "3.254.0"
-    "@aws-sdk/credential-provider-node" "3.254.0"
-    "@aws-sdk/fetch-http-handler" "3.254.0"
-    "@aws-sdk/hash-node" "3.254.0"
-    "@aws-sdk/invalid-dependency" "3.254.0"
-    "@aws-sdk/middleware-content-length" "3.254.0"
-    "@aws-sdk/middleware-endpoint" "3.254.0"
-    "@aws-sdk/middleware-host-header" "3.254.0"
-    "@aws-sdk/middleware-logger" "3.254.0"
-    "@aws-sdk/middleware-recursion-detection" "3.254.0"
-    "@aws-sdk/middleware-retry" "3.254.0"
-    "@aws-sdk/middleware-serde" "3.254.0"
-    "@aws-sdk/middleware-signing" "3.254.0"
-    "@aws-sdk/middleware-stack" "3.254.0"
-    "@aws-sdk/middleware-user-agent" "3.254.0"
-    "@aws-sdk/node-config-provider" "3.254.0"
-    "@aws-sdk/node-http-handler" "3.254.0"
-    "@aws-sdk/protocol-http" "3.254.0"
-    "@aws-sdk/smithy-client" "3.254.0"
-    "@aws-sdk/types" "3.254.0"
-    "@aws-sdk/url-parser" "3.254.0"
-    "@aws-sdk/util-base64" "3.208.0"
-    "@aws-sdk/util-body-length-browser" "3.188.0"
-    "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.254.0"
-    "@aws-sdk/util-defaults-mode-node" "3.254.0"
-    "@aws-sdk/util-endpoints" "3.254.0"
-    "@aws-sdk/util-retry" "3.254.0"
-    "@aws-sdk/util-user-agent-browser" "3.254.0"
-    "@aws-sdk/util-user-agent-node" "3.254.0"
-    "@aws-sdk/util-utf8-browser" "3.188.0"
-    "@aws-sdk/util-utf8-node" "3.208.0"
-    "@aws-sdk/util-waiter" "3.254.0"
-    fast-xml-parser "4.0.11"
-    tslib "^2.3.1"
-
-"@aws-sdk/client-dynamodb@^3.256.0":
-  version "3.256.0"
-  resolved "https://registry.npmjs.org/@aws-sdk/client-dynamodb/-/client-dynamodb-3.256.0.tgz"
-  integrity sha512-uDdnWpaaGsvsH/Fe56BbZpDUpmteH0DtEaroL9rnR33SwAnC8Rcu3KG7s2GLAR6JiyobELV+RLlTUKiYODAUDA==
-  dependencies:
-    "@aws-crypto/sha256-browser" "3.0.0"
-    "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.256.0"
-    "@aws-sdk/config-resolver" "3.254.0"
-    "@aws-sdk/credential-provider-node" "3.256.0"
-    "@aws-sdk/fetch-http-handler" "3.254.0"
-    "@aws-sdk/hash-node" "3.254.0"
-    "@aws-sdk/invalid-dependency" "3.254.0"
-    "@aws-sdk/middleware-content-length" "3.254.0"
-    "@aws-sdk/middleware-endpoint" "3.254.0"
-    "@aws-sdk/middleware-endpoint-discovery" "3.254.0"
-    "@aws-sdk/middleware-host-header" "3.254.0"
-    "@aws-sdk/middleware-logger" "3.254.0"
-    "@aws-sdk/middleware-recursion-detection" "3.254.0"
-    "@aws-sdk/middleware-retry" "3.254.0"
-    "@aws-sdk/middleware-serde" "3.254.0"
-    "@aws-sdk/middleware-signing" "3.254.0"
-    "@aws-sdk/middleware-stack" "3.254.0"
-    "@aws-sdk/middleware-user-agent" "3.254.0"
-    "@aws-sdk/node-config-provider" "3.254.0"
-    "@aws-sdk/node-http-handler" "3.254.0"
-    "@aws-sdk/protocol-http" "3.254.0"
-    "@aws-sdk/smithy-client" "3.254.0"
-    "@aws-sdk/types" "3.254.0"
-    "@aws-sdk/url-parser" "3.254.0"
-    "@aws-sdk/util-base64" "3.208.0"
-    "@aws-sdk/util-body-length-browser" "3.188.0"
-    "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.254.0"
-    "@aws-sdk/util-defaults-mode-node" "3.254.0"
-    "@aws-sdk/util-endpoints" "3.254.0"
-    "@aws-sdk/util-retry" "3.254.0"
-    "@aws-sdk/util-user-agent-browser" "3.254.0"
-    "@aws-sdk/util-user-agent-node" "3.254.0"
-    "@aws-sdk/util-utf8-browser" "3.188.0"
-    "@aws-sdk/util-utf8-node" "3.208.0"
-    "@aws-sdk/util-waiter" "3.254.0"
-    tslib "^2.3.1"
-    uuid "^8.3.2"
-
 "@aws-sdk/client-ecs@^3.254.0":
   version "3.254.0"
   resolved "https://registry.npmjs.org/@aws-sdk/client-ecs/-/client-ecs-3.254.0.tgz"
@@ -1661,14 +1530,6 @@
     "@aws-sdk/types" "3.254.0"
     tslib "^2.3.1"
 
-"@aws-sdk/endpoint-cache@3.208.0":
-  version "3.208.0"
-  resolved "https://registry.npmjs.org/@aws-sdk/endpoint-cache/-/endpoint-cache-3.208.0.tgz"
-  integrity sha512-MkrCvaZhTb1qZCjcDH73t5n43h0Kr0GS+30lpXZ9PAnHJZPqv+vhWFPK0ZsFe1XktbS0WOoDR4ED+lWm0Dw7Rg==
-  dependencies:
-    mnemonist "0.38.3"
-    tslib "^2.3.1"
-
 "@aws-sdk/eventstream-codec@3.160.0":
   version "3.160.0"
   resolved "https://registry.npmjs.org/@aws-sdk/eventstream-codec/-/eventstream-codec-3.160.0.tgz"
@@ -1875,17 +1736,6 @@
   resolved "https://registry.npmjs.org/@aws-sdk/middleware-content-length/-/middleware-content-length-3.254.0.tgz"
   integrity sha512-IT7nDZA6WsaZSNp9M79xfkk/us4kGV4SIZ2R9gHT9MFqdmpmbr3EGhFLKXUHcAZfCcOdw+JNV/wHJiiN1JD/hg==
   dependencies:
-    "@aws-sdk/protocol-http" "3.254.0"
-    "@aws-sdk/types" "3.254.0"
-    tslib "^2.3.1"
-
-"@aws-sdk/middleware-endpoint-discovery@3.254.0":
-  version "3.254.0"
-  resolved "https://registry.npmjs.org/@aws-sdk/middleware-endpoint-discovery/-/middleware-endpoint-discovery-3.254.0.tgz"
-  integrity sha512-QFFo7X7yTmo42XLajQ8J3ozDB5aPZScJwXra7iJOhFAl3JbQOGnVIleNZLnLAPMxJ6efZYu9YxFSgJIf96yDkg==
-  dependencies:
-    "@aws-sdk/config-resolver" "3.254.0"
-    "@aws-sdk/endpoint-cache" "3.208.0"
     "@aws-sdk/protocol-http" "3.254.0"
     "@aws-sdk/types" "3.254.0"
     tslib "^2.3.1"
@@ -11112,13 +10962,6 @@ mlly@^1.0.0:
     pkg-types "^1.0.0"
     ufo "^1.0.0"
 
-mnemonist@0.38.3:
-  version "0.38.3"
-  resolved "https://registry.npmjs.org/mnemonist/-/mnemonist-0.38.3.tgz"
-  integrity sha512-2K9QYubXx/NAjv4VLq1d1Ly8pWNC5L3BrixtdkyTegXWJIqY+zLNDhhX/A+ZwWt70tB1S8H4BE8FLYEFyNoOBw==
-  dependencies:
-    obliterator "^1.6.1"
-
 modify-values@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmjs.org/modify-values/-/modify-values-1.0.1.tgz"
@@ -11621,11 +11464,6 @@ object.pick@^1.3.0:
   integrity sha512-tqa/UMy/CCoYmj+H5qc07qvSL9dqcs/WZENZ1JbtWBlATP+iVOe778gE6MSijnyCnORzDuX6hU+LA4SZ09YjFQ==
   dependencies:
     isobject "^3.0.1"
-
-obliterator@^1.6.1:
-  version "1.6.1"
-  resolved "https://registry.npmjs.org/obliterator/-/obliterator-1.6.1.tgz"
-  integrity sha512-9WXswnqINnnhOG/5SLimUlzuU1hFJUc8zkwyD59Sd+dPOMf05PmnYG/d6Q7HZ+KmgkZJa1PxRso6QdM3sTNHig==
 
 octokit@^2.0.9:
   version "2.0.10"
