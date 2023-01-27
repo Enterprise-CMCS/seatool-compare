@@ -24,21 +24,7 @@ export async function sendAlert(params) {
   }
 }
 
-export async function sendAttachment(content) {
-  const todaysDate = new Date().toISOString().split("T")[0];
-  const mailOptions = {
-    from: "bpaige@gswell.com",
-    subject: "This is an email sent from a Lambda function!",
-    html: `<p>You got a contact message from: <b>ben</b></p>`,
-    to: "bpaige@fearless.tech",
-    attachments: [
-      {
-        filename: `MMDL SEA Tool Status - ${todaysDate}.csv`,
-        content,
-      },
-    ],
-  };
-
+export async function sendAttachment(mailOptions) {
   const transporter = nodemailer.createTransport({
     SES: {
       ses: ses,
@@ -46,7 +32,10 @@ export async function sendAttachment(content) {
     },
   });
 
-  // send email
-  const info = await transporter.sendMail(mailOptions);
-  return info;
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    return info;
+  } catch (e) {
+    console.error("Error sending mail:", JSON.stringify(info, null, 2));
+  }
 }
