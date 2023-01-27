@@ -14,7 +14,7 @@ exports.handler = async function (event, context, callback) {
   const stage = process.env.stage;
 
   // use this secret path to define the { emailRecipients, sourceEmail } for the does not exist email
-  const secretId = `${project}/${stage}/alerts`;
+  let secretId = `${project}/${stage}/alerts`;
 
   const data = { ...event.Payload };
 
@@ -33,6 +33,11 @@ exports.handler = async function (event, context, callback) {
         message: `Alert for ${data.id} - TEST `,
       });
     } else {
+
+      if (data.programType == "CHP") {
+        secretId = `${project}/${stage}/alerts/CHP`;
+      }
+
       const { emailRecipients, sourceEmail } = await getSecretsValue({
         region,
         secretId,
