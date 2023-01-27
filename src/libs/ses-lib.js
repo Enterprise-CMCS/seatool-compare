@@ -24,7 +24,8 @@ export async function sendAlert(params) {
   }
 }
 
-export async function sendAttachment() {
+export async function sendAttachment(content) {
+  const todaysDate = new Date().toISOString().split("T")[0];
   const mailOptions = {
     from: "bpaige@gswell.com",
     subject: "This is an email sent from a Lambda function!",
@@ -32,8 +33,8 @@ export async function sendAttachment() {
     to: "bpaige@fearless.tech",
     attachments: [
       {
-        filename: "An Attachment.csv",
-        content: "Hello World",
+        filename: `MMDL SEA Tool Status - ${todaysDate}.csv`,
+        content,
       },
     ],
   };

@@ -90,8 +90,9 @@ export const scanTable = async (tableName) => {
     TableName: tableName,
   };
   try {
-    const data = await ddbDocClient.send(new ScanCommand(params));
-    console.log("DATA:", data.Items);
+    const raw = await ddbDocClient.send(new ScanCommand(params));
+    const data = raw.Items.map(unmarshall);
+    return data;
   } catch (err) {
     console.log("Error", err);
   }
