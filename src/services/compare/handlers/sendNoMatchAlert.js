@@ -66,7 +66,7 @@ exports.handler = async function (event, context, callback) {
       });
 
       // getting the logs
-      await getLogsEvent({ type: "NOTFOUND", id: data.id})
+      await getLogsEvent({ type: "NOTFOUND", id: data.id});
     }
   } catch (e) {
     await trackError(e);

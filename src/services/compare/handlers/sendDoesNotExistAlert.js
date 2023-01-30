@@ -55,7 +55,7 @@ exports.handler = async function (event, context, callback) {
 
       // check previous log event for this data.id and get the email Recipients 
       // check if the Rec... are 5 , then 
-      await getLogsEvent({ type: "NOTFOUND", id: data.id})
+      await getLogsEvent({ type: "NOTFOUND", id: data.id});
 
       await putLogsEvent({
         type: "NOTFOUND",
@@ -64,7 +64,7 @@ exports.handler = async function (event, context, callback) {
         )}`,
       });
 
-      await getLogsEvent({ type: "NOTFOUND", id: data.id})
+      await getLogsEvent({ type: "NOTFOUND", id: data.id});
 
 
     }
