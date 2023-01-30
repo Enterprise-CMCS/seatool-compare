@@ -31,3 +31,5 @@ services:
       seatoolTableName: ${seatool.TableName}
       seatoolTableArn: ${seatool.TableArn}
       alarmsTopicArn: ${alerts.AlarmsTopicArn}
+  dashboard:
+    path: src/services/dashboard
