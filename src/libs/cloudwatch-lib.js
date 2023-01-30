@@ -6,9 +6,9 @@ import {
   CloudWatchLogsClient,
   PutLogEventsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
-import { 
-  CloudWatchLogsClient, 
-  FilterLogEventsCommand 
+import {
+  CloudWatchLogsClient,
+  FilterLogEventsCommand,
 } from "@aws-sdk/client-cloudwatch-logs"; // ES Modules import
 
 /**
@@ -59,11 +59,10 @@ export async function putLogsEvent({ type, message }) {
 export async function getLogsEvent({ type, id }) {
   const client = new CloudWatchLogsClient({ region: process.env.region });
   const input = {
-    // logEvents: [{ message, }],
     logGroupName: process.env.sesLogGroupName,
     logStreamNames: [type],
-    limit : 1,
-    filterPattern: `$.logEvents[0].message = *${id}*`
+    limit: 1,
+    filterPattern: `$.logEvents[0].message = *${id}*`,
   };
   const command = new FilterLogEventsCommand(input);
 
@@ -73,6 +72,7 @@ export async function getLogsEvent({ type, id }) {
       "Response from getting log event:",
       JSON.stringify(response, null, 2)
     );
+    return response;
   } catch (e) {
     console.log("Error from getting log event", e);
   }
