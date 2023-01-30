@@ -29,6 +29,8 @@ provider:
         - Effect: Allow
           Action:
             - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:Scan
           Resource:
             - ${param:mmdlTableArn}
             - ${param:seatoolTableArn}
@@ -40,11 +42,6 @@ provider:
             - ${param:errorsTopicArn}
         - Effect: Allow
           Action:
-            - dynamodb:PutItem
-          Resource:
-            - ${param:statusTableArn}
-        - Effect: Allow
-          Action:
             - states:StartExecution
           Resource:
             - !Ref MMDLAlertingStateMachine
@@ -52,6 +49,7 @@ provider:
         - Effect: Allow
           Action:
             - ses:SendEmail
+            - ses:SendRawEmail
           Resource:
             - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/*"
         - Effect: Allow
@@ -110,6 +108,11 @@ functions:
       mmdlTableName: ${param:mmdlTableName}
       errorsTopicArn: ${param:errorsTopicArn}
     maximumRetryAttempts: 0
+  sendReport:
+    handler: handlers/sendReport.handler
+    environment:
+      region: ${self:provider.region}
+      statusTable: ${param:statusTableName}
   compare:
     handler: handlers/compare.handler
     environment:

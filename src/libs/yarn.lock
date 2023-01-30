@@ -1418,6 +1418,14 @@
   dependencies:
     tslib "^2.3.1"
 
+"@aws-sdk/lib-dynamodb@^3.180.0":
+  version "3.259.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/lib-dynamodb/-/lib-dynamodb-3.259.0.tgz#2ed32130ac35acc7344e9aafe39a678fd8dec1e3"
+  integrity sha512-+wV94jxngN1adMmfguMSz45gDf+QXTyqy+D5kgzbpfVx0aQMTRgENzCO739CMyYuoIAb3B62/Ds6aqdJA3Ezww==
+  dependencies:
+    "@aws-sdk/util-dynamodb" "3.259.0"
+    tslib "^2.3.1"
+
 "@aws-sdk/middleware-content-length@3.193.0":
   version "3.193.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-content-length/-/middleware-content-length-3.193.0.tgz#0923ffb330527793f647516e040d36a557f7bfb6"
@@ -2446,6 +2454,13 @@
     "@aws-sdk/types" "3.226.0"
     tslib "^2.3.1"
 
+"@aws-sdk/util-dynamodb@3.259.0":
+  version "3.259.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/util-dynamodb/-/util-dynamodb-3.259.0.tgz#f8bd419c275736b135e0f20a164197ebe85c76ec"
+  integrity sha512-XRG4S9NxKlVdZ+0hl6M4XJe/vM1e4vJQ/yymmJOTwjfC4yVA7MI9OMUBhHp5WJycnUXmHxK91pOnKw6Ilb4n9A==
+  dependencies:
+    tslib "^2.3.1"
+
 "@aws-sdk/util-dynamodb@^3.180.0":
   version "3.200.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/util-dynamodb/-/util-dynamodb-3.200.0.tgz#714911f9f46db5f291ef9d3314112b4b1561a406"
@@ -2686,6 +2701,25 @@
     "@aws-sdk/types" "3.226.0"
     tslib "^2.3.1"
 
+"@json2csv/formatters@^6.1.2":
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/@json2csv/formatters/-/formatters-6.1.2.tgz#cf5bc34716d6b04e6727bb20629240ddf05f9c1e"
+  integrity sha512-l8i5EdQvHZHrtSgRFEXMkRnIn8CBopT/ecZSIyPKuee9+pm/Sxcb/r/N2jQWARnOQc7uyqQWAtpPpxU7HhZ2tg==
+
+"@json2csv/plainjs@^6.1.2":
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/@json2csv/plainjs/-/plainjs-6.1.2.tgz#c830ca8ac2d32314cd6bf4bc2c9c152f75970dde"
+  integrity sha512-XNcBd6W4G5mlP6ZL13idEx21diQAM5AJgIe78RxRfZctWRppaZrtpiGTzhc/sNv7UM1FpfO/aa5wel4+aQW7MQ==
+  dependencies:
+    "@json2csv/formatters" "^6.1.2"
+    "@streamparser/json" "^0.0.10"
+    lodash.get "^4.4.2"
+
+"@streamparser/json@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@streamparser/json/-/json-0.0.10.tgz#852725c1d4310217636075826cd5664b7b447aee"
+  integrity sha512-juqNFdqqmY/nvsODq1Vba7PWIaqr01VcqICIrxbws97QKSQhQUMml8FqdHLmevwVpqH39H5mVXKFWiWCi1ke0w==
+
 bowser@^2.11.0:
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/bowser/-/bowser-2.11.0.tgz#5ca3c35757a7aa5771500c70a73a9f91ef420a8f"
@@ -2698,6 +2732,11 @@ fast-xml-parser@4.0.11:
   dependencies:
     strnum "^1.0.5"
 
+lodash.get@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+  integrity sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==
+
 lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
@@ -2709,6 +2748,11 @@ mnemonist@0.38.3:
   integrity sha512-2K9QYubXx/NAjv4VLq1d1Ly8pWNC5L3BrixtdkyTegXWJIqY+zLNDhhX/A+ZwWt70tB1S8H4BE8FLYEFyNoOBw==
   dependencies:
     obliterator "^1.6.1"
+
+nodemailer@^6.9.0:
+  version "6.9.0"
+  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-6.9.0.tgz#a17488ff470ff9edf1bb31d9ec23079bc94f7dd3"
+  integrity sha512-jFaCEGTeT3E/m/5R2MHWiyQH3pSARECRUDM+1hokOYc3lQAAG7ASuy+2jIsYVf+RVa9zePopSQwKNVFH8DKUpA==
 
 obliterator@^1.6.1:
   version "1.6.1"
