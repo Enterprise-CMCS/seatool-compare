@@ -44,7 +44,7 @@ exports.handler = async function (event, context, callback) {
   const recipientEmail = event.recipient;
 
   if (!recipientEmail) {
-    throw 'You must manually provde a recipient email in the event to send a report. ex. {"recipient": "user@example.com"}';
+    throw 'You must manually provide a recipient email in the event to send a report. ex. {"recipient": "user@example.com"}';
   }
 
   try {
