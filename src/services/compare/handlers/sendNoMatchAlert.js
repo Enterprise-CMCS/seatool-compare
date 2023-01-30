@@ -4,6 +4,7 @@ import {
   getSecretsValue,
   putLogsEvent,
   trackError,
+  getLogsEvent
 } from "../../../libs";
 
 exports.handler = async function (event, context, callback) {
@@ -54,12 +55,18 @@ exports.handler = async function (event, context, callback) {
 
       await sendAlert(params);
 
+      // getting the logs
+      await getLogsEvent({ type: "NOTFOUND", id: data.id});
+
       await putLogsEvent({
         type: "NOTFOUND",
         message: `Alert for ${data.id} - sent to ${JSON.stringify(
           emailRecipients
         )}`,
       });
+
+      // getting the logs
+      await getLogsEvent({ type: "NOTFOUND", id: data.id})
     }
   } catch (e) {
     await trackError(e);

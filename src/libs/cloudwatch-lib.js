@@ -6,6 +6,10 @@ import {
   CloudWatchLogsClient,
   PutLogEventsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
+import { 
+  CloudWatchLogsClient, 
+  FilterLogEventsCommand 
+} from "@aws-sdk/client-cloudwatch-logs"; // ES Modules import
 
 /**
  * Sends metric data to CloudWatch
@@ -46,5 +50,30 @@ export async function putLogsEvent({ type, message }) {
     );
   } catch (e) {
     console.log("Error from sending log event", e);
+  }
+}
+/**
+ * this is to get a record that is loged when we send each email.
+ * There are two log streams 'NOMATCH' | 'NOTFOUND'
+ */
+export async function getLogsEvent({ type, id }) {
+  const client = new CloudWatchLogsClient({ region: process.env.region });
+  const input = {
+    // logEvents: [{ message, }],
+    logGroupName: process.env.sesLogGroupName,
+    logStreamNames: [type],
+    limit : 1,
+    filterPattern: `$.logEvents[0].message = *${id}*`
+  };
+  const command = new FilterLogEventsCommand(input);
+
+  try {
+    const response = await client.send(command);
+    console.log(
+      "Response from getting log event:",
+      JSON.stringify(response, null, 2)
+    );
+  } catch (e) {
+    console.log("Error from getting log event", e);
   }
 }

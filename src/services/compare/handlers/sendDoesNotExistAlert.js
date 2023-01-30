@@ -3,6 +3,7 @@ import {
   doesSecretExist,
   getSecretsValue,
   putLogsEvent,
+  getLogsEvent,
   trackError,
 } from "../../../libs";
 
@@ -52,12 +53,20 @@ exports.handler = async function (event, context, callback) {
 
       await sendAlert(params);
 
+      // check previous log event for this data.id and get the email Recipients 
+      // check if the Rec... are 5 , then 
+      await getLogsEvent({ type: "NOTFOUND", id: data.id})
+
       await putLogsEvent({
         type: "NOTFOUND",
         message: `Alert for ${data.id} - sent to ${JSON.stringify(
           emailRecipients
         )}`,
       });
+
+      await getLogsEvent({ type: "NOTFOUND", id: data.id})
+
+
     }
   } catch (e) {
     await trackError(e);
