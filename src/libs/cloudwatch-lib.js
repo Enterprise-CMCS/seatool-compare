@@ -5,11 +5,8 @@ import {
 import {
   CloudWatchLogsClient,
   PutLogEventsCommand,
+  FilterLogEventsCommand
 } from "@aws-sdk/client-cloudwatch-logs";
-import {
-  CloudWatchLogsClient,
-  FilterLogEventsCommand,
-} from "@aws-sdk/client-cloudwatch-logs"; // ES Modules import
 
 /**
  * Sends metric data to CloudWatch
