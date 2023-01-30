@@ -66,7 +66,6 @@ provider:
         - Effect: Allow
           Action:
             - logs:PutLogEvents
-            - lods:FilterLogsEvent
           Resource:
             - ${param:sesLogGroupArn}
 
