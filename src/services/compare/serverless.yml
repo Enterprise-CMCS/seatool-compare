@@ -67,7 +67,7 @@ provider:
           Action:
             - logs:PutLogEvents
             - logs:GetLogEvents
-            - lods:FilterLogsEvents
+            - logs:FilterLogsEvents
           Resource:
             - ${param:sesLogGroupArn}
 
