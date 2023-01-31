@@ -5,7 +5,7 @@ import {
 import {
   CloudWatchLogsClient,
   PutLogEventsCommand,
-  FilterLogEventsCommand
+  FilterLogEventsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
 
 /**
@@ -54,12 +54,13 @@ export async function putLogsEvent({ type, message }) {
  * There are two log streams 'NOMATCH' | 'NOTFOUND'
  */
 export async function getLogsEvent({ type, id }) {
+  console.log("type", type, "id", id);
   const client = new CloudWatchLogsClient({ region: process.env.region });
   const input = {
     logGroupName: process.env.sesLogGroupName,
     logStreamNames: [type],
     limit: 1,
-    filterPattern: `${id}`,
+    filterPattern: `{ $.message = *${id}* || $.message = *Alert for* }`,
   };
   const command = new FilterLogEventsCommand(input);
 
