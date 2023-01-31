@@ -60,7 +60,7 @@ export async function getLogsEvent({ type, id }) {
     logGroupName: process.env.sesLogGroupName,
     logStreamNames: [type],
     limit: 1,
-    filterPattern: `{ $.message = *${id}* || $.message = *Alert for* }`,
+    filterPattern: `{ $.message = *${id}* || $.message like *${id}* }`,
   };
   const command = new FilterLogEventsCommand(input);
 
