@@ -6,7 +6,7 @@ async function myHandler(
   _callback: Function
 ) {
   if (!process.env.tableName) {
-    throw "Error: process.env.tableName needs to be defined.";
+    throw "process.env.tableName needs to be defined.";
   }
 
   try {
