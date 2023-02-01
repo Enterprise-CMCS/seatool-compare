@@ -45,21 +45,21 @@ exports.handler = async function (event, context, callback) {
 
       const logs = await getLogsEvent({ type: "NOTFOUND", id: data.id });
       const recipientMap = processEvents(logs, data.id);
-      console.log(JSON.stringify({recipientMap}))
-      let recipientType = null
-      let recipients
+      console.log(JSON.stringify({recipientMap}));
+      let recipientType = null;
+      let recipients;
       if (recipientMap["emailRecipients"] && recipientMap["emailRecipientsA"] && recipientMap["emailRecipientsB"]) {
-        recipientType = "emailRecipientsB"
-        recipients = emailRecipientsB
+        recipientType = "emailRecipientsB";
+        recipients = emailRecipientsB;
       }else if(recipientMap["emailRecipients"] && recipientMap["emailRecipientsA"]){
-        recipientType = "emailRecipientsB"
-        recipients = emailRecipientsB
+        recipientType = "emailRecipientsB";
+        recipients = emailRecipientsB;
       }else if (recipientMap["emailRecipients"] ) {
-        recipientType = "emailRecipientsA"
-        recipients = emailRecipientsA
+        recipientType = "emailRecipientsA";
+        recipients = emailRecipientsA;
       }else{
-        recipientType = "emailRecipients"
-        recipients = emailRecipients
+        recipientType = "emailRecipients";
+        recipients = emailRecipients;
       }
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
@@ -113,12 +113,12 @@ function getRecordDoesNotExistParams({
 }
 
 const processEvents = (logs, id) => {
-  const { events } = logs
-  const extensions = {}
-  events.forEach(event =>{
+  const { events } = logs;
+  const extensions = {};
+  events.forEach(event => {
       if (event.message.includes(id)) {
           extensions[event.message.split('recipient:')[1]] = true;
       }
   })
-  return extensions
+  return extensions;
 }
