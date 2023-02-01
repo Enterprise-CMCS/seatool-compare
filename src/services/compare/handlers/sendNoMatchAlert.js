@@ -41,32 +41,47 @@ exports.handler = async function (event, context, callback) {
         secretId = `${project}/${stage}/alerts/CHP`;
       }
 
-      const { emailRecipients, sourceEmail } = await getSecretsValue({
+      const { emailRecipients, sourceEmail, emailRecipientsA, emailRecipientsB } = await getSecretsValue({
         region,
         secretId,
       });
 
+      const logs = await getLogsEvent({ type: "NOTFOUND", id: data.id });
+      const recipientMap = processEvents(logs, data.id);
+      console.log(JSON.stringify({recipientMap}))
+      let recipientType = null
+      let recipients
+      if (recipientMap["emailRecipients"] && recipientMap["emailRecipientsA"] && recipientMap["emailRecipientsB"]) {
+        recipientType = "emailRecipientsB"
+        recipients = emailRecipientsB
+      }else if(recipientMap["emailRecipients"] && recipientMap["emailRecipientsA"]){
+        recipientType = "emailRecipientsB"
+        recipients = emailRecipientsB
+      }else if (recipientMap["emailRecipients"] ) {
+        recipientType = "emailRecipientsA"
+        recipients = emailRecipientsA
+      }else{
+        recipientType = "emailRecipients"
+        recipients = emailRecipients
+      }
+
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
       const params = getRecordDoesNotMatchParams({
-        emailRecipients,
+        recipients,
         sourceEmail,
         id: data.id,
       });
 
       await sendAlert(params);
 
-      // getting the logs
-      await getLogsEvent({ type: "NOTFOUND", id: data.id});
-
       await putLogsEvent({
         type: "NOTFOUND",
         message: `Alert for ${data.id} - sent to ${JSON.stringify(
           emailRecipients
-        )}`,
+        )} recipient:${recipientType} `,
       });
 
-      // getting the logs
-      await getLogsEvent({ type: "NOTFOUND", id: data.id});
+
     }
   } catch (e) {
     await trackError(e);
@@ -98,4 +113,15 @@ function getRecordDoesNotMatchParams({
     },
     Source: sourceEmail,
   };
+}
+
+const processEvents = (logs, id) => {
+  const { events } = logs
+  const extensions = {}
+  events.forEach(event =>{
+      if (event.message.includes(id)) {
+          extensions[event.message.split('recipient:')[1]] = true;
+      }
+  })
+  return extensions
 }
