@@ -76,9 +76,7 @@ exports.handler = async function (event, context, callback) {
         message: `Alert for ${data.id} - sent to ${JSON.stringify(
           recipients
         )} recipient:${recipientType}`,
-      });
-
-      
+      }); 
     }
   } catch (e) {
     await trackError(e);
@@ -121,4 +119,4 @@ const processEvents = (logs, id) => {
       }
   })
   return extensions;
-}
+};

@@ -49,8 +49,8 @@ exports.handler = async function (event, context, callback) {
       const logs = await getLogsEvent({ type: "NOTFOUND", id: data.id });
       const recipientMap = processEvents(logs, data.id);
       console.log(JSON.stringify({recipientMap}));
-      let recipientType = null
-      let recipients
+      let recipientType = null;
+      let recipients;
       if (recipientMap["emailRecipients"] && recipientMap["emailRecipientsA"] && recipientMap["emailRecipientsB"]) {
         recipientType = "emailRecipientsB";
         recipients = emailRecipientsB;
@@ -122,6 +122,6 @@ const processEvents = (logs, id) => {
     if (event.message.includes(id)) {
       extensions[event.message.split('recipient:')[1]] = true;
     }
-  })
+  });
   return extensions;
-}
+};
