@@ -2,11 +2,8 @@
   "name": "dashboard",
   "devDependencies": {
     "@aws-sdk/client-cloudwatch": "^3.209.0",
-    "@stratiformdigital/serverless-iam-helper": "^3.2.0",
-    "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
     "@types/aws-lambda": "^8.10.108",
     "aws-lambda": "^1.0.7",
-    "serverless-plugin-typescript": "^2.1.4",
-    "serverless-stack-termination-protection": "^2.0.2"
+    "serverless-plugin-typescript": "^2.1.4"
   }
 }

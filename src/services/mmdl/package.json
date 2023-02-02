@@ -1,8 +1,5 @@
 {
   "name": "mmdl",
   "dependencies": {},
-  "devDependencies": {
-    "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
-    "serverless-stack-termination-protection": "^2.0.2"
-  }
+  "devDependencies": {}
 }
