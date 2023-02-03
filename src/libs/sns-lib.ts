@@ -2,7 +2,7 @@ import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 
 const snsClient = new SNSClient({ region: process.env.region });
 
-export async function trackError(e) {
+export async function trackError(e: unknown) {
   console.error("ERROR:", JSON.stringify(e, null, 2));
   const params = {
     Message: JSON.stringify(e, null, 2),
@@ -17,4 +17,5 @@ export async function trackError(e) {
       JSON.stringify(err, null, 2)
     );
   }
+  return;
 }

@@ -1,7 +1,12 @@
 import { getItem, trackError } from "../../../libs";
 import { getMmdlProgType, getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
+import { MmdlRecord } from "./interfaces";
 
-exports.handler = async function (event, context, callback) {
+exports.handler = async function (
+  event: { Payload: any },
+  _context: any,
+  callback: Function
+) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload };
   try {
@@ -11,8 +16,8 @@ exports.handler = async function (event, context, callback) {
     });
     data.mmdlRecord = mmdlRecord;
 
-    const { programType } = getMmdlProgType(mmdlRecord);
-    const sigInfo = getMmdlSigInfo(mmdlRecord);
+    const { programType } = getMmdlProgType(mmdlRecord as MmdlRecord);
+    const sigInfo = getMmdlSigInfo(mmdlRecord as MmdlRecord);
 
     data.programType = programType;
     data.secSinceMmdlSigned = sigInfo.secSinceMmdlSigned;
