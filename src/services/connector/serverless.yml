@@ -345,6 +345,7 @@ resources:
                   Action:
                     - lambda:InvokeFunction
                   Resource:
+                    - !GetAtt SinkAppianDataLambdaFunction.Arn
                     - !GetAtt SinkSeatoolDataLambdaFunction.Arn
                     - !GetAtt SinkMmdlDataLambdaFunction.Arn
                 - Effect: Allow
