@@ -83,6 +83,7 @@ custom:
           fi
         }
         set +x
+        configureConnector ${self:service}-${sls:stage}.lambda.appianData
         configureConnector ${self:service}-${sls:stage}.lambda.seatoolData
         configureConnector ${self:service}-${sls:stage}.lambda.mmdlData
     commands:
