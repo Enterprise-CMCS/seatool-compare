@@ -8,8 +8,15 @@ import { has } from "lodash";
  *   secSinceMmdlSigned: number
  *   mmdlSigDate: string
  */
-export function getMmdlSigInfo(mmdlRecord) {
-  const result = {
+export function getMmdlSigInfo(mmdlRecord: {
+  stMedDirSgnDt: { FIELD_VALUE: any };
+  id: any;
+}) {
+  const result: {
+    mmdlSigned: boolean;
+    secSinceMmdlSigned?: number;
+    mmdlSigDate?: Date;
+  } = {
     mmdlSigned: false,
   };
 
@@ -18,8 +25,8 @@ export function getMmdlSigInfo(mmdlRecord) {
     const dateSigned = mmdlRecord.stMedDirSgnDt.FIELD_VALUE;
 
     /* Calculating the difference between the current date and the date MMDL was signed. */
-    const today = new Date();
-    const signedOn = new Date(dateSigned);
+    const today = new Date().getTime();
+    const signedOn = new Date(dateSigned).getTime();
 
     const diffInSec = (today - signedOn) / 1000; // from ms to sec we div by 1000
 
@@ -39,10 +46,14 @@ export function getMmdlSigInfo(mmdlRecord) {
  * It takes a record from the MMDL database and returns the program type
  * @param mmdlRecord - the record from the MMDL table
  */
-export function getMmdlProgType(mmdlRecord) {
-  const result = {
-    programType: null,
-  };
+export function getMmdlProgType(mmdlRecord: {
+  mac179_transNbr: { FIELD_PROGRAM_TYPE_CODE: string };
+  chp179_transNbr: { FIELD_PROGRAM_TYPE_CODE: string };
+  hhs_transNbr: { FIELD_PROGRAM_TYPE_CODE: string };
+}) {
+  const result: {
+    programType?: string;
+  } = {};
 
   /* Getting the program type code for the record. one and only of these will exists */
   if (has(mmdlRecord, ["mac179_transNbr", "FIELD_PROGRAM_TYPE_CODE"])) {

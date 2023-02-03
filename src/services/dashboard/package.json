@@ -1,6 +1,5 @@
 {
   "name": "dashboard",
-  "dependencies": {},
   "devDependencies": {
     "@aws-sdk/client-cloudwatch": "^3.209.0",
     "@types/aws-lambda": "^8.10.108",

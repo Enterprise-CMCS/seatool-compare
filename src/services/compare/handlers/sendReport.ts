@@ -5,7 +5,17 @@ import {
   getCsvFromJson,
 } from "../../../libs";
 
-function formatReportData(data) {
+interface Data {
+  id: string;
+  iterations: number;
+  programType: string;
+  mmdlSigDate: string;
+  seatoolExist: boolean;
+  seatoolSigDate?: string;
+  match?: boolean;
+}
+
+function formatReportData(data: Data[]) {
   return data.map((i) => {
     return {
       "Transmittal ID": i.id,
@@ -19,7 +29,10 @@ function formatReportData(data) {
   });
 }
 
-function getMailOptionsWithAttachment(recipientEmail, attachment) {
+function getMailOptionsWithAttachment(
+  recipientEmail: string,
+  attachment: string
+) {
   const todaysDate = new Date().toISOString().split("T")[0];
   const mailOptions = {
     from: "noreply@cms.hhs.gov",
@@ -38,7 +51,7 @@ function getMailOptionsWithAttachment(recipientEmail, attachment) {
   return mailOptions;
 }
 
-exports.handler = async function (event, context, callback) {
+exports.handler = async function (event: { recipient: string }) {
   console.log("Received event:", JSON.stringify(event, null, 2));
 
   const recipientEmail = event.recipient;
@@ -49,7 +62,7 @@ exports.handler = async function (event, context, callback) {
 
   try {
     const data = await scanTable(process.env.statusTable);
-    const reportDataJson = formatReportData(data);
+    const reportDataJson = formatReportData(data as Data[]);
     const csv = getCsvFromJson(reportDataJson);
     const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
 

@@ -57,15 +57,15 @@
     tslib "^2.3.1"
 
 "@aws-sdk/client-cloudwatch-logs@^3.180.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-cloudwatch-logs/-/client-cloudwatch-logs-3.259.0.tgz#b2ec4a086113d94286a3ffbd6b43e52310d1d8e1"
-  integrity sha512-nLozA8s122ndBdoc3lj35M8dYTDf16cxGot64U5zdArIT88M/xMqgDqw4TIbqDRLHUQlT15Md80J08Za9ouoXQ==
+  version "3.262.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-cloudwatch-logs/-/client-cloudwatch-logs-3.262.0.tgz#183de77438b6b3a18d1dd731c1ff2fb11af1c866"
+  integrity sha512-LwuQ2/+6HdG62Ti61A0hSZkqw4UhFmfjbmYJVZzkRsLKK1SfKNb97Ne89QyrPHNJwVXms4U4hHYZ97fYk6P42w==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.259.0"
+    "@aws-sdk/client-sts" "3.262.0"
     "@aws-sdk/config-resolver" "3.259.0"
-    "@aws-sdk/credential-provider-node" "3.259.0"
+    "@aws-sdk/credential-provider-node" "3.261.0"
     "@aws-sdk/fetch-http-handler" "3.257.0"
     "@aws-sdk/hash-node" "3.257.0"
     "@aws-sdk/invalid-dependency" "3.257.0"
@@ -82,14 +82,14 @@
     "@aws-sdk/node-config-provider" "3.259.0"
     "@aws-sdk/node-http-handler" "3.257.0"
     "@aws-sdk/protocol-http" "3.257.0"
-    "@aws-sdk/smithy-client" "3.257.0"
+    "@aws-sdk/smithy-client" "3.261.0"
     "@aws-sdk/types" "3.257.0"
     "@aws-sdk/url-parser" "3.257.0"
     "@aws-sdk/util-base64" "3.208.0"
     "@aws-sdk/util-body-length-browser" "3.188.0"
     "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.257.0"
-    "@aws-sdk/util-defaults-mode-node" "3.259.0"
+    "@aws-sdk/util-defaults-mode-browser" "3.261.0"
+    "@aws-sdk/util-defaults-mode-node" "3.261.0"
     "@aws-sdk/util-endpoints" "3.257.0"
     "@aws-sdk/util-retry" "3.257.0"
     "@aws-sdk/util-user-agent-browser" "3.257.0"
@@ -98,15 +98,15 @@
     tslib "^2.3.1"
 
 "@aws-sdk/client-cloudwatch@^3.180.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-cloudwatch/-/client-cloudwatch-3.259.0.tgz#2307afc2ccdb50bbad8d584e2ddea5c53fb67164"
-  integrity sha512-zrPlYM6BaS+uwb4i0kBXV8PigYajgAmURTl7WPkEWnHIZ+Xy46l4XPy5ijWwykbegejbZFY7Qyq41T2iPzdA1Q==
+  version "3.262.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-cloudwatch/-/client-cloudwatch-3.262.0.tgz#fc03cff6b1bc61ff5588537d481beff52df7fae6"
+  integrity sha512-cbNLHP++r62TgSApRKwk22skjLAZiJH4KdOjP2TDcbebsD4ghIG1MLv6zWI120nZiLO8RJQIXu3J1CJ+Aj4QTw==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.259.0"
+    "@aws-sdk/client-sts" "3.262.0"
     "@aws-sdk/config-resolver" "3.259.0"
-    "@aws-sdk/credential-provider-node" "3.259.0"
+    "@aws-sdk/credential-provider-node" "3.261.0"
     "@aws-sdk/fetch-http-handler" "3.257.0"
     "@aws-sdk/hash-node" "3.257.0"
     "@aws-sdk/invalid-dependency" "3.257.0"
@@ -123,14 +123,14 @@
     "@aws-sdk/node-config-provider" "3.259.0"
     "@aws-sdk/node-http-handler" "3.257.0"
     "@aws-sdk/protocol-http" "3.257.0"
-    "@aws-sdk/smithy-client" "3.257.0"
+    "@aws-sdk/smithy-client" "3.261.0"
     "@aws-sdk/types" "3.257.0"
     "@aws-sdk/url-parser" "3.257.0"
     "@aws-sdk/util-base64" "3.208.0"
     "@aws-sdk/util-body-length-browser" "3.188.0"
     "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.257.0"
-    "@aws-sdk/util-defaults-mode-node" "3.259.0"
+    "@aws-sdk/util-defaults-mode-browser" "3.261.0"
+    "@aws-sdk/util-defaults-mode-node" "3.261.0"
     "@aws-sdk/util-endpoints" "3.257.0"
     "@aws-sdk/util-retry" "3.257.0"
     "@aws-sdk/util-user-agent-browser" "3.257.0"
@@ -141,15 +141,15 @@
     tslib "^2.3.1"
 
 "@aws-sdk/client-dynamodb@^3.180.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-dynamodb/-/client-dynamodb-3.259.0.tgz#a4db2b91fc0c122226c58d8b284b298dbf60feed"
-  integrity sha512-gmSpuk3ZERE0aMWHtOEBU9JAaDklYCObltV0JzFgKtxGFgHvSc3OAiLvNo+YT4U8sgq+/RAmw8q8cFF7r4pvbQ==
+  version "3.262.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-dynamodb/-/client-dynamodb-3.262.0.tgz#11a9ff2ceb72ce944e61939ce5cfabbd80433bf9"
+  integrity sha512-dmNq2Q4fameSM/vrktx1Xx56Ogo2W0F77J4Uxl/wwPKRptYW2bAGfxTigrodkfyE26dHJybmfHDOBwy8peXKnA==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.259.0"
+    "@aws-sdk/client-sts" "3.262.0"
     "@aws-sdk/config-resolver" "3.259.0"
-    "@aws-sdk/credential-provider-node" "3.259.0"
+    "@aws-sdk/credential-provider-node" "3.261.0"
     "@aws-sdk/fetch-http-handler" "3.257.0"
     "@aws-sdk/hash-node" "3.257.0"
     "@aws-sdk/invalid-dependency" "3.257.0"
@@ -167,14 +167,14 @@
     "@aws-sdk/node-config-provider" "3.259.0"
     "@aws-sdk/node-http-handler" "3.257.0"
     "@aws-sdk/protocol-http" "3.257.0"
-    "@aws-sdk/smithy-client" "3.257.0"
+    "@aws-sdk/smithy-client" "3.261.0"
     "@aws-sdk/types" "3.257.0"
     "@aws-sdk/url-parser" "3.257.0"
     "@aws-sdk/util-base64" "3.208.0"
     "@aws-sdk/util-body-length-browser" "3.188.0"
     "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.257.0"
-    "@aws-sdk/util-defaults-mode-node" "3.259.0"
+    "@aws-sdk/util-defaults-mode-browser" "3.261.0"
+    "@aws-sdk/util-defaults-mode-node" "3.261.0"
     "@aws-sdk/util-endpoints" "3.257.0"
     "@aws-sdk/util-retry" "3.257.0"
     "@aws-sdk/util-user-agent-browser" "3.257.0"
@@ -185,15 +185,15 @@
     uuid "^8.3.2"
 
 "@aws-sdk/client-ecs@^3.180.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ecs/-/client-ecs-3.259.0.tgz#c2996aea12f332e349ab679d2a9c5404aa270dc8"
-  integrity sha512-ACW4HBCn17r9499Ad0dPUgHe6Zc3TkCZ+ihqqQwSefPHG46wtiom/LmmTMiZZdJXR3C5DAG8WhqhQo7IpbSstw==
+  version "3.262.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ecs/-/client-ecs-3.262.0.tgz#04be1393f55645f523b4a08f889f85fba5b4f93d"
+  integrity sha512-TImwlNq3o/oHlpwXz7OtV2g6rWO0l+Nrm5sa7B4b9CXLa9XYD2SSZik6aVYoqclHuu1g0abX/CZjys2Xs8jVxQ==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.259.0"
+    "@aws-sdk/client-sts" "3.262.0"
     "@aws-sdk/config-resolver" "3.259.0"
-    "@aws-sdk/credential-provider-node" "3.259.0"
+    "@aws-sdk/credential-provider-node" "3.261.0"
     "@aws-sdk/fetch-http-handler" "3.257.0"
     "@aws-sdk/hash-node" "3.257.0"
     "@aws-sdk/invalid-dependency" "3.257.0"
@@ -210,14 +210,14 @@
     "@aws-sdk/node-config-provider" "3.259.0"
     "@aws-sdk/node-http-handler" "3.257.0"
     "@aws-sdk/protocol-http" "3.257.0"
-    "@aws-sdk/smithy-client" "3.257.0"
+    "@aws-sdk/smithy-client" "3.261.0"
     "@aws-sdk/types" "3.257.0"
     "@aws-sdk/url-parser" "3.257.0"
     "@aws-sdk/util-base64" "3.208.0"
     "@aws-sdk/util-body-length-browser" "3.188.0"
     "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.257.0"
-    "@aws-sdk/util-defaults-mode-node" "3.259.0"
+    "@aws-sdk/util-defaults-mode-browser" "3.261.0"
+    "@aws-sdk/util-defaults-mode-node" "3.261.0"
     "@aws-sdk/util-endpoints" "3.257.0"
     "@aws-sdk/util-retry" "3.257.0"
     "@aws-sdk/util-user-agent-browser" "3.257.0"
@@ -227,15 +227,15 @@
     tslib "^2.3.1"
 
 "@aws-sdk/client-secrets-manager@^3.180.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-secrets-manager/-/client-secrets-manager-3.259.0.tgz#d1a1da011ecb6b9af1aec3895617cdd4f06e1fd3"
-  integrity sha512-yCCI7whlmx83Tkjl5pvNf//Ubfj8JzfozIvCWydEULAWcB7yLyTm4aVbjrjBPs9+vd9Wgh7p38wYxJ/cll6Zew==
+  version "3.262.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-secrets-manager/-/client-secrets-manager-3.262.0.tgz#1a042557d1f1907aacf70376f631ad120812d428"
+  integrity sha512-Ofe44ssasXsuOUup1XbMwPCcqkIHUyZJ4nXonwucA2mizoI6vnyxQMQjWlIUKV/kme51PquapJsYhorYb/9OiA==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.259.0"
+    "@aws-sdk/client-sts" "3.262.0"
     "@aws-sdk/config-resolver" "3.259.0"
-    "@aws-sdk/credential-provider-node" "3.259.0"
+    "@aws-sdk/credential-provider-node" "3.261.0"
     "@aws-sdk/fetch-http-handler" "3.257.0"
     "@aws-sdk/hash-node" "3.257.0"
     "@aws-sdk/invalid-dependency" "3.257.0"
@@ -252,14 +252,14 @@
     "@aws-sdk/node-config-provider" "3.259.0"
     "@aws-sdk/node-http-handler" "3.257.0"
     "@aws-sdk/protocol-http" "3.257.0"
-    "@aws-sdk/smithy-client" "3.257.0"
+    "@aws-sdk/smithy-client" "3.261.0"
     "@aws-sdk/types" "3.257.0"
     "@aws-sdk/url-parser" "3.257.0"
     "@aws-sdk/util-base64" "3.208.0"
     "@aws-sdk/util-body-length-browser" "3.188.0"
     "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.257.0"
-    "@aws-sdk/util-defaults-mode-node" "3.259.0"
+    "@aws-sdk/util-defaults-mode-browser" "3.261.0"
+    "@aws-sdk/util-defaults-mode-node" "3.261.0"
     "@aws-sdk/util-endpoints" "3.257.0"
     "@aws-sdk/util-retry" "3.257.0"
     "@aws-sdk/util-user-agent-browser" "3.257.0"
@@ -269,15 +269,15 @@
     uuid "^8.3.2"
 
 "@aws-sdk/client-ses@^3.180.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ses/-/client-ses-3.259.0.tgz#427595a4115de32471c2f8ac49442ea6ff4d8c41"
-  integrity sha512-TGgVsJZTATHFefAKC+Wwz4n4r4QztfsPHwIJRwGOVOxRCOml2LU0YG2GEJWW/Nbw5F4bdGEingPrZmlN0usb0g==
+  version "3.262.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ses/-/client-ses-3.262.0.tgz#b2080c8081f75823e5a37581321021f278e2676e"
+  integrity sha512-fdjSjqgO33H9bjzYjBrfoIwvpW0if9jdNft3dWJQxfVtqezs/oLoBLvYOv8j5rC9Q/ivp6u/27sVWFDWJRXSuw==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.259.0"
+    "@aws-sdk/client-sts" "3.262.0"
     "@aws-sdk/config-resolver" "3.259.0"
-    "@aws-sdk/credential-provider-node" "3.259.0"
+    "@aws-sdk/credential-provider-node" "3.261.0"
     "@aws-sdk/fetch-http-handler" "3.257.0"
     "@aws-sdk/hash-node" "3.257.0"
     "@aws-sdk/invalid-dependency" "3.257.0"
@@ -294,14 +294,14 @@
     "@aws-sdk/node-config-provider" "3.259.0"
     "@aws-sdk/node-http-handler" "3.257.0"
     "@aws-sdk/protocol-http" "3.257.0"
-    "@aws-sdk/smithy-client" "3.257.0"
+    "@aws-sdk/smithy-client" "3.261.0"
     "@aws-sdk/types" "3.257.0"
     "@aws-sdk/url-parser" "3.257.0"
     "@aws-sdk/util-base64" "3.208.0"
     "@aws-sdk/util-body-length-browser" "3.188.0"
     "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.257.0"
-    "@aws-sdk/util-defaults-mode-node" "3.259.0"
+    "@aws-sdk/util-defaults-mode-browser" "3.261.0"
+    "@aws-sdk/util-defaults-mode-node" "3.261.0"
     "@aws-sdk/util-endpoints" "3.257.0"
     "@aws-sdk/util-retry" "3.257.0"
     "@aws-sdk/util-user-agent-browser" "3.257.0"
@@ -312,15 +312,15 @@
     tslib "^2.3.1"
 
 "@aws-sdk/client-sns@^3.180.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sns/-/client-sns-3.259.0.tgz#b47cfe2326a7a0336d5156d0013cc0d041a5691c"
-  integrity sha512-J/gROyG+pZ5qLUeVfr4ahwGjMBDNmy2Cl+loBwPqO3xJ4AZ18kTb9T1aL8FwDEqPdspyvVTuXKRg+R5eXhRqIA==
+  version "3.262.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sns/-/client-sns-3.262.0.tgz#62dd29f8d361a6624055e9125b6708509c5baa1a"
+  integrity sha512-RCOff3MOuxLDRN/u/6gijDPfPXpbfGtNfxoklKPiDa5FjrebHM7kaWBr4z9QXGXPScRl6N+T+PE6Qoq8RgD2lA==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.259.0"
+    "@aws-sdk/client-sts" "3.262.0"
     "@aws-sdk/config-resolver" "3.259.0"
-    "@aws-sdk/credential-provider-node" "3.259.0"
+    "@aws-sdk/credential-provider-node" "3.261.0"
     "@aws-sdk/fetch-http-handler" "3.257.0"
     "@aws-sdk/hash-node" "3.257.0"
     "@aws-sdk/invalid-dependency" "3.257.0"
@@ -337,14 +337,14 @@
     "@aws-sdk/node-config-provider" "3.259.0"
     "@aws-sdk/node-http-handler" "3.257.0"
     "@aws-sdk/protocol-http" "3.257.0"
-    "@aws-sdk/smithy-client" "3.257.0"
+    "@aws-sdk/smithy-client" "3.261.0"
     "@aws-sdk/types" "3.257.0"
     "@aws-sdk/url-parser" "3.257.0"
     "@aws-sdk/util-base64" "3.208.0"
     "@aws-sdk/util-body-length-browser" "3.188.0"
     "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.257.0"
-    "@aws-sdk/util-defaults-mode-node" "3.259.0"
+    "@aws-sdk/util-defaults-mode-browser" "3.261.0"
+    "@aws-sdk/util-defaults-mode-node" "3.261.0"
     "@aws-sdk/util-endpoints" "3.257.0"
     "@aws-sdk/util-retry" "3.257.0"
     "@aws-sdk/util-user-agent-browser" "3.257.0"
@@ -353,10 +353,10 @@
     fast-xml-parser "4.0.11"
     tslib "^2.3.1"
 
-"@aws-sdk/client-sso-oidc@3.259.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sso-oidc/-/client-sso-oidc-3.259.0.tgz#9b0b68801dddb84c575397c19c01f26a0168045f"
-  integrity sha512-TKpUX55qLM35sQXx96VnB/ZcQCcBxVU/0j0wqL8Hij+blD7fy6KrGGJPORzRphmFg8Ehf1IoCivFxrQwLrjZ6A==
+"@aws-sdk/client-sso-oidc@3.261.0":
+  version "3.261.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sso-oidc/-/client-sso-oidc-3.261.0.tgz#437e5b4ccc37bcc14e94afead8eae909887e8309"
+  integrity sha512-ItgRT/BThv2UxEeGJ5/GCF6JY1Rzk39IcDIPZAfBA8HbYcznXGDsBTRf45MErS+uollwNFX0T/WNlTbmjEDE7g==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
@@ -376,14 +376,14 @@
     "@aws-sdk/node-config-provider" "3.259.0"
     "@aws-sdk/node-http-handler" "3.257.0"
     "@aws-sdk/protocol-http" "3.257.0"
-    "@aws-sdk/smithy-client" "3.257.0"
+    "@aws-sdk/smithy-client" "3.261.0"
     "@aws-sdk/types" "3.257.0"
     "@aws-sdk/url-parser" "3.257.0"
     "@aws-sdk/util-base64" "3.208.0"
     "@aws-sdk/util-body-length-browser" "3.188.0"
     "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.257.0"
-    "@aws-sdk/util-defaults-mode-node" "3.259.0"
+    "@aws-sdk/util-defaults-mode-browser" "3.261.0"
+    "@aws-sdk/util-defaults-mode-node" "3.261.0"
     "@aws-sdk/util-endpoints" "3.257.0"
     "@aws-sdk/util-retry" "3.257.0"
     "@aws-sdk/util-user-agent-browser" "3.257.0"
@@ -391,10 +391,10 @@
     "@aws-sdk/util-utf8" "3.254.0"
     tslib "^2.3.1"
 
-"@aws-sdk/client-sso@3.259.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sso/-/client-sso-3.259.0.tgz#f3e794ff11b4d212e9743970624a26e597795408"
-  integrity sha512-TKi9Lj0zqxsrQWOZ+e4WchNDtLDz6B+ahMzYDIOFlglDPPEzbZE//PBMZCba/AAIe6U3xaUQSnni+4mNbRLg7Q==
+"@aws-sdk/client-sso@3.261.0":
+  version "3.261.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sso/-/client-sso-3.261.0.tgz#9ab7dfed385d9a18e68dc16e7dedbd9619db4f8e"
+  integrity sha512-tq5hu1WXa9BKsCH9zOBOykyiaoZQvaFHKdOamw5SZ69niyO3AG4xR1TkLqXj/9mDYMLgAIVObKZDGWtBLFTdiQ==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
@@ -414,14 +414,14 @@
     "@aws-sdk/node-config-provider" "3.259.0"
     "@aws-sdk/node-http-handler" "3.257.0"
     "@aws-sdk/protocol-http" "3.257.0"
-    "@aws-sdk/smithy-client" "3.257.0"
+    "@aws-sdk/smithy-client" "3.261.0"
     "@aws-sdk/types" "3.257.0"
     "@aws-sdk/url-parser" "3.257.0"
     "@aws-sdk/util-base64" "3.208.0"
     "@aws-sdk/util-body-length-browser" "3.188.0"
     "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.257.0"
-    "@aws-sdk/util-defaults-mode-node" "3.259.0"
+    "@aws-sdk/util-defaults-mode-browser" "3.261.0"
+    "@aws-sdk/util-defaults-mode-node" "3.261.0"
     "@aws-sdk/util-endpoints" "3.257.0"
     "@aws-sdk/util-retry" "3.257.0"
     "@aws-sdk/util-user-agent-browser" "3.257.0"
@@ -429,15 +429,15 @@
     "@aws-sdk/util-utf8" "3.254.0"
     tslib "^2.3.1"
 
-"@aws-sdk/client-sts@3.259.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sts/-/client-sts-3.259.0.tgz#02134c1cfe26e238be50367816db69b5a04430a0"
-  integrity sha512-LXqua4FoXxR30sM4BSwmPI6x0YmDTw6yQhxQQXA5hrx+YwUf8CSpa0K6Xwfv8M5+zP0uHfY1iVxx/rnT8FOEmA==
+"@aws-sdk/client-sts@3.262.0":
+  version "3.262.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sts/-/client-sts-3.262.0.tgz#aad4263147676877a754b909030b101c2437e7b7"
+  integrity sha512-4Exb/tj3h6/4JsMza0ZpKVIE6N/bY2bS2T96LMB63v5T+yLmpQWUQu/fSZ56x+nuqmN1fz6PZLe0BIp96v4vDg==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
     "@aws-sdk/config-resolver" "3.259.0"
-    "@aws-sdk/credential-provider-node" "3.259.0"
+    "@aws-sdk/credential-provider-node" "3.261.0"
     "@aws-sdk/fetch-http-handler" "3.257.0"
     "@aws-sdk/hash-node" "3.257.0"
     "@aws-sdk/invalid-dependency" "3.257.0"
@@ -455,14 +455,14 @@
     "@aws-sdk/node-config-provider" "3.259.0"
     "@aws-sdk/node-http-handler" "3.257.0"
     "@aws-sdk/protocol-http" "3.257.0"
-    "@aws-sdk/smithy-client" "3.257.0"
+    "@aws-sdk/smithy-client" "3.261.0"
     "@aws-sdk/types" "3.257.0"
     "@aws-sdk/url-parser" "3.257.0"
     "@aws-sdk/util-base64" "3.208.0"
     "@aws-sdk/util-body-length-browser" "3.188.0"
     "@aws-sdk/util-body-length-node" "3.208.0"
-    "@aws-sdk/util-defaults-mode-browser" "3.257.0"
-    "@aws-sdk/util-defaults-mode-node" "3.259.0"
+    "@aws-sdk/util-defaults-mode-browser" "3.261.0"
+    "@aws-sdk/util-defaults-mode-node" "3.261.0"
     "@aws-sdk/util-endpoints" "3.257.0"
     "@aws-sdk/util-retry" "3.257.0"
     "@aws-sdk/util-user-agent-browser" "3.257.0"
@@ -502,31 +502,31 @@
     "@aws-sdk/url-parser" "3.257.0"
     tslib "^2.3.1"
 
-"@aws-sdk/credential-provider-ini@3.259.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-provider-ini/-/credential-provider-ini-3.259.0.tgz#8aeff6d8ba545d910767d841fa03890da2a53f4c"
-  integrity sha512-/sjZv+XvcSMnvDTsau0cHxMFcbz4f4ksvgu10JQ1PpcH5CPQJviDJjZRzzijcOuMZ3SOO0skyuYU6tjY18cgIg==
+"@aws-sdk/credential-provider-ini@3.261.0":
+  version "3.261.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-provider-ini/-/credential-provider-ini-3.261.0.tgz#435525bd8d8ceb28ee69a628e22c8f0ee5af1dca"
+  integrity sha512-638jTnvFbGO0G0So+FijdC1vjn/dhw3l8nJwLq9PYOBJUKhjXDR/fpOhZkUJ+Zwfuqp9SlDDo/yfFa6j2L+F1g==
   dependencies:
     "@aws-sdk/credential-provider-env" "3.257.0"
     "@aws-sdk/credential-provider-imds" "3.259.0"
     "@aws-sdk/credential-provider-process" "3.257.0"
-    "@aws-sdk/credential-provider-sso" "3.259.0"
+    "@aws-sdk/credential-provider-sso" "3.261.0"
     "@aws-sdk/credential-provider-web-identity" "3.257.0"
     "@aws-sdk/property-provider" "3.257.0"
     "@aws-sdk/shared-ini-file-loader" "3.257.0"
     "@aws-sdk/types" "3.257.0"
     tslib "^2.3.1"
 
-"@aws-sdk/credential-provider-node@3.259.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-provider-node/-/credential-provider-node-3.259.0.tgz#304c4b06d99803d48492dc79db5233480ca2ab6a"
-  integrity sha512-7doM6hCPTZD0H+A7VtElLY4Ztuhg3MbjoHs00TyPZNCym7f/AKmKi9Exiw1tGgxTJkfn/SzcAWz+TyqMP078ow==
+"@aws-sdk/credential-provider-node@3.261.0":
+  version "3.261.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-provider-node/-/credential-provider-node-3.261.0.tgz#af7587b7d284556626e718e6345f0f40c509237e"
+  integrity sha512-7T25a7jbHsXPe7XvIekzhR50b7PTlISKqHdE8LNVUSzFQbSjVXulFk3vyQVIhmt5HKNkSBcMPDr6hKrSl7OLBw==
   dependencies:
     "@aws-sdk/credential-provider-env" "3.257.0"
     "@aws-sdk/credential-provider-imds" "3.259.0"
-    "@aws-sdk/credential-provider-ini" "3.259.0"
+    "@aws-sdk/credential-provider-ini" "3.261.0"
     "@aws-sdk/credential-provider-process" "3.257.0"
-    "@aws-sdk/credential-provider-sso" "3.259.0"
+    "@aws-sdk/credential-provider-sso" "3.261.0"
     "@aws-sdk/credential-provider-web-identity" "3.257.0"
     "@aws-sdk/property-provider" "3.257.0"
     "@aws-sdk/shared-ini-file-loader" "3.257.0"
@@ -543,15 +543,15 @@
     "@aws-sdk/types" "3.257.0"
     tslib "^2.3.1"
 
-"@aws-sdk/credential-provider-sso@3.259.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-provider-sso/-/credential-provider-sso-3.259.0.tgz#670fa1073468fbc09678fe7a7d08dc8cf0f52fcf"
-  integrity sha512-cz+8aNKxvZ8ikd0JDcB9MZredOJNRZkbco8QAM0gXfy6ziyX+23oU8+aekZljDzQR5QNRouvMz1KKmBxZLpNyg==
+"@aws-sdk/credential-provider-sso@3.261.0":
+  version "3.261.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-provider-sso/-/credential-provider-sso-3.261.0.tgz#6265828dad45b1ef67c43f712ddbcfc80e2c6fab"
+  integrity sha512-Ofj7m85/RuxcZMtghhD+U2GGszrU5tB2kxXcnkcHCudOER6bcOOEXnSfmdZnIv4xG+vma3VFwiWk2JkQo5zB5w==
   dependencies:
-    "@aws-sdk/client-sso" "3.259.0"
+    "@aws-sdk/client-sso" "3.261.0"
     "@aws-sdk/property-provider" "3.257.0"
     "@aws-sdk/shared-ini-file-loader" "3.257.0"
-    "@aws-sdk/token-providers" "3.259.0"
+    "@aws-sdk/token-providers" "3.261.0"
     "@aws-sdk/types" "3.257.0"
     tslib "^2.3.1"
 
@@ -609,11 +609,11 @@
     tslib "^2.3.1"
 
 "@aws-sdk/lib-dynamodb@^3.180.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/lib-dynamodb/-/lib-dynamodb-3.259.0.tgz#2ed32130ac35acc7344e9aafe39a678fd8dec1e3"
-  integrity sha512-+wV94jxngN1adMmfguMSz45gDf+QXTyqy+D5kgzbpfVx0aQMTRgENzCO739CMyYuoIAb3B62/Ds6aqdJA3Ezww==
+  version "3.262.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/lib-dynamodb/-/lib-dynamodb-3.262.0.tgz#5ce6ed8e9844ebaad5f088adf47aafe0240adf0b"
+  integrity sha512-cln29CNcLb1VwXHjlujAxR4RpEyPmUGq2eWS6cn2k50zGlffaNRIL/JFPPvZISQl7tjSqb6cLlk3S663bAizzA==
   dependencies:
-    "@aws-sdk/util-dynamodb" "3.259.0"
+    "@aws-sdk/util-dynamodb" "3.262.0"
     tslib "^2.3.1"
 
 "@aws-sdk/middleware-content-length@3.257.0":
@@ -817,21 +817,21 @@
     "@aws-sdk/util-utf8" "3.254.0"
     tslib "^2.3.1"
 
-"@aws-sdk/smithy-client@3.257.0":
-  version "3.257.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/smithy-client/-/smithy-client-3.257.0.tgz#839241a67726697c65b69b4eb9450d8fac46f9b4"
-  integrity sha512-Vy/en+llpslHG6WZ2yuN+On6u7p2hROEURwAST/lpReAwBETjbsxylkWvP8maeGKQ54u9uC6lIZAOJut2I3INw==
+"@aws-sdk/smithy-client@3.261.0":
+  version "3.261.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/smithy-client/-/smithy-client-3.261.0.tgz#538096a39198cf41fa8002467536e5af1958c518"
+  integrity sha512-j8XQEa3caZUVFVZfhJjaskw80O/tB+IXu84HMN44N7UkXaCFHirUsNjTDztJhnVXf/gKXzIqUqprfRnOvwLtIg==
   dependencies:
     "@aws-sdk/middleware-stack" "3.257.0"
     "@aws-sdk/types" "3.257.0"
     tslib "^2.3.1"
 
-"@aws-sdk/token-providers@3.259.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/token-providers/-/token-providers-3.259.0.tgz#b29157b8baadbee426826e952f0a832c1840f2a2"
-  integrity sha512-61lbk+vjlHBtNK7ZOTdR0rgk9dQ6++tklHpXZY3AQWAl3xx6K4y00HsyAtcP6k24s8B356QwXlrQJrQY5nnkQQ==
+"@aws-sdk/token-providers@3.261.0":
+  version "3.261.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/token-providers/-/token-providers-3.261.0.tgz#29144d2f3a6f15737cde69eb794e95d7ab76558f"
+  integrity sha512-Vi/GOnx8rPvQz5TdJJl5CwpTX6uRsSE3fzh94O4FEAIxIFtb4P5juqg92+2CJ81C7iNduB6eEeSHtwWUylypXQ==
   dependencies:
-    "@aws-sdk/client-sso-oidc" "3.259.0"
+    "@aws-sdk/client-sso-oidc" "3.261.0"
     "@aws-sdk/property-provider" "3.257.0"
     "@aws-sdk/shared-ini-file-loader" "3.257.0"
     "@aws-sdk/types" "3.257.0"
@@ -890,20 +890,20 @@
   dependencies:
     tslib "^2.3.1"
 
-"@aws-sdk/util-defaults-mode-browser@3.257.0":
-  version "3.257.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/util-defaults-mode-browser/-/util-defaults-mode-browser-3.257.0.tgz#80a7ae3618040a236df6faac8d353cb939ffea7e"
-  integrity sha512-nkfK+MNacVd3Px/fcAvU0hDeh+r7d+RLLt3sJ5Zc0gGd+i3OQEP58V8QzR9PYMvUvSvGQP16fQVQHSbRZtuWyQ==
+"@aws-sdk/util-defaults-mode-browser@3.261.0":
+  version "3.261.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/util-defaults-mode-browser/-/util-defaults-mode-browser-3.261.0.tgz#ea9f43fa569887a11db289b2e77ec6e518c5f4ed"
+  integrity sha512-lX3X1NfzQVV6cakepGV24uRcqevlDnQ8VgaCV8dhnw1FVThueFigyoFaUA02+uRXbV9KIbNWkEvweNtm2wvyDw==
   dependencies:
     "@aws-sdk/property-provider" "3.257.0"
     "@aws-sdk/types" "3.257.0"
     bowser "^2.11.0"
     tslib "^2.3.1"
 
-"@aws-sdk/util-defaults-mode-node@3.259.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/util-defaults-mode-node/-/util-defaults-mode-node-3.259.0.tgz#526cd166c26ac3f97ff8f3bbdfdfdc5f25908769"
-  integrity sha512-wRiiwT7ayIcTYGHUg/Ho9UN/Kd4V37OAxP2IbkG9rPZJNuvtKopQJhUSMDERXaMQ47dG5US8G4YVYJIEO4cKgw==
+"@aws-sdk/util-defaults-mode-node@3.261.0":
+  version "3.261.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/util-defaults-mode-node/-/util-defaults-mode-node-3.261.0.tgz#a7c09e3912a0f23e42b5c183d2a297b632014f9f"
+  integrity sha512-4AK6yu4bOmHSocUdbGoEHbNXB09UA58ON2HBHY4NxMBuFBAd9XB2tYiyhce+Cm+o+lHbS8oQnw0VZw16WMzzew==
   dependencies:
     "@aws-sdk/config-resolver" "3.259.0"
     "@aws-sdk/credential-provider-imds" "3.259.0"
@@ -912,10 +912,10 @@
     "@aws-sdk/types" "3.257.0"
     tslib "^2.3.1"
 
-"@aws-sdk/util-dynamodb@3.259.0", "@aws-sdk/util-dynamodb@^3.180.0":
-  version "3.259.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/util-dynamodb/-/util-dynamodb-3.259.0.tgz#f8bd419c275736b135e0f20a164197ebe85c76ec"
-  integrity sha512-XRG4S9NxKlVdZ+0hl6M4XJe/vM1e4vJQ/yymmJOTwjfC4yVA7MI9OMUBhHp5WJycnUXmHxK91pOnKw6Ilb4n9A==
+"@aws-sdk/util-dynamodb@3.262.0", "@aws-sdk/util-dynamodb@^3.180.0":
+  version "3.262.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/util-dynamodb/-/util-dynamodb-3.262.0.tgz#903e354de86d12361594c9bb95d5cca220667a13"
+  integrity sha512-xIk1CNUMPq0gGtxz9N7pd9wADN/2hqbIJMkjXE/weKZe84qoVkMK8r51uKKFpoi0WldHExH2/ySwcIeLMNL/5g==
   dependencies:
     tslib "^2.3.1"
 
@@ -1023,6 +1023,18 @@
   version "0.0.10"
   resolved "https://registry.yarnpkg.com/@streamparser/json/-/json-0.0.10.tgz#852725c1d4310217636075826cd5664b7b447aee"
   integrity sha512-juqNFdqqmY/nvsODq1Vba7PWIaqr01VcqICIrxbws97QKSQhQUMml8FqdHLmevwVpqH39H5mVXKFWiWCi1ke0w==
+
+"@types/node@*":
+  version "18.11.18"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.18.tgz#8dfb97f0da23c2293e554c5a50d61ef134d7697f"
+  integrity sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==
+
+"@types/nodemailer@^6.4.7":
+  version "6.4.7"
+  resolved "https://registry.yarnpkg.com/@types/nodemailer/-/nodemailer-6.4.7.tgz#658f4bca47c1a895b1d7e054b3b54030a5e1f5e0"
+  integrity sha512-f5qCBGAn/f0qtRcd4SEn88c8Fp3Swct1731X4ryPKqS61/A3LmmzN8zaEz7hneJvpjFbUUgY7lru/B/7ODTazg==
+  dependencies:
+    "@types/node" "*"
 
 bowser@^2.11.0:
   version "2.11.0"

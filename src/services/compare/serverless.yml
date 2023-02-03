@@ -8,11 +8,10 @@ package:
 plugins:
   - serverless-stack-termination-protection
   - "@stratiformdigital/serverless-s3-security-helper"
-  - serverless-bundle
-  - "@stratiformdigital/serverless-idempotency-helper"
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-iam-helper"
   - serverless-step-functions
+  - serverless-esbuild
 
 provider:
   name: aws
