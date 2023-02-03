@@ -130,6 +130,14 @@ functions:
         - Ref: LambdaConfigureConnectorsSecurityGroup
       subnetIds: >-
         ${self:custom.vpc.privateSubnets}
+  sinkAppianData:
+    handler: handlers/sinkAppianData.handler
+    environment:
+      brokerString: ${self:custom.brokerString}
+      stage: ${sls.stage}
+      region: ${self:provider.region}
+      tableName: ${param:appianTableName}
+      namespace: ${self:service}-${sls:stage}
   sinkSeatoolData:
     handler: handlers/sinkSeatoolData.handler
     environment:
