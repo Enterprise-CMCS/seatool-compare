@@ -117,7 +117,6 @@ yargs(process.argv.slice(2))
       verify: { type: "boolean", demandOption: false, default: true },
     },
     async (options) => {
-      await install_deps_for_services();
       let destroyer = new ServerlessStageDestroyer();
       let filters = [
         {
@@ -129,7 +128,7 @@ yargs(process.argv.slice(2))
       if (!options.service || options.service === "compare") {
         await refreshOutputs(options.stage);
         await runner.run_command_and_output(
-          `stop step function executions`,
+          `Stop SF Executions`,
           ["sls", "compare", "stop-executions", "--stage", options.stage],
           "."
         );
