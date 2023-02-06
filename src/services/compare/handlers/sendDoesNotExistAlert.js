@@ -3,7 +3,6 @@ import {
   doesSecretExist,
   getSecretsValue,
   putLogsEvent,
-  getLogsEvent,
   trackError,
 } from "../../../libs";
 
@@ -38,28 +37,58 @@ exports.handler = async function (event, context, callback) {
         secretId = `${project}/${stage}/alerts/CHP`;
       }
       //{ emailRecipients, sourceEmail, emailRecipientsA, emailRecipientsB }
-      const { emailRecipients, sourceEmail, emailRecipientsA, emailRecipientsB} = await getSecretsValue({
+      const {
+        emailRecipients,
+        sourceEmail,
+        emailRecipientsA,
+        emailRecipientsB,
+      } = await getSecretsValue({
         region,
         secretId,
       });
 
-      const logs = await getLogsEvent({ type: "NOTFOUND", id: data.id });
-      const recipientMap = processEvents(logs, data.id);
-      console.log(JSON.stringify({recipientMap}));
-      let recipientType = null;
-      let recipients;
-      if (recipientMap["emailRecipients"] && recipientMap["emailRecipientsA"] && recipientMap["emailRecipientsB"]) {
-        recipientType = "emailRecipientsB";
-        recipients = emailRecipientsB;
-      }else if(recipientMap["emailRecipients"] && recipientMap["emailRecipientsA"]){
-        recipientType = "emailRecipientsB";
-        recipients = emailRecipientsB;
-      }else if (recipientMap["emailRecipients"] ) {
+      // if it greater then 2 days but less then 4 days
+      if (
+        data.secSinceMmdlSigned > 48 * 3600 &&
+        data.secSinceMmdlSigned < 48 * 2 * 3600
+      ) {
         recipientType = "emailRecipientsA";
         recipients = emailRecipientsA;
-      }else{
+        console.table({
+          secSinceMmdlSigned,
+          twoDays: 48 * 3600,
+          recipients,
+          recipientType,
+          "(data.secSinceMmdlSigned > (48 * 3600)) && (data.secSinceMmdlSigned < ((48 * 2) * 3600))":
+            data.secSinceMmdlSigned > 48 * 3600 &&
+            data.secSinceMmdlSigned < 48 * 2 * 3600,
+        });
+      }
+      // if it is greater then 4 days
+      else if (data.secSinceMmdlSigned > 48 * 2 * 3600) {
+        recipientType = "emailRecipientsB";
+        recipients = emailRecipientsB;
+        console.table({
+          secSinceMmdlSigned,
+          twoDays: 48 * 3600,
+          recipients,
+          recipientType,
+          "(data.secSinceMmdlSigned > (48 * 3600))":
+            data.secSinceMmdlSigned > 48 * 3600,
+        });
+      }
+      // if it is less then 2 days
+      else {
         recipientType = "emailRecipients";
         recipients = emailRecipients;
+        console.table({
+          secSinceMmdlSigned,
+          twoDays: 48 * 3600,
+          recipients,
+          recipientType,
+          "(data.secSinceMmdlSigned < (48 * 3600))":
+            data.secSinceMmdlSigned < 48 * 3600,
+        });
       }
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
@@ -109,14 +138,3 @@ function getRecordDoesNotExistParams({
     Source: sourceEmail,
   };
 }
-
-const processEvents = (logs, id) => {
-  const { events } = logs;
-  const extensions = {};
-  events.forEach(event => {
-      if (event.message.includes(id)) {
-          extensions[event.message.split('recipient:')[1]] = true;
-      }
-  });
-  return extensions;
-};

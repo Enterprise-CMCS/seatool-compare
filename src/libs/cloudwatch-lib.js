@@ -49,29 +49,3 @@ export async function putLogsEvent({ type, message }) {
     console.log("Error from sending log event", e);
   }
 }
-/**
- * this is to get a record that is loged when we send each email.
- * There are two log streams 'NOMATCH' | 'NOTFOUND'
- */
-export async function getLogsEvent({ type, id }) {
-  console.log("type", type, "id", id);
-  const client = new CloudWatchLogsClient({ region: process.env.region });
-  const input = {
-    logGroupName: process.env.sesLogGroupName,
-    logStreamNames: [type],
-    //limit: 1,
-    //filterPattern: `{ $.message = *"${id}"* }`,
-  };
-  const command = new FilterLogEventsCommand(input);
-
-  try {
-    const response = await client.send(command);
-    console.log(
-      "Response from getting log event:",
-      JSON.stringify(response, null, 2)
-    );
-    return response;
-  } catch (e) {
-    console.log("Error from getting log event", e);
-  }
-}
