@@ -45,28 +45,50 @@ exports.handler = async function (event, context, callback) {
         secretId,
       });
 
-      let recipientType
-      let recipients
-      // if it greater then 2 days but less then 4 days  
-      if((data.secSinceMmdlSigned > (48 * 3600)) && (data.secSinceMmdlSigned < ((48 * 2) * 3600))){ 
+      let recipientType;
+      let recipients;
+      // if it greater then 2 days but less then 4 days
+      if (
+        data.secSinceMmdlSigned > 48 * 3600 &&
+        data.secSinceMmdlSigned < 48 * 2 * 3600
+      ) {
         recipientType = "emailRecipientsA";
         recipients = emailRecipientsA;
-        console.table({secSinceMmdlSigned, twoDays: 48*3600, recipients, recipientType,
-        "(data.secSinceMmdlSigned > (48 * 3600)) && (data.secSinceMmdlSigned < ((48 * 2) * 3600))":(data.secSinceMmdlSigned > (48 * 3600)) && (data.secSinceMmdlSigned < ((48 * 2) * 3600))});
+        console.table({
+          secSinceMmdlSigned: data.secSinceMmdlSigned,
+          twoDays: 48 * 3600,
+          recipients,
+          recipientType,
+          "(data.secSinceMmdlSigned > (48 * 3600)) && (data.secSinceMmdlSigned < ((48 * 2) * 3600))":
+            data.secSinceMmdlSigned > 48 * 3600 &&
+            data.secSinceMmdlSigned < 48 * 2 * 3600,
+        });
       }
       // if it is greater then 4 days
-      else if (data.secSinceMmdlSigned > ((48 * 2) * 3600)) {
+      else if (data.secSinceMmdlSigned > 48 * 2 * 3600) {
         recipientType = "emailRecipientsB";
         recipients = emailRecipientsB;
-        console.table({secSinceMmdlSigned, twoDays: 48*3600, recipients, recipientType,
-          "(data.secSinceMmdlSigned > (48 * 3600))":(data.secSinceMmdlSigned > (48 * 3600))});
+        console.table({
+          secSinceMmdlSigned: data.secSinceMmdlSigned,
+          twoDays: 48 * 3600,
+          recipients,
+          recipientType,
+          "(data.secSinceMmdlSigned > (48 * 3600))":
+            data.secSinceMmdlSigned > 48 * 3600,
+        });
       }
       // if it is less then 2 days
-      else{
+      else {
         recipientType = "emailRecipients";
         recipients = emailRecipients;
-        console.table({secSinceMmdlSigned, twoDays: 48*3600, recipients, recipientType,
-          "(data.secSinceMmdlSigned < (48 * 3600))":(data.secSinceMmdlSigned < (48 * 3600))});
+        console.table({
+          secSinceMmdlSigned: data.secSinceMmdlSigned,
+          twoDays: 48 * 3600,
+          recipients,
+          recipientType,
+          "(data.secSinceMmdlSigned < (48 * 3600))":
+            data.secSinceMmdlSigned < 48 * 3600,
+        });
       }
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
