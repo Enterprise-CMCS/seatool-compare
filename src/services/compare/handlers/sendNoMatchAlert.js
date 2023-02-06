@@ -45,7 +45,8 @@ exports.handler = async function (event, context, callback) {
         secretId,
       });
 
-
+      let recipientType
+      let recipients
       // if it greater then 2 days but less then 4 days  
       if((data.secSinceMmdlSigned > (48 * 3600)) && (data.secSinceMmdlSigned < ((48 * 2) * 3600))){ 
         recipientType = "emailRecipientsA";
