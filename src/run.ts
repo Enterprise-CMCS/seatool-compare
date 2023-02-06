@@ -124,7 +124,7 @@ yargs(process.argv.slice(2))
           Value: `${process.env.PROJECT}`,
         },
       ];
-      // is we are destroying the entire stack or just the 'compare' stack - stop all sf executions on compare service before destroying stack
+      // if we are destroying the entire stack or just the 'compare' stack - stop all sf executions on the compare service before destroying stack
       if (!options.service || options.service === "compare") {
         await runner.run_command_and_output(
           `stop step function executions`,
