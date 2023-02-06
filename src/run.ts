@@ -117,6 +117,7 @@ yargs(process.argv.slice(2))
       verify: { type: "boolean", demandOption: false, default: true },
     },
     async (options) => {
+      await install_deps_for_services();
       let destroyer = new ServerlessStageDestroyer();
       let filters = [
         {
