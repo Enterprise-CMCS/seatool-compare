@@ -7,6 +7,11 @@ exports.handler = async function (
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload, seatoolExist: false };
+
+  // SEA Tool ID Number should have a 1-1 relationship with the SPA ID+Official tag field from Appian.
+  // SPA_ID + 'Official'
+
+  // const seaToolID = data.SPA_ID + "Official";
   try {
     const item = await getItem({
       tableName: process.env.seatoolTableName,
