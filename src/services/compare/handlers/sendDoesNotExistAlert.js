@@ -33,8 +33,10 @@ exports.handler = async function (event, context, callback) {
         message: `Alert for ${data.id} - TEST `,
       });
     } else {
+      let isProgramTypeChp = false;
       if (data.programType == "CHP") {
         secretId = `${project}/${stage}/alerts/CHP`;
+        isProgramTypeChp = true;
       }
       //{ emailRecipients, sourceEmail, emailRecipientsA, emailRecipientsB }
       const {
@@ -93,11 +95,38 @@ exports.handler = async function (event, context, callback) {
       }
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
-      const params = getRecordDoesNotExistParams({
-        recipients,
-        sourceEmail,
-        id: data.id,
-      });
+      let params;
+      if (isProgramTypeChp) {
+      
+        if (recipientType == "emailRecipients") {
+          params = getRecordDoesNotExistParams({
+            recipients,
+            sourceEmail,
+            id: data.id,
+          });
+        }else{
+          params = getRecordDoesNotExistParamsAB({
+            recipients,
+            sourceEmail,
+            id: data.id,
+          });
+        }
+      }else{
+        if (recipientType == "emailRecipients") {
+          params = getRecordDoesNotExistParamsChp({
+            recipients,
+            sourceEmail,
+            id: data.id,
+          });
+        }else{
+          params = getRecordDoesNotExistParamsChpAB({
+            recipients,
+            sourceEmail,
+            id: data.id,
+          });
+        }
+      }
+
 
       await sendAlert(params);
 
@@ -128,7 +157,217 @@ function getRecordDoesNotExistParams({
       Body: {
         Text: {
           Charset: "UTF-8",
-          Data: `Record with id: ${id} does not exist in SEA Tool.`,
+          Data: `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta http-equiv="X-UA-Compatible" content="IE=edge">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Document</title>
+              <style>
+                  div {
+                      background-color:  rgb(22, 82, 150);
+                      width: 580px;
+                      border: 15px solid  rgb(22, 82, 150);;
+                      /* padding: 50px; */
+                      margin: 20px;
+                      color: white;
+                  }
+                  .dev1{
+                      color: white;
+                  }
+              </style>
+          </head>
+          <body>
+              <center >
+                  <h2>This is Reminder that there's no matching</h2>
+                  <h2>record in <a href="">SEA Tool</a> for ${id} </h2>
+                  <br>
+                  <p>Either a  record wasn't created in SEA Tool, or the SEA id is MMDL and SEA Tool doesn't Match</p>
+                  <br>
+                  <div id="dev1">
+                      if you have any questions, please contact the help desk at SEATool_helpDesk@cms.hhs.org
+                  </div>
+              </center>
+          </body>
+          </html>`,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: `ACTION REQUIRED - MMDL record for ${id} needs added in SEA Tool`,
+      },
+    },
+    Source: sourceEmail,
+  };
+}
+
+function getRecordDoesNotExistParamsAB({
+  emailRecipients = ["notexistrecipients@example.com"],
+  sourceEmail = "officialcms@example.com",
+  id,
+}) {
+  return {
+    Destination: {
+      ToAddresses: emailRecipients,
+    },
+    Message: {
+      Body: {
+        Text: {
+          Charset: "UTF-8",
+          Data: `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta http-equiv="X-UA-Compatible" content="IE=edge">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Document</title>
+              <style>
+                  div {
+                      background-color:  rgb(22, 82, 150);
+                      width: 580px;
+                      border: 15px solid  rgb(22, 82, 150);;
+                      /* padding: 50px; */
+                      margin: 20px;
+                      color: white;
+                  }
+                  .dev1{
+                      color: white;
+                  }
+              </style>
+          </head>
+          <body>
+              <center >
+                  <h2>This is a Urgent Reminder that there's no matching</h2>
+                  <h2>matching record in <a href="">SEA Tool</a> for ${id} </h2>
+                  <br>
+                  <p>Either a  record wasn't created in SEA Tool, or the SEA id is MMDL and SEA Tool doesn't Match</p>
+                  <p>Failure to address this could lead to critical delay in the review process and</p>
+                  <p>a deemed aproved SPA or waiver action.</p>
+                  <br>
+                  <div id="dev1">
+                      if you have any questions, please contact the help desk at SEATool_helpDesk@cms.hhs.org
+                  </div>
+              </center>
+          </body>
+          </html>`,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: `ACTION REQUIRED - MMDL record for ${id} needs added in SEA Tool`,
+      },
+    },
+    Source: sourceEmail,
+  };
+}
+
+function getRecordDoesNotExistParamsChp({
+  emailRecipients = ["notexistrecipients@example.com"],
+  sourceEmail = "officialcms@example.com",
+  id,
+}) {
+  return {
+    Destination: {
+      ToAddresses: emailRecipients,
+    },
+    Message: {
+      Body: {
+        Text: {
+          Charset: "UTF-8",
+          Data: `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta http-equiv="X-UA-Compatible" content="IE=edge">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Document</title>
+              <style>
+                  div {
+                      background-color:  rgb(22, 82, 150);
+                      width: 580px;
+                      border: 15px solid  rgb(22, 82, 150);;
+                      /* padding: 50px; */
+                      margin: 20px;
+                      color: white;
+                  }
+                  .dev1{
+                      color: white;
+                  }
+              </style>
+          </head>
+          <body>
+              <center >
+                  <h2>This is Reminder that there's no matching</h2>
+                  <h2>record in <a href="">SEA Tool</a> for ${id} </h2>
+                  <br>
+                  <p>Either a  record wasn't created in SEA Tool, or the SEA id is MMDL and SEA Tool doesn't Match</p>
+                  <br>
+                  <div id="dev1">
+                      if you have any questions, please contact the help desk at SEATool_helpDesk@cms.hhs.org
+                  </div>
+              </center>
+          </body>
+          </html>`,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: `ACTION REQUIRED - MMDL record for ${id} needs added in SEA Tool`,
+      },
+    },
+    Source: sourceEmail,
+  };
+}
+function getRecordDoesNotExistParamsChpAB({
+  emailRecipients = ["notexistrecipients@example.com"],
+  sourceEmail = "officialcms@example.com",
+  id,
+}) {
+  return {
+    Destination: {
+      ToAddresses: emailRecipients,
+    },
+    Message: {
+      Body: {
+        Text: {
+          Charset: "UTF-8",
+          Data: `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta http-equiv="X-UA-Compatible" content="IE=edge">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Document</title>
+              <style>
+                  div {
+                      background-color:  rgb(22, 82, 150);
+                      width: 580px;
+                      border: 15px solid  rgb(22, 82, 150);;
+                      /* padding: 50px; */
+                      margin: 20px;
+                      color: white;
+                  }
+                  .dev1{
+                      color: white;
+                  }
+              </style>
+          </head>
+          <body>
+              <center >
+                  <h2>This is a Urgent Reminder that there's no matching</h2>
+                  <h2>matching record in <a href="">SEA Tool</a> for ${id} </h2>
+                  <br>
+                  <p>Either a  record wasn't created in SEA Tool, or the SEA id is MMDL and SEA Tool doesn't Match</p>
+                  <p>Failure to address this could lead to critical delay in the review process and</p>
+                  <p>a deemed aproved SPA</p>
+                  <br>
+                  <div id="dev1">
+                      if you have any questions, please contact the help desk at SEATool_helpDesk@cms.hhs.org
+                  </div>
+              </center>
+          </body>
+          </html>`,
         },
       },
       Subject: {
