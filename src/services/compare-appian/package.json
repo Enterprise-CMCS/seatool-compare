@@ -1,0 +1,7 @@
+{
+  "name": "compare",
+  "devDependencies": {
+    "@aws-sdk/client-sfn": "^3.258.0"
+  },
+  "dependencies": {}
+}
