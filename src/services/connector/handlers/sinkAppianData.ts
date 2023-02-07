@@ -20,7 +20,7 @@ async function myHandler(
       },
     });
   } catch (error) {
-    console.log("Error updading mmdl table", event);
+    console.log("Error updading appian table", event);
     console.error(error);
   }
 }
