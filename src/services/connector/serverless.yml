@@ -51,6 +51,7 @@ provider:
           Resource:
             - ${param:seatoolTableArn}
             - ${param:mmdlTableArn}
+            - ${param:appianTableArn}
         - Effect: Allow
           Action:
             - secretsmanager:GetSecretValue
