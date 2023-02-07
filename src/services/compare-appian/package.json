@@ -1,5 +1,5 @@
 {
-  "name": "compare",
+  "name": "compare-appian",
   "devDependencies": {
     "@aws-sdk/client-sfn": "^3.258.0"
   },
