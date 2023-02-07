@@ -1,6 +1,9 @@
 import { getItem, trackError } from "../../../libs";
-import { getAppianProgType, getAppianSigInfo } from "./utils/getAppianlInfoFromRecord";
-import { AppianRecord } from "./interfaces";
+// import {
+//   getAppianProgType,
+//   getAppianSigInfo,
+// } from "./utils/getAppianlInfoFromRecord";
+// import { AppianRecord } from "./interfaces";
 
 exports.handler = async function (
   event: { Payload: any },
@@ -15,14 +18,15 @@ exports.handler = async function (
       id: data.id,
     });
     data.appianRecord = appianRecord;
+    console.log(data.appianRecord, appianRecord, event.Payload);
 
-    const { programType } = getAppianProgType(appianRecord as AppianRecord);
-    const sigInfo = getAppianSigInfo(appianRecord as AppianRecord);
+    // const { programType } = getAppianProgType(appianRecord as AppianRecord);
+    // const sigInfo = getAppianSigInfo(appianRecord as AppianRecord);
 
-    data.programType = programType;
-    data.secSinceAppianSigned = sigInfo.secSinceAppianSigned;
-    data.appianSigned = sigInfo.appianSigned;
-    data.appianSigDate = sigInfo.appianSigDate;
+    // data.programType = programType;
+    // data.secSinceAppianSigned = sigInfo.secSinceAppianSigned;
+    // data.appianSigned = sigInfo.appianSigned;
+    //    data.appianSigDate = sigInfo.appianSigDate;
   } catch (e) {
     await trackError(e);
   } finally {
