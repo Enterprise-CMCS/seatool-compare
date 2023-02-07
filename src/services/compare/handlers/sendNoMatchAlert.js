@@ -95,9 +95,8 @@ exports.handler = async function (event, context, callback) {
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
       let params;
       if (isProgramTypeChp) {
-      
         if (recipientType == "emailRecipients") {
-          params = getRecordDoesNotExistParams({
+          params = getRecordDoesNotMatchParams({
             recipients,
             sourceEmail,
             id: data.id,
@@ -142,7 +141,7 @@ exports.handler = async function (event, context, callback) {
     callback(null, data);
   }
 };
-function getRecordDoesNotExistParams({
+function getRecordDoesNotMatchParams({
   emailRecipients = ["notexistrecipients@example.com"],
   sourceEmail = "officialcms@example.com",
   id,
