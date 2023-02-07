@@ -14,7 +14,10 @@ async function myHandler(
 
   await dynamodb.putItem({
     tableName: process.env.tableName,
-    item: { id: eventValue.payload.PCKG_ID, ...JSON.parse(event.value) },
+    item: {
+      id: eventValue.payload.PCKG_ID.toString(),
+      ...JSON.parse(event.value),
+    },
   });
 }
 
