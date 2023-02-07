@@ -94,7 +94,8 @@ exports.handler = async function (event, context, callback) {
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
       let params;
-      if (isProgramTypeChp) {
+      if (!isProgramTypeChp) {
+        // if non chip
         if (recipientType == "emailRecipients") {
           params = getRecordDoesNotMatchParams({
             recipients,
@@ -109,6 +110,7 @@ exports.handler = async function (event, context, callback) {
           });
         }
       }else{
+        // if chip
         if (recipientType == "emailRecipients") {
           params = getRecordDoesNotExistParamsChp({
             recipients,
