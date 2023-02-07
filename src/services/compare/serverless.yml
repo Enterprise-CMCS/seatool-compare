@@ -11,6 +11,7 @@ plugins:
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-iam-helper"
   - serverless-step-functions
+  - serverless-plugin-scripts
   - serverless-esbuild
 
 provider:
@@ -92,6 +93,17 @@ custom:
       - val
       - production
   secretId: ${self:custom.project}/${sls:stage}/alerts
+  scripts:
+    commands:
+      stop-executions: |
+        aws stepfunctions list-executions \
+        --state-machine-arn arn:aws:states:${self:provider.region}:${aws:accountId}:stateMachine:${self:service}-${sls:stage}-compare-alerting \
+        --status-filter RUNNING \
+        --query "executions[*].{executionArn:executionArn}" \
+        --output text | \
+        xargs -I {} aws stepfunctions stop-execution \
+        --execution-arn {} >> out.t
+        rm out.t
 
 functions:
   workflowStarter:
