@@ -165,12 +165,12 @@ resources:
       Type: AWS::Logs::LogStream
       Properties:
         LogGroupName: ${param:sesLogGroupName}
-        LogStreamName: NOMATCH
+        LogStreamName: NOMATCH-APPIAN
     NotFoundStream:
       Type: AWS::Logs::LogStream
       Properties:
         LogGroupName: ${param:sesLogGroupName}
-        LogStreamName: NOTFOUND
+        LogStreamName: NOTFOUND-APPIAN
     StateMachineLogGroup:
       Type: AWS::Logs::LogGroup
       Properties:
