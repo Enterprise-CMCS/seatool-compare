@@ -27,6 +27,8 @@ services:
     dependsOn: compare
     path: src/services/connector
     params:
+      appianTableName: ${appian.TableName}
+      appianTableArn: ${appian.TableArn}
       mmdlTableName: ${mmdl.TableName}
       mmdlTableArn: ${mmdl.TableArn}
       mmdlTableStreamArn: ${mmdl.TableStreamArn}
