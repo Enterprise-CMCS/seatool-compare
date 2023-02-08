@@ -191,7 +191,7 @@ resources:
 stepFunctions:
   stateMachines:
     compareAlertFunc:
-      name: ${self:service}-${sls:stage}-compare-appian-alerting
+      name: ${self:service}-${sls:stage}-compare-alerting
       id: AppianAlertingStateMachine
       loggingConfig:
         level: ALL
