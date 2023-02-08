@@ -1,4 +1,4 @@
-service: ${self:custom.project}-compare-appian
+service: ${self:custom.project}-compare
 
 frameworkVersion: "3"
 
@@ -191,7 +191,7 @@ resources:
 stepFunctions:
   stateMachines:
     compareAlertFunc:
-      name: ${self:service}-${sls:stage}-compare-alerting
+      name: ${self:service}-${sls:stage}-compare-appian-alerting
       id: AppianAlertingStateMachine
       loggingConfig:
         level: ALL
