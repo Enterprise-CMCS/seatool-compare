@@ -38,7 +38,9 @@ services:
       sesLogGroupName: ${alerts.SesLogGroupName}
       errorsTopicArn: ${alerts.ErrorsTopicArn}
   connector:
-    dependsOn: compare
+    dependsOn:
+      - compare
+      - compare-appian
     path: src/services/connector
     params:
       appianTableArn: ${appian.TableArn}
