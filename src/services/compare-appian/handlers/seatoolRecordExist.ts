@@ -11,11 +11,13 @@ exports.handler = async function (
   // SEA Tool ID Number should have a 1-1 relationship with the SPA ID+Official tag field from Appian.
   // SPA_ID + 'Official'
 
-  // const seaToolID = data.SPA_ID + "Official";
+  // data.SPA_ID (Appian Data);
+  // Does data.SPA_ID === seaTool.id
+
   try {
     const item = await getItem({
       tableName: process.env.seatoolTableName,
-      id: data.id,
+      id: data.SPA_ID,
     });
 
     if (item) {
