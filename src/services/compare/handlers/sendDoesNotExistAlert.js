@@ -100,14 +100,14 @@ exports.handler = async function (event, context, callback) {
         //for non chip
         if (recipientType == "emailRecipients") {
           params = getRecordDoesNotExistParams({
-            recipients,
-            sourceEmail,
+            emailRecipients: recipients,
+            sourceEmail: sourceEmail,
             id: data.id,
           });
         }else{
           params = getRecordDoesNotExistParamsAB({
-            recipients,
-            sourceEmail,
+            emailRecipients: recipients,
+            sourceEmail: sourceEmail,
             id: data.id,
           });
         }
@@ -115,14 +115,14 @@ exports.handler = async function (event, context, callback) {
         // for chip
         if (recipientType == "emailRecipients") {
           params = getRecordDoesNotExistParamsChp({
-            recipients,
-            sourceEmail,
+            emailRecipients: recipients,
+            sourceEmail: sourceEmail,
             id: data.id,
           });
         }else{
           params = getRecordDoesNotExistParamsChpAB({
-            recipients,
-            sourceEmail,
+            emailRecipients: recipients,
+            sourceEmail: sourceEmail,
             id: data.id,
           });
         }
