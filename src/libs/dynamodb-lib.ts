@@ -96,15 +96,16 @@ const ddbDocClient = DynamoDBDocumentClient.from(client, {
   marshallOptions,
 });
 
-export const scanTable = async (tableName) => {
+export const scanTable = async (tableName: string) => {
   const params = {
     TableName: tableName,
   };
   try {
     const raw = await ddbDocClient.send(new ScanCommand(params));
-    const data = raw.Items.map(unmarshall);
+    const data = raw.Items?.map(unmarshall as any);
     return data;
   } catch (err) {
     console.log("Error", err);
+    return;
   }
 };
