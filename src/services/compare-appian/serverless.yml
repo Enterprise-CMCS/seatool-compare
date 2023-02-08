@@ -1,4 +1,4 @@
-service: ${self:custom.project}-compare
+service: ${self:custom.project}-compare-appian
 
 frameworkVersion: "3"
 
