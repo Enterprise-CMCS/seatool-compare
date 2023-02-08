@@ -70,18 +70,22 @@ provider:
 params:
   master:
     initialWaitSec: 172800 # 2 days
+    tempWaitSec: 172800 # 2 days
     signedSinceChoiceSec: 345600 # 4 days
     recordAgeChoiceSec: 21686400 # 251 days
   val:
     initialWaitSec: 172800
+    tempWaitSec: 172800
     signedSinceChoiceSec: 345600
     recordAgeChoiceSec: 21686400
   production:
     initialWaitSec: 172800
+    tempWaitSec: 172800
     signedSinceChoiceSec: 345600
     recordAgeChoiceSec: 21686400
   default:
     initialWaitSec: 2
+    tempWaitSec: 43200 # 12 hours
     signedSinceChoiceSec: 3
     recordAgeChoiceSec: 21686400 # 251 days
 
@@ -230,7 +234,8 @@ stepFunctions:
             Choices:
               - Variable: $.seatoolExist
                 BooleanEquals: true
-                Next: CompareTask
+                Next: UpdateStatusTask # for now we are skipping the compare task
+                # Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
                 Next: SignedSinceChoice
@@ -262,7 +267,7 @@ stepFunctions:
             Default: TempWait
           TempWait:
             Type: Wait
-            Seconds: 43200
+            Seconds: ${param:tempWaitSec}
             Next: InitialWait
           LastLoopAMatchChoice:
             Type: Choice
@@ -274,28 +279,28 @@ stepFunctions:
                     BooleanEquals: true
                 Next: SuccessState
             Default: FailState
-          CompareTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
-            Parameters:
-              Payload.$: $
-            Next: RecordsMatchChoice
-          RecordsMatchChoice:
-            Type: Choice
-            Choices:
-              - Variable: $.match
-                BooleanEquals: true
-                Next: UpdateStatusTask
-              - Variable: $.match
-                BooleanEquals: false
-                Next: SendNotMatchTask
-            Default: SendNotMatchTask
-          SendNotMatchTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
-            Parameters:
-              Payload.$: $
-            Next: UpdateStatusTask
+          # CompareTask:
+          #   Type: Task
+          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
+          #   Parameters:
+          #     Payload.$: $
+          #   Next: RecordsMatchChoice
+          # RecordsMatchChoice:
+          #   Type: Choice
+          #   Choices:
+          #     - Variable: $.match
+          #       BooleanEquals: true
+          #       Next: UpdateStatusTask
+          #     - Variable: $.match
+          #       BooleanEquals: false
+          #       Next: SendNotMatchTask
+          #   Default: SendNotMatchTask
+          # SendNotMatchTask:
+          #   Type: Task
+          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
+          #   Parameters:
+          #     Payload.$: $
+          #   Next: UpdateStatusTask
           UpdateStatusTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-updateStatus"

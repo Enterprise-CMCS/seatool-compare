@@ -1,16 +1,22 @@
 import * as dynamodb from "../../../libs/dynamodb-lib";
 
 async function myHandler(
-  event: { value: string },
+  event: { value: string; key: string },
   _context: any,
   _callback: Function
 ) {
+  console.log("EVENT:", JSON.stringify(event, null, 2));
+  // ex. event.key: "{\"WAIVER_ID\":13576,\"STATE_CODE\":\"WI\",\"GROUP_CODE\":\"HCBS\",\"PROGRAM_TYPE_CODE\":\"CHP\"}"
+
   if (!process.env.tableName) {
     throw "process.env.tableName needs to be defined.";
   }
 
   try {
+    const recordKeyObject = JSON.parse(event.key);
     const recordValueObject = JSON.parse(event.value);
+
+    const id = `${recordKeyObject.STATE_CODE}-${recordKeyObject.WAIVER_ID}-${recordKeyObject.PROGRAM_TYPE_CODE}`;
 
     // Typically the PROGRAM_TYPE_CODE will match this _transNbr key
     //   MAC: "mac179_transNbr",
@@ -41,13 +47,13 @@ async function myHandler(
 
     const transmittalNumberKey = possibleTransmittalNumberKeys[0];
 
-    let id;
+    let transmittalNumber;
 
     if (recordValueObject[transmittalNumberKey].FIELD_VALUE) {
-      id = recordValueObject[transmittalNumberKey].FIELD_VALUE;
+      transmittalNumber = recordValueObject[transmittalNumberKey].FIELD_VALUE;
     }
 
-    if (!id) {
+    if (!transmittalNumber) {
       console.error(
         "Error - No valid transmittal ID value for this record",
         event
@@ -57,7 +63,11 @@ async function myHandler(
 
     await dynamodb.putItem({
       tableName: process.env.tableName,
-      item: { id, ...recordValueObject },
+      item: {
+        id,
+        transmittalNumber: transmittalNumber.trim().toUpperCase(), // remove empty strings and upper case
+        ...recordValueObject,
+      },
     });
   } catch (error) {
     console.log("Error updading mmdl table", event);

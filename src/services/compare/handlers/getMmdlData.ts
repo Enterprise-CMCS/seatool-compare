@@ -15,6 +15,7 @@ exports.handler = async function (
       id: data.id,
     });
     data.mmdlRecord = mmdlRecord;
+    data.transmittalNumber = mmdlRecord?.transmittalNumber;
 
     const { programType } = getMmdlProgType(mmdlRecord as MmdlRecord);
     const sigInfo = getMmdlSigInfo(mmdlRecord as MmdlRecord);

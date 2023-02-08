@@ -10,14 +10,16 @@ exports.handler = async function (
   try {
     const item = await getItem({
       tableName: process.env.seatoolTableName,
-      id: data.id,
+      id: data.transmittalNumber, // we use the transmittal number here
     });
 
     if (item) {
       data.seatoolExist = true;
       data.seatoolRecord = item;
     } else {
-      console.log(`No Seatool record found for mmdl record: ${data.id}`);
+      console.log(
+        `No Seatool record found for mmdl record id: ${data.id}, tranmittalNumber: ${data.transmittalNumber}`
+      );
     }
   } catch (e) {
     await trackError(e);
