@@ -23,7 +23,7 @@ exports.handler = async function (
   const secretId = `${project}/${stage}/alerts`;
 
   const data = { ...event.Payload };
-  const id: string = data.id;
+  const id: string = data.SPA_ID;
 
   const secretExists = await doesSecretExist(region, secretId);
 
@@ -38,7 +38,7 @@ exports.handler = async function (
       );
 
       await putLogsEvent({
-        type: "NOTFOUND",
+        type: "NOTFOUND-APPIAN",
         message: `Alert for ${id} - TEST `,
       });
     } else {

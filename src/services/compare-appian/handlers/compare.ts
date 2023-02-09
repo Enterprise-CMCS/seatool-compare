@@ -11,15 +11,8 @@ exports.handler = async function (
 
   try {
     if (has(data, ["seatoolRecord", "STATE_PLAN", "SUBMISSION_DATE"])) {
-      const rawDate = data.seatoolRecord.STATE_PLAN.SUBMISSION_DATE;
-      const date = new Date(rawDate);
-      const fullDate = date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
-      data.seatoolSubmissionDate = fullDate;
-      console.log(rawDate, date, fullDate, data.appianSubmittedDate);
+      data.seatoolSubmissionDate =
+        data.seatoolRecord.STATE_PLAN.SUBMISSION_DATE;
     }
     if (
       data.appianSubmittedDate &&
