@@ -18,7 +18,9 @@ exports.handler = async function (
       id: data.id,
     });
     data.appianRecord = appianRecord;
+    data.SPA_ID = appianRecord.payload.SPA_ID;
     console.log(data.appianRecord, appianRecord, event.Payload);
+    console.log("spa_id", appianRecord.payload.SPA_ID);
 
     // const { programType } = getAppianProgType(appianRecord as AppianRecord);
     // const sigInfo = getAppianSigInfo(appianRecord as AppianRecord);
