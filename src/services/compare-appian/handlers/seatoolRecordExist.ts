@@ -13,7 +13,7 @@ exports.handler = async function (
 
   // data.SPA_ID (Appian Data);
   // Does data.SPA_ID === seaTool.id
-
+  console.log(process.env.seatoolTableName, data.SPA_ID, data);
   try {
     const item = await getItem({
       tableName: process.env.seatoolTableName,
