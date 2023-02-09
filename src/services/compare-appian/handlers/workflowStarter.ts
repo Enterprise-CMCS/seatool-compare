@@ -27,11 +27,11 @@ exports.handler = async function (event: {
   console.log(
     diffInSec,
     appianRecord.payload?.SBMSSN_TYPE,
-    appianRecord.payload?.SUB_STUS
+    appianRecord.payload?.IS_SBMTD
   );
   if (
     appianRecord.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
-    appianRecord.payload?.SUB_STUS?.toLowerCase() === "submitted" &&
+    appianRecord.payload?.IS_SBMTD?.toLowerCase() === "y" &&
     diffInSec < 17366000 // 201 days
   ) {
     /* Creating an object that will be passed to the StartExecutionCommand. */
