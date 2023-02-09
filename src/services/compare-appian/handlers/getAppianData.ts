@@ -18,16 +18,26 @@ exports.handler = async function (
       id: data.id,
     });
     data.appianRecord = appianRecord;
-    data.SPA_ID = appianRecord.payload.SPA_ID;
+    data.SPA_ID = appianRecord.payload?.SPA_ID;
     console.log(data.appianRecord, appianRecord, event.Payload);
-    console.log("spa_id", appianRecord.payload.SPA_ID);
+    console.log("spa_id", appianRecord.payload?.SPA_ID);
+
+    /* Checking if the appian record was signed within the last 200 days. */
+    const submissionDate = appianRecord.payload?.SBMSSN_DATE;
+
+    /* Calculating the difference between the current date and the date Appian was submitted. */
+    const today = new Date().getTime();
+    const submittedOn = new Date(submissionDate).getTime();
+    const diffInSec = Math.floor((today - submittedOn) / 1000); // from ms to sec we div by 1000
+    console.log("check seconds", diffInSec, submissionDate);
+    data.secSinceAppianSubmitted = diffInSec;
 
     // const { programType } = getAppianProgType(appianRecord as AppianRecord);
     // const sigInfo = getAppianSigInfo(appianRecord as AppianRecord);
 
     // data.programType = programType;
-    // data.secSinceAppianSigned = sigInfo.secSinceAppianSigned;
-    // data.appianSigned = sigInfo.appianSigned;
+    data.appianSubmitted =
+      appianRecord.payload?.SUB_STUS?.toLowerCase() === "submitted";
     //    data.appianSigDate = sigInfo.appianSigDate;
   } catch (e) {
     await trackError(e);

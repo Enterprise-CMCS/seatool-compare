@@ -32,7 +32,7 @@ exports.handler = async function (event: {
   if (
     appianRecord.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
     appianRecord.payload?.SUB_STUS?.toLowerCase() === "submitted" &&
-    diffInSec < 289440
+    diffInSec < 17366000 // 201 days
   ) {
     /* Creating an object that will be passed to the StartExecutionCommand. */
     const params = {

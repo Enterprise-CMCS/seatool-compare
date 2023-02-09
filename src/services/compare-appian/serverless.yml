@@ -69,21 +69,21 @@ provider:
 
 params:
   master:
-    initialWaitSec: 172800 # 2 days
-    signedSinceChoiceSec: 345600 # 4 days
-    recordAgeChoiceSec: 21686400 # 251 days
+    initialWaitSec: 86400 # 1 days
+    sinceSubmissionChoiceSec: 345600 # 4 days
+    recordAgeChoiceSec: 17366000 # 201 days
   val:
-    initialWaitSec: 172800
-    signedSinceChoiceSec: 345600
-    recordAgeChoiceSec: 21686400
+    initialWaitSec: 86400
+    sinceSubmissionChoiceSec: 345600
+    recordAgeChoiceSec: 17366000
   production:
-    initialWaitSec: 172800
-    signedSinceChoiceSec: 345600
-    recordAgeChoiceSec: 21686400
+    initialWaitSec: 86400
+    sinceSubmissionChoiceSec: 345600
+    recordAgeChoiceSec: 17366000
   default:
     initialWaitSec: 2
-    signedSinceChoiceSec: 3
-    recordAgeChoiceSec: 21686400 # 251 days
+    sinceSubmissionChoiceSec: 3
+    recordAgeChoiceSec: 17366000 # 201 days
 
 custom:
   project: ${env:PROJECT}
@@ -233,17 +233,17 @@ stepFunctions:
                 Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
-                Next: SignedSinceChoice
-            Default: SignedSinceChoice
-          SignedSinceChoice:
+                Next: SinceSubmissionChoice
+            Default: SinceSubmissionChoice
+          SinceSubmissionChoice:
             Type: Choice
             Choices:
               - And:
-                  - Variable: $.secSinceAppianSigned
+                  - Variable: $.secSinceAppianSubmitted
                     IsPresent: true
-                  - Variable: $.secSinceAppianSigned
-                    NumericGreaterThanEquals: ${param:signedSinceChoiceSec}
-                  - Variable: $.appianSigned
+                  - Variable: $.secSinceAppianSubmitted
+                    NumericGreaterThanEquals: ${param:sinceSubmissionChoiceSec}
+                  - Variable: $.appianSubmitted
                     BooleanEquals: true
                 Next: SendNotExistTask
             Default: UpdateStatusTask
@@ -256,7 +256,7 @@ stepFunctions:
           RecordAgeChoice:
             Type: Choice
             Choices:
-              - Variable: $.secSinceAppianSigned
+              - Variable: $.secSinceAppianSubmitted
                 NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
                 Next: LastLoopAMatchChoice
             Default: TempWait
