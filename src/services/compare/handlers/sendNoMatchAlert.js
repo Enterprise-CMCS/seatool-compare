@@ -97,7 +97,7 @@ exports.handler = async function (event, context, callback) {
       if (!isProgramTypeChp) {
         //for non chip
         if (recipientType == "emailRecipients") {
-          params = getRecordDoesNotExistParams({
+          params = getRecordDoesNotMatchParams({
             emailRecipients: recipients,
             sourceEmail: sourceEmail,
             id: data.id,
