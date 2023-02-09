@@ -8,7 +8,7 @@ exports.handler = async function (
   console.log("Received event:", JSON.stringify(event, null, 2));
   const id = event.Context.Execution.Input.id;
   const data = { iterations: 0, id };
-
+  console.log(id);
   if (!process.env.statusTableName) {
     throw "process.env.statusTableName needs to be defined.";
   }
