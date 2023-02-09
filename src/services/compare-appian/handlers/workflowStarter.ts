@@ -1,7 +1,5 @@
 import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
 import { getItem, trackError } from "../../../libs";
-import { getAppianSigInfo } from "./utils/getAppianlInfoFromRecord";
-import { AppianRecord } from "./interfaces";
 
 /* This is the Lambda function that is triggered by the DynamoDB stream. It is responsible for starting
 the Step Function execution. */
@@ -18,16 +16,23 @@ exports.handler = async function (event: {
     id,
   });
 
-  /* A function that returns an object with the following properties:
-  - appianSigned: boolean
-  - secSinceAppianSigned?: number */
-  const sigInfo = getAppianSigInfo(appianRecord as AppianRecord);
+  /* Checking if the appian record was signed within the last 200 days. */
+  const submissionDate = appianRecord.payload?.SBMSSN_DATE;
 
-  /* Checking if the appian was signed within the last 250 days. */
+  /* Calculating the difference between the current date and the date Appian was submitted. */
+  const today = new Date().getTime();
+  const submittedOn = new Date(submissionDate).getTime();
+
+  const diffInSec = Math.floor((today - submittedOn) / 1000); // from ms to sec we div by 1000
+  console.log(
+    diffInSec,
+    appianRecord.payload?.SBMSSN_TYPE,
+    appianRecord.payload?.SUB_STUS
+  );
   if (
-    sigInfo.appianSigned &&
-    sigInfo.secSinceAppianSigned &&
-    sigInfo.secSinceAppianSigned < 21686400
+    appianRecord.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
+    appianRecord.payload?.SUB_STUS?.toLowerCase() === "submitted" &&
+    diffInSec < 289440
   ) {
     /* Creating an object that will be passed to the StartExecutionCommand. */
     const params = {
@@ -54,6 +59,6 @@ exports.handler = async function (event: {
       console.log("finally");
     }
   } else {
-    console.log(`Record ${id} not signed within last 250 days. Ignoring...`);
+    console.log(`Record ${id} not submitted within last 200 days. Ignoring...`);
   }
 };

@@ -41,30 +41,3 @@ export function getAppianSigInfo(appianRecord: {
   }
   return result;
 }
-
-/**
- * It takes a record from the Appian database and returns the program type
- * @param appianRecord - the record from the Appian table
- */
-export function getAppianProgType(appianRecord: {
-  mac179_transNbr: { FIELD_PROGRAM_TYPE_CODE: string };
-  chp179_transNbr: { FIELD_PROGRAM_TYPE_CODE: string };
-  hhs_transNbr: { FIELD_PROGRAM_TYPE_CODE: string };
-}) {
-  const result: {
-    programType?: string;
-  } = {};
-
-  /* Getting the program type code for the record. one and only of these will exists */
-  if (has(appianRecord, ["mac179_transNbr", "FIELD_PROGRAM_TYPE_CODE"])) {
-    result.programType =
-      appianRecord.mac179_transNbr.FIELD_PROGRAM_TYPE_CODE || "MAC";
-  } else if (has(appianRecord, ["chp179_transNbr", "FIELD_PROGRAM_TYPE_CODE"])) {
-    result.programType =
-      appianRecord.chp179_transNbr.FIELD_PROGRAM_TYPE_CODE || "CHP";
-  } else if (has(appianRecord, ["hhs_transNbr", "FIELD_PROGRAM_TYPE_CODE"])) {
-    result.programType =
-      appianRecord.hhs_transNbr.FIELD_PROGRAM_TYPE_CODE || "HHS";
-  }
-  return result;
-}
