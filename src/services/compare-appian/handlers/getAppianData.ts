@@ -38,7 +38,8 @@ exports.handler = async function (
     // data.programType = programType;
     data.appianSubmitted =
       appianRecord.payload?.SUB_STUS?.toLowerCase() === "y";
-    //    data.appianSigDate = sigInfo.appianSigDate;
+
+    data.appianSubmittedDate = submittedOn;
   } catch (e) {
     await trackError(e);
   } finally {

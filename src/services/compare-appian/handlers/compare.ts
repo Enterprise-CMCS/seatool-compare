@@ -18,13 +18,13 @@ exports.handler = async function (
         month: "2-digit",
         day: "2-digit",
       });
-      data.seatoolSigDate = fullDate;
+      data.seatoolSubmissionDate = fullDate;
+      console.log(rawDate, date, fullDate, data.appianSubmittedDate);
     }
-
     if (
-      data.appianSigDate &&
-      data.seatoolSigDate &&
-      data.appianSigDate === data.seatoolSigDate
+      data.appianSubmittedDate &&
+      data.seatoolSubmissionDate &&
+      data.appianSubmittedDate === data.seatoolSubmissionDate
     ) {
       data.match = true;
     }
