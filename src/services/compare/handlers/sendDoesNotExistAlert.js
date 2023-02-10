@@ -7,10 +7,10 @@ import {
 } from "../../../libs";
 
 const Templates = {
-  SendNoMatchTemplate: "SendNoMatchTemplate",
-  SendNoMatchTemplateAB: "SendNoMatchTemplateAB",
-  SendNoMatchTemplateChp: "SendNoMatchTemplateChp",
-  SendNoMatchTemplateChpAB: "SendNoMatchTemplateChpAB",
+  SendNoMatchTemplate: "getRecordDoesNotMatchParams",
+  SendNoMatchTemplateAB: "getRecordDoesNotExistParamsAB",
+  SendNoMatchTemplateChp: "getRecordDoesNotExistParamsChp",
+  SendNoMatchTemplateChpAB: "getRecordDoesNotExistParamsChpAB",
 };
 
 exports.handler = async function (event, context, callback) {
@@ -140,7 +140,7 @@ exports.handler = async function (event, context, callback) {
       }
 
 
-      // previously we were using sendAlert,
+      // previously we were using sendAlert, 
       //now we are using SendTemplatedEmail as we are sending template email
       await sendTemplatedEmail(params);
 
