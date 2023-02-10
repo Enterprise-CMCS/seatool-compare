@@ -1,9 +1,4 @@
 import { getItem, trackError } from "../../../libs";
-// import {
-//   getAppianProgType,
-//   getAppianSigInfo,
-// } from "./utils/getAppianlInfoFromRecord";
-// import { AppianRecord } from "./interfaces";
 
 exports.handler = async function (
   event: { Payload: any },
@@ -31,9 +26,6 @@ exports.handler = async function (
     const diffInSec = Math.floor((today - submittedOn) / 1000); // from ms to sec we div by 1000
     console.log("check seconds", diffInSec, submissionDate);
     data.secSinceAppianSubmitted = diffInSec;
-
-    // const { programType } = getAppianProgType(appianRecord as AppianRecord);
-    // const sigInfo = getAppianSigInfo(appianRecord as AppianRecord);
 
     // data.programType = programType;
     data.appianSubmitted =
