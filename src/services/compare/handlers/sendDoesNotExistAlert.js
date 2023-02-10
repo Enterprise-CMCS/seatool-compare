@@ -30,7 +30,7 @@ exports.handler = async function (event, context, callback) {
   try {
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
-      const params = getRecordDoesNotExistParams({ id: data.id });
+      const params = getEmailParams({ id: data.id, Template: Templates.SendNoMatchTemplate });
       console.log(
         "EMAIL NOT SENT - Secret does not exist for this stage. Example email details: ",
         JSON.stringify(params, null, 2)
