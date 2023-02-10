@@ -11,7 +11,6 @@ plugins:
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-iam-helper"
   - serverless-step-functions
-  - serverless-plugin-scripts
   - serverless-esbuild
 
 provider:
@@ -66,6 +65,11 @@ provider:
             - logs:PutLogEvents
           Resource:
             - ${param:sesLogGroupArn}
+        - Effect: Allow
+          Action:
+            - states:ListExecutions
+            - states:StopExecution
+          Resource: "*"
 
 params:
   master:
@@ -97,17 +101,6 @@ custom:
       - val
       - production
   secretId: ${self:custom.project}/${sls:stage}/alerts
-  scripts:
-    commands:
-      stop-executions: |
-        aws stepfunctions list-executions \
-        --state-machine-arn arn:aws:states:${self:provider.region}:${aws:accountId}:stateMachine:${self:service}-${sls:stage}-compare-alerting \
-        --status-filter RUNNING \
-        --query "executions[*].{executionArn:executionArn}" \
-        --output text | \
-        xargs -I {} aws stepfunctions stop-execution \
-        --execution-arn {} >> out.t
-        rm out.t
 
 functions:
   workflowStarter:
@@ -175,6 +168,11 @@ functions:
       stage: ${sls:stage}
       mmdlTableName: ${param:mmdlTableName}
       errorsTopicArn: ${param:errorsTopicArn}
+  stopExecutions:
+    handler: handlers/stopExecutions.handler
+    environment:
+      region: ${self:provider.region}
+      stateMachineArn: !Ref MMDLAlertingStateMachine
 resources:
   Resources:
     NoMatchStream:
