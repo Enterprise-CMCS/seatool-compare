@@ -29,7 +29,7 @@ exports.handler = async function (
 
     // data.programType = programType;
     data.appianSubmitted =
-      appianRecord.payload?.SUB_STUS?.toLowerCase() === "y";
+      appianRecord.payload?.IS_SBMTD?.toLowerCase() === "y";
 
     data.appianSubmittedDate = submittedOn;
   } catch (e) {

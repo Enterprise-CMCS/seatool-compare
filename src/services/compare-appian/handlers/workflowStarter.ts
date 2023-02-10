@@ -29,6 +29,7 @@ exports.handler = async function (event: {
     appianRecord.payload?.SBMSSN_TYPE,
     appianRecord.payload?.IS_SBMTD
   );
+  console.log(appianRecord);
   if (
     appianRecord.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
     appianRecord.payload?.IS_SBMTD?.toLowerCase() === "y" &&
