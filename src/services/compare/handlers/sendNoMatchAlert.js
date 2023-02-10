@@ -137,7 +137,7 @@ exports.handler = async function (event, context, callback) {
         }
       }
 
-      // previously we were using sendAlert, 
+      // previously we were using sendAlert,
       //now we are using SendTemplatedEmail as we are sending template email
       await sendTemplatedEmail(params);
 
