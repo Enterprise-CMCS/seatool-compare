@@ -51,8 +51,8 @@ provider:
             - !Sub "arn:aws:states:${self:provider.region}:${AWS::AccountId}:execution:${MMDLAlertingStateMachine.Name}:*"
         - Effect: Allow
           Action:
-            - ses:SendEmail
             - ses:SendTemplatedEmail
+            - ses:SendEmail
           Resource:
             - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/*"
         - Effect: Allow
