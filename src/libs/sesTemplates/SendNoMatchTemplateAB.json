@@ -1,0 +1,8 @@
+{
+  "Template": {
+    "TemplateName": "getRecordDoesNotExistParamsAB",
+    "SubjectPart": "ACTION REQUIRED - MMDL record for {{id}} needs added in SEA Tool",
+    "HtmlPart": "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Document</title></head><body><center ><h2>This is a Urgent Reminder that there's no matching</h2><h2>matching record in <a href=''>SEA Tool</a> for {{id}} </h2><br><p>Either a  record wasn't created in SEA Tool, or the SEA id is MMDL and SEA Tool doesn't Match</p><p>Failure to address this could lead to critical delay in the review process and</p><p>a deemed aproved SPA or waiver action.</p><br><div style=' background-color:  rgb(22, 82, 150); width: 580px; border: 15px solid  rgb(22, 82, 150);; /* padding: 50px; */ margin: 20px; color: white;'>  if you have any questions, please contact the help desk at SEATool_helpDesk@cms.hhs.org</div></center></body></html>",
+    "TextPart": ""
+  }
+}

@@ -1,10 +1,17 @@
 import {
-  sendAlert,
+  sendTemplatedEmail,
   doesSecretExist,
   getSecretsValue,
   putLogsEvent,
   trackError,
 } from "../../../libs";
+
+const Templates = {
+  SendNoMatchTemplate: "SendNoMatchTemplate",
+  SendNoMatchTemplateAB: "SendNoMatchTemplateAB",
+  SendNoMatchTemplateChp: "SendNoMatchTemplateChp",
+  SendNoMatchTemplateChpAB: "SendNoMatchTemplateChpAB",
+};
 
 exports.handler = async function (event, context, callback) {
   console.log("Received event:", JSON.stringify(event, null, 2));
@@ -99,37 +106,43 @@ exports.handler = async function (event, context, callback) {
       if (!isProgramTypeChp) {
         //for non chip
         if (recipientType == "emailRecipients") {
-          params = getRecordDoesNotExistParams({
+          params = getEmailParams({
             emailRecipients: recipients,
             sourceEmail: sourceEmail,
             id: data.id,
+            Template: Templates.SendNoMatchTemplate
           });
         }else{
-          params = getRecordDoesNotExistParamsAB({
+          params = getEmailParams({
             emailRecipients: recipients,
             sourceEmail: sourceEmail,
             id: data.id,
+            Template: Templates.SendNoMatchTemplateAB
           });
         }
       }else{
         // for chip
         if (recipientType == "emailRecipients") {
-          params = getRecordDoesNotExistParamsChp({
+          params = getEmailParams({
             emailRecipients: recipients,
             sourceEmail: sourceEmail,
             id: data.id,
+            Template: Templates.SendNoMatchTemplateChp
           });
         }else{
-          params = getRecordDoesNotExistParamsChpAB({
+          params = getEmailParams({
             emailRecipients: recipients,
             sourceEmail: sourceEmail,
             id: data.id,
+            Template: Templates.SendNoMatchTemplateChpAB
           });
         }
       }
 
 
-      await sendAlert(params);
+      // previously we were using sendAlert, 
+      //now we are using SendTemplatedEmail as we are sending template email
+      await sendTemplatedEmail(params);
 
       await putLogsEvent({
         type: "NOTFOUND",
@@ -145,237 +158,13 @@ exports.handler = async function (event, context, callback) {
   }
 };
 
-function getRecordDoesNotExistParams({
-  emailRecipients = ["notexistrecipients@example.com"],
-  sourceEmail = "officialcms@example.com",
-  id,
-}) {
+const getEmailParams = ({emailRecipients = ["notexistrecipients@example.com"], sourceEmail = "officialcms@example.com", id, Template}) => {
   return {
-    Destination: {
-      ToAddresses: emailRecipients,
-    },
-    Message: {
-      Body: {
-        Text: {
-          Charset: "UTF-8",
-          Data: `<!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta http-equiv="X-UA-Compatible" content="IE=edge">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Document</title>
-              <style>
-                  div {
-                      background-color:  rgb(22, 82, 150);
-                      width: 580px;
-                      border: 15px solid  rgb(22, 82, 150);;
-                      /* padding: 50px; */
-                      margin: 20px;
-                      color: white;
-                  }
-                  .dev1{
-                      color: white;
-                  }
-              </style>
-          </head>
-          <body>
-              <center >
-                  <h2>This is Reminder that there's no matching</h2>
-                  <h2>record in <a href="">SEA Tool</a> for ${id} </h2>
-                  <br>
-                  <p>Either a  record wasn't created in SEA Tool, or the SEA id is MMDL and SEA Tool doesn't Match</p>
-                  <br>
-                  <div id="dev1">
-                      if you have any questions, please contact the help desk at SEATool_helpDesk@cms.hhs.org
-                  </div>
-              </center>
-          </body>
-          </html>`,
-        },
-      },
-      Subject: {
-        Charset: "UTF-8",
-        Data: `ACTION REQUIRED - MMDL record for ${id} needs added in SEA Tool`,
-      },
+    Destination:{
+      ToAddresses: emailRecipients
     },
     Source: sourceEmail,
+    Template: Template,
+    TemplateData: JSON.stringify({id: id})
   };
-}
-
-function getRecordDoesNotExistParamsAB({
-  emailRecipients = ["notexistrecipients@example.com"],
-  sourceEmail = "officialcms@example.com",
-  id,
-}) {
-  return {
-    Destination: {
-      ToAddresses: emailRecipients,
-    },
-    Message: {
-      Body: {
-        Text: {
-          Charset: "UTF-8",
-          Data: `<!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta http-equiv="X-UA-Compatible" content="IE=edge">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Document</title>
-              <style>
-                  div {
-                      background-color:  rgb(22, 82, 150);
-                      width: 580px;
-                      border: 15px solid  rgb(22, 82, 150);;
-                      /* padding: 50px; */
-                      margin: 20px;
-                      color: white;
-                  }
-                  .dev1{
-                      color: white;
-                  }
-              </style>
-          </head>
-          <body>
-              <center >
-                  <h2>This is a Urgent Reminder that there's no matching</h2>
-                  <h2>matching record in <a href="">SEA Tool</a> for ${id} </h2>
-                  <br>
-                  <p>Either a  record wasn't created in SEA Tool, or the SEA id is MMDL and SEA Tool doesn't Match</p>
-                  <p>Failure to address this could lead to critical delay in the review process and</p>
-                  <p>a deemed aproved SPA or waiver action.</p>
-                  <br>
-                  <div id="dev1">
-                      if you have any questions, please contact the help desk at SEATool_helpDesk@cms.hhs.org
-                  </div>
-              </center>
-          </body>
-          </html>`,
-        },
-      },
-      Subject: {
-        Charset: "UTF-8",
-        Data: `ACTION REQUIRED - MMDL record for ${id} needs added in SEA Tool`,
-      },
-    },
-    Source: sourceEmail,
-  };
-}
-
-function getRecordDoesNotExistParamsChp({
-  emailRecipients = ["notexistrecipients@example.com"],
-  sourceEmail = "officialcms@example.com",
-  id,
-}) {
-  return {
-    Destination: {
-      ToAddresses: emailRecipients,
-    },
-    Message: {
-      Body: {
-        Text: {
-          Charset: "UTF-8",
-          Data: `<!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta http-equiv="X-UA-Compatible" content="IE=edge">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Document</title>
-              <style>
-                  div {
-                      background-color:  rgb(22, 82, 150);
-                      width: 580px;
-                      border: 15px solid  rgb(22, 82, 150);;
-                      /* padding: 50px; */
-                      margin: 20px;
-                      color: white;
-                  }
-                  .dev1{
-                      color: white;
-                  }
-              </style>
-          </head>
-          <body>
-              <center >
-                  <h2>This is Reminder that there's no matching</h2>
-                  <h2>record in <a href="">SEA Tool</a> for ${id} </h2>
-                  <br>
-                  <p>Either a  record wasn't created in SEA Tool, or the SEA id is MMDL and SEA Tool doesn't Match</p>
-                  <br>
-                  <div id="dev1">
-                      if you have any questions, please contact the help desk at SEATool_helpDesk@cms.hhs.org
-                  </div>
-              </center>
-          </body>
-          </html>`,
-        },
-      },
-      Subject: {
-        Charset: "UTF-8",
-        Data: `ACTION REQUIRED - MMDL record for ${id} needs added in SEA Tool`,
-      },
-    },
-    Source: sourceEmail,
-  };
-}
-function getRecordDoesNotExistParamsChpAB({
-  emailRecipients = ["notexistrecipients@example.com"],
-  sourceEmail = "officialcms@example.com",
-  id,
-}) {
-  return {
-    Destination: {
-      ToAddresses: emailRecipients,
-    },
-    Message: {
-      Body: {
-        Text: {
-          Charset: "UTF-8",
-          Data: `<!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta http-equiv="X-UA-Compatible" content="IE=edge">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Document</title>
-              <style>
-                  div {
-                      background-color:  rgb(22, 82, 150);
-                      width: 580px;
-                      border: 15px solid  rgb(22, 82, 150);;
-                      /* padding: 50px; */
-                      margin: 20px;
-                      color: white;
-                  }
-                  .dev1{
-                      color: white;
-                  }
-              </style>
-          </head>
-          <body>
-              <center >
-                  <h2>This is a Urgent Reminder that there's no matching</h2>
-                  <h2>matching record in <a href="">SEA Tool</a> for ${id} </h2>
-                  <br>
-                  <p>Either a  record wasn't created in SEA Tool, or the SEA id is MMDL and SEA Tool doesn't Match</p>
-                  <p>Failure to address this could lead to critical delay in the review process and</p>
-                  <p>a deemed aproved SPA</p>
-                  <br>
-                  <div id="dev1">
-                      if you have any questions, please contact the help desk at SEATool_helpDesk@cms.hhs.org
-                  </div>
-              </center>
-          </body>
-          </html>`,
-        },
-      },
-      Subject: {
-        Charset: "UTF-8",
-        Data: `ACTION REQUIRED - MMDL record for ${id} needs added in SEA Tool`,
-      },
-    },
-    Source: sourceEmail,
-  };
-}
+};
