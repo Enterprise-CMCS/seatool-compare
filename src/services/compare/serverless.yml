@@ -55,6 +55,7 @@ provider:
             - ses:SendEmail
           Resource:
             - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/*"
+            - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:template/*"
         - Effect: Allow
           Action:
             - secretsmanager:GetSecretValue
