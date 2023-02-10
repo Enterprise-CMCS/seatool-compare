@@ -52,6 +52,7 @@ provider:
         - Effect: Allow
           Action:
             - ses:SendEmail
+            - ses:SendTemplatedEmail
           Resource:
             - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/*"
         - Effect: Allow
