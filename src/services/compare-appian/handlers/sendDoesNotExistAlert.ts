@@ -45,6 +45,8 @@ exports.handler = async function (
         secretId
       );
 
+      console.log(emailRecipients, sourceEmail);
+
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
       const params = getRecordDoesNotExistParams({
         emailRecipients,
@@ -52,10 +54,12 @@ exports.handler = async function (
         id,
       });
 
+      console.log(params);
+
       await sendAlert(params);
 
       await putLogsEvent({
-        type: "NOTFOUND",
+        type: "NOTFOUND-APPIAN",
         message: `Alert for ${id} - sent to ${JSON.stringify(emailRecipients)}`,
       });
     }
