@@ -1,11 +1,10 @@
 {
   "name": "compare",
-  "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.180.0",
-    "@aws-sdk/client-sfn": "^3.180.0",
-    "lodash": "^4.17.21"
-  },
   "devDependencies": {
-    "serverless-step-functions": "^3.10.0"
-  }
+    "@aws-sdk/client-sfn": "^3.258.0",
+    "@types/aws-lambda": "^8.10.108",
+    "aws-lambda": "^1.0.7",
+    "cfn-response-async": "^1.0.0"
+  },
+  "dependencies": {}
 }

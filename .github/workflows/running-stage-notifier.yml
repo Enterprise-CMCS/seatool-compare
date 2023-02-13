@@ -2,7 +2,7 @@ name: Running Stage Notifier
 
 on:
   schedule:
-    - cron: "30 15,21 * * *"
+    - cron: "30 21 * * 1-5"
   workflow_dispatch:
 
 jobs:
@@ -51,11 +51,11 @@ jobs:
         env:
           SLACK_MSG_AUTHOR: ${{ github.repository }}
           SLACK_COLOR: ${{job.status}}
-          SLACK_ICON: https://github.com/cmsgov.png?size=48
+          SLACK_ICON: https://github.com/${{ github.repository_owner }}.png?size=48
           SLACK_TITLE: Currently Running Stages
           SLACK_MESSAGE: ${{ steps.runningStages.outputs.runningStages }}
           SLACK_USERNAME: ${{ github.repository }} - ${{ github.workflow }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           MSG_MINIMAL: true
 
       - name: Slack Notification - notify of failure reporting on running stages
@@ -64,9 +64,9 @@ jobs:
         env:
           SLACK_MSG_AUTHOR: ${{ github.repository }}
           SLACK_COLOR: ${{job.status}}
-          SLACK_ICON: https://github.com/cmsgov.png?size=48
+          SLACK_ICON: https://github.com/${{ github.repository_owner }}.png?size=48
           SLACK_TITLE: Failure retrieving currently running stages
           SLACK_MESSAGE: Failure retrieving currently running stages
           SLACK_USERNAME: ${{ github.repository }} - ${{ github.workflow }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           MSG_MINIMAL: true

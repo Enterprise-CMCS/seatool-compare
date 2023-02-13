@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "*"
-      - "!skipci*"
 
 concurrency:
   group: ${{ github.ref_name }}-group
@@ -21,6 +20,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+    if: "!startsWith(github.head_ref || github.ref_name, 'skipci-')"
     steps:
       - name: Validate stage name
         run: |
@@ -40,13 +40,13 @@ jobs:
           node-version-file: .nvmrc
 
       - name: Node cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: "**/node_modules"
-          key: v16-${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ github.workflow}}-${{ github.job }}${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_TO_ASSUME }}
           aws-region: us-east-1

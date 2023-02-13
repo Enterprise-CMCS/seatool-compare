@@ -202,6 +202,88 @@ yargs(process.argv.slice(2))
     }
   )
   .command(
+    "docker-docss",
+    "Starts the Jekyll documentation site in a docker container, available on http://localhost:4000.",
+    {
+      stop: { type: "boolean", demandOption: false, default: false },
+    },
+    async (options) => {
+      // Always clean up first...
+      await runner.run_command_and_output(
+        `Stop any existing container.`,
+        ["docker", "rm", "-f", "jekyll"],
+        "docs"
+      );
+
+      // If we're starting...
+      if (!options.stop) {
+        await runner.run_command_and_output(
+          `Run docs at http://localhost:4000`,
+          [
+            "docker",
+            "run",
+            "--rm",
+            "-i",
+            "-v",
+            `${process.cwd()}/docs:/site`,
+            "--name",
+            "jekyll",
+            "--pull=always",
+            "-p",
+            "0.0.0.0:4000:4000",
+            "bretfisher/jekyll-serve",
+            "sh",
+            "-c",
+            "bundle install && bundle exec jekyll serve --force_polling --host 0.0.0.0",
+          ],
+          "docs"
+        );
+      }
+    }
+  )
+  .command(
+    "base-update",
+    "this will upgrade your code to the latest version of the base template",
+    {},
+    async () => {
+      const addRemoteCommand = [
+        "git",
+        "remote",
+        "add",
+        "base",
+        "https://github.com/Enterprise-CMCS/macpro-base-template",
+      ];
+
+      await runner.run_command_and_output(
+        "Upgrade from Base | adding remote",
+        addRemoteCommand,
+        ".",
+        true
+      );
+
+      const fetchBaseCommand = ["git", "fetch", "base"];
+
+      await runner.run_command_and_output(
+        "Upgrade from Base | fetching base template",
+        fetchBaseCommand,
+        "."
+      );
+
+      const mergeCommand = ["git", "merge", "base/production", "--no-ff"];
+
+      await runner.run_command_and_output(
+        "Upgrade from Base | merging code from base template",
+        mergeCommand,
+        ".",
+        true
+      );
+
+      console.log(
+        "Merge command was performed. You may have conflicts. This is normal behaivor. To complete the update process fix any conflicts, commit, push, and open a PR."
+      );
+    }
+  )
+  .command(
     ["listRunningStages", "runningEnvs", "listRunningEnvs"],
     "Reports on running environments in your currently connected AWS account.",
     {},
