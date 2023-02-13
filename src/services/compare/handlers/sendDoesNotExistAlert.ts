@@ -12,7 +12,7 @@ const Templates = {
   SendNoMatchTemplateChpAB: "getRecordDoesNotExistParamsChpAB",
 };
 
-exports.handler = async function (
+exports.handler = async function(
   event: { Payload: any },
   _context: any,
   callback: Function
@@ -36,7 +36,10 @@ exports.handler = async function (
   try {
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
-      const params = getEmailParams({ id: data.id, Template: Templates.SendNoMatchTemplate });
+      const params = getEmailParams({
+        id: data.id,
+        Template: Templates.SendNoMatchTemplate,
+      });
       console.log(
         "EMAIL NOT SENT - Secret does not exist for this stage. Example email details: ",
         JSON.stringify(params, null, 2)
@@ -57,10 +60,7 @@ exports.handler = async function (
         sourceEmail,
         emailRecipientsA,
         emailRecipientsB,
-      } = await getSecretsValue(
-        region,
-        secretId,
-      );
+      } = await getSecretsValue(region, secretId);
       let recipientType;
       let recipients;
       // if it greater then 2 days but less then 4 days
@@ -116,35 +116,34 @@ exports.handler = async function (
             emailRecipients: recipients,
             sourceEmail: sourceEmail,
             id: data.id,
-            Template: Templates.SendNoMatchTemplate
+            Template: Templates.SendNoMatchTemplate,
           });
-        }else{
+        } else {
           params = getEmailParams({
             emailRecipients: recipients,
             sourceEmail: sourceEmail,
             id: data.id,
-            Template: Templates.SendNoMatchTemplateAB
+            Template: Templates.SendNoMatchTemplateAB,
           });
         }
-      }else{
+      } else {
         // for chip
         if (recipientType == "emailRecipients") {
           params = getEmailParams({
             emailRecipients: recipients,
             sourceEmail: sourceEmail,
             id: data.id,
-            Template: Templates.SendNoMatchTemplateChp
+            Template: Templates.SendNoMatchTemplateChp,
           });
-        }else{
+        } else {
           params = getEmailParams({
             emailRecipients: recipients,
             sourceEmail: sourceEmail,
             id: data.id,
-            Template: Templates.SendNoMatchTemplateChpAB
+            Template: Templates.SendNoMatchTemplateChpAB,
           });
         }
       }
-
 
       // previously we were using sendAlert,
       //now we are using SendTemplatedEmail as we are sending template email
@@ -164,13 +163,18 @@ exports.handler = async function (
   }
 };
 
-const getEmailParams = ({emailRecipients = ["notexistrecipients@example.com"], sourceEmail = "officialcms@example.com", id, Template}) => {
+const getEmailParams = ({
+  emailRecipients = ["notexistrecipients@example.com"],
+  sourceEmail = "officialcms@example.com",
+  id,
+  Template,
+}) => {
   return {
-    Destination:{
-      ToAddresses: emailRecipients
+    Destination: {
+      ToAddresses: emailRecipients,
     },
     Source: sourceEmail,
     Template: Template,
-    TemplateData: JSON.stringify({id: id})
+    TemplateData: JSON.stringify({ id: id }),
   };
 };
