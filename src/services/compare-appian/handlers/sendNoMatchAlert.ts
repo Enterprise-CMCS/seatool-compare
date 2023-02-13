@@ -57,7 +57,7 @@ exports.handler = async function (
       await sendAlert(params);
 
       await putLogsEvent({
-        type: "NOTFOUND",
+        type: "NOTFOUND-APPIAN",
         message: `Alert for ${id} - sent to ${JSON.stringify(emailRecipients)}`,
       });
     }
