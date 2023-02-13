@@ -11,7 +11,7 @@ const Templates = {
   SendNoMatchTemplateChp: "getRecordDoesNotExistParamsChp",
   SendNoMatchTemplateChpAB: "getRecordDoesNotExistParamsChpAB",
 };
-exports.handler = async function(
+exports.handler = async function (
   event: { Payload: any },
   _context: any,
   callback: Function

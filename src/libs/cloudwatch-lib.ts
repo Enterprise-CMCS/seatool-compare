@@ -6,7 +6,7 @@ import {
 import {
   CloudWatchLogsClient,
   PutLogEventsCommand,
-  PutLogEventsCommandInput
+  PutLogEventsCommandInput,
 } from "@aws-sdk/client-cloudwatch-logs";
 
 /**

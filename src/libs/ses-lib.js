@@ -1,4 +1,8 @@
-import { SESClient, SendEmailCommand, SendTemplatedEmailCommand } from "@aws-sdk/client-ses";
+import { 
+  SESClient, 
+  SendEmailCommand, 
+  SendTemplatedEmailCommand,
+} from "@aws-sdk/client-ses";
 
 const client = new SESClient({ region: process.env.region });
 
@@ -14,7 +18,7 @@ export async function sendAlert(params) {
   }
 }
 
-export async function sendTemplatedEmail(params){
+export async function sendTemplatedEmail(params) {
   console.log("sendingEmail using templates params are as following:");
   console.table(params);
 
