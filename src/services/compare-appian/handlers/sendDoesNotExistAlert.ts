@@ -36,7 +36,7 @@ exports.handler = async function (
         JSON.stringify(params, null, 2)
       );
       await putLogsEvent({
-        type: "NOTFOUND",
+        type: "NOTFOUND-APPIAN",
         message: `Alert for ${id} - TEST `,
       });
     } else {

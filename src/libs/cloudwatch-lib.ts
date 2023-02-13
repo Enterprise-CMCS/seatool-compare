@@ -30,7 +30,7 @@ export async function sendMetricData(params: PutMetricDataCommandInput) {
 
 /**
  * We log an event for each email that is (or would be) sent.
- * There are two log streams 'NOMATCH' | 'NOTFOUND'
+ * There are two log streams 'NOMATCH' | 'NOTFOUND | NOMATCH-APPIAN | NOTFOUND-APPIAN'
  */
 export async function putLogsEvent({
   type,
