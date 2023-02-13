@@ -14,7 +14,7 @@ const ses = new SES({
   region: process.env.region,
 });
 
-export async function sendAlert(params: SendEmailCommandInput){
+export async function sendAlert(params: SendEmailCommandInput) {
   console.log("Sending email with params:", JSON.stringify(params, null, 2));
   try {
     const command = new SendEmailCommand(params);
