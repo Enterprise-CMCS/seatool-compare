@@ -1,4 +1,5 @@
 import * as dynamodb from "../../../libs/dynamodb-lib";
+import { MmdlRecord, MmdlStreamRecord } from "../../../libs/types/interfaces";
 
 async function myHandler(
   event: { value: string; key: string },
@@ -14,7 +15,7 @@ async function myHandler(
 
   try {
     const recordKeyObject = JSON.parse(event.key);
-    const recordValueObject = JSON.parse(event.value);
+    const recordValueObject = JSON.parse(event.value) as MmdlStreamRecord;
 
     const id = `${recordKeyObject.STATE_CODE}-${recordKeyObject.WAIVER_ID}-${recordKeyObject.PROGRAM_TYPE_CODE}`;
 
@@ -25,7 +26,9 @@ async function myHandler(
 
     // But the PROGRAM_TYPE_CODE might not match the expected transmittal number.
     // As such we should use whichever _transNbr is available in the record
-    const possibleTransmittalNumberKeys = Object.keys(recordValueObject).filter(
+    const possibleTransmittalNumberKeys = Object.keys(
+      recordValueObject.FORM_FIELDS
+    ).filter(
       (k) =>
         k === "mac179_transNbr" ||
         k === "chp179_transNbr" ||
@@ -49,8 +52,9 @@ async function myHandler(
 
     let transmittalNumber;
 
-    if (recordValueObject[transmittalNumberKey].FIELD_VALUE) {
-      transmittalNumber = recordValueObject[transmittalNumberKey].FIELD_VALUE;
+    if (recordValueObject.FORM_FIELDS[transmittalNumberKey].FIELD_VALUE) {
+      transmittalNumber =
+        recordValueObject.FORM_FIELDS[transmittalNumberKey].FIELD_VALUE;
     }
 
     if (!transmittalNumber) {
@@ -61,13 +65,16 @@ async function myHandler(
       return;
     }
 
+    const item: MmdlRecord = {
+      id,
+      transmittalNumber: transmittalNumber.trim().toUpperCase(), // remove empty strings and upper case
+      ...recordValueObject.FORM_FIELDS,
+      statuses: recordValueObject.APPLICATION_WORKFLOW_STATUSES,
+    };
+
     await dynamodb.putItem({
       tableName: process.env.tableName,
-      item: {
-        id,
-        transmittalNumber: transmittalNumber.trim().toUpperCase(), // remove empty strings and upper case
-        ...recordValueObject,
-      },
+      item,
     });
   } catch (error) {
     console.log("Error updading mmdl table", event);

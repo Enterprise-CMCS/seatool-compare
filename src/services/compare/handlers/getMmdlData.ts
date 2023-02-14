@@ -1,6 +1,9 @@
 import { getItem, trackError } from "../../../libs";
 import { getMmdlProgType, getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
-import { MmdlRecord } from "./interfaces";
+import {
+  MmdlRecord,
+  MmdlSeatoolCompareData,
+} from "../../../libs/types/interfaces";
 
 exports.handler = async function (
   event: { Payload: any },
@@ -8,13 +11,13 @@ exports.handler = async function (
   callback: Function
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
-  const data = { ...event.Payload };
+  const data: MmdlSeatoolCompareData = { ...event.Payload };
   try {
     const mmdlRecord = await getItem({
       tableName: process.env.mmdlTableName,
       id: data.id,
     });
-    data.mmdlRecord = mmdlRecord;
+    data.mmdlRecord = mmdlRecord as MmdlRecord;
     data.transmittalNumber = mmdlRecord?.transmittalNumber;
 
     const { programType } = getMmdlProgType(mmdlRecord as MmdlRecord);
