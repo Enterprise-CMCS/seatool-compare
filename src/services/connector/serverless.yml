@@ -303,19 +303,19 @@ resources:
     KafkaConnectWorkerSecurityGroupIngressLambda:
       Type: AWS::EC2::SecurityGroupIngress
       Properties:
-        GroupId: !Sub "${KafkaConnectWorkerSecurityGroup}"
+        GroupId: !Ref KafkaConnectWorkerSecurityGroup
         IpProtocol: tcp
         FromPort: 8083
         ToPort: 8083
-        SourceSecurityGroupId: !Sub "${LambdaConfigureConnectorsSecurityGroup}"
+        SourceSecurityGroupId: !Ref LambdaConfigureConnectorsSecurityGroup
     KafkaConnectWorkerSecurityGroupIngressCluster:
       Type: AWS::EC2::SecurityGroupIngress
       Properties:
-        GroupId: !Sub "${KafkaConnectWorkerSecurityGroup}"
+        GroupId: !Ref KafkaConnectWorkerSecurityGroup
         IpProtocol: tcp
         FromPort: 8083
         ToPort: 8083
-        SourceSecurityGroupId: !Sub "${KafkaConnectWorkerSecurityGroup}"
+        SourceSecurityGroupId: !Ref KafkaConnectWorkerSecurityGroup
     KafkaConnectWorkerRole:
       Type: "AWS::IAM::Role"
       Properties:
@@ -414,8 +414,8 @@ resources:
             LogConfiguration:
               LogDriver: awslogs
               Options:
-                awslogs-region: !Sub "${AWS::Region}"
-                awslogs-group: !Sub "${KafkaConnectWorkerLogGroup}"
+                awslogs-region: !Ref AWS::Region
+                awslogs-group: !Ref KafkaConnectWorkerLogGroup
                 awslogs-stream-prefix: fargate
         Family: ${self:service}-${sls:stage}-kafka-connect-worker
         NetworkMode: awsvpc
@@ -433,7 +433,7 @@ resources:
     KafkaConnectService:
       Type: "AWS::ECS::Service"
       Properties:
-        Cluster: !Sub "${KafkaConnectCluster}"
+        Cluster: !Ref KafkaConnectCluster
         DeploymentConfiguration:
           DeploymentCircuitBreaker:
             Enable: true
@@ -444,12 +444,12 @@ resources:
         LaunchType: FARGATE
         ServiceName: kafka-connect
         DesiredCount: 1
-        TaskDefinition: !Sub "${KafkaConnectWorkerTaskDefinition}"
+        TaskDefinition: !Ref KafkaConnectWorkerTaskDefinition
         NetworkConfiguration:
           AwsvpcConfiguration:
             AssignPublicIp: DISABLED
             SecurityGroups:
-              - !Sub "${KafkaConnectWorkerSecurityGroup}"
+              - !Ref KafkaConnectWorkerSecurityGroup
             Subnets: >-
               ${self:custom.vpc.dataSubnets}
     ECSFailureEventRule:
@@ -458,7 +458,7 @@ resources:
         Description: "SEA Tool Compare Cluster Task Failure Event Rule"
         EventPattern:
           account:
-            - !Sub "${AWS::AccountId}"
+            - !Ref AWS::AccountId
           source:
             - "aws.ecs"
           detail-type:

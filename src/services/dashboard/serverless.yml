@@ -30,7 +30,7 @@ provider:
 
 custom:
   project: ${env:PROJECT}
-  accountId: !Sub "${AWS::AccountId}"
+  accountId: !Ref AWS::AccountId
   serverlessTerminationProtection:
     stages: # Apply CloudFormation termination protection for these stages
       - master
