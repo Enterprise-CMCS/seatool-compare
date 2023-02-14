@@ -79,7 +79,7 @@ exports.handler = async function (
         const {
           emailRecipientsInitial,
           emailRecipientsFirstFollowUp,
-          emailRecipientsSecondFollowUp 
+          emailRecipientsSecondFollowUp, 
         } = nonCHP;
         emailData["emailRecipientsInitial"] = emailRecipientsInitial;
         emailData["emailRecipientsFirstFollowUp"] =
@@ -90,8 +90,7 @@ exports.handler = async function (
 
       const emailRecipientsTypes = {
         emailRecipientsInitial:
-          !(
-            data.secSinceMmdlSigned > 48 * 2 * 3600) &&
+          !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
           !(
             data.secSinceMmdlSigned > 48 * 3600 &&
             data.secSinceMmdlSigned < 48 * 2 * 3600
@@ -99,7 +98,7 @@ exports.handler = async function (
         emailRecipientsFirstFollowUp:
           data.secSinceMmdlSigned > 48 * 3600 &&
           data.secSinceMmdlSigned < 48 * 2 * 3600,
-        emailRecipientsSecondFollowUp: data.secSinceMmdlSigned > 48 * 2 * 3600
+        emailRecipientsSecondFollowUp: data.secSinceMmdlSigned > 48 * 2 * 3600,
       };
 
       // if it greater then 2 days but less then 4 days

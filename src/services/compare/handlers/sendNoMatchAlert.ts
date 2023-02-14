@@ -131,7 +131,7 @@ exports.handler = async function (
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
 
-      if (!isChp) {       
+      if (!isChp) {   
         //for non chip
         if (emailRecipientsTypes.emailRecipientsInitial) {
           paramsToGetEmailParams.Template =
