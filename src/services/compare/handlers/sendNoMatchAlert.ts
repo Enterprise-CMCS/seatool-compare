@@ -5,12 +5,14 @@ import {
   putLogsEvent,
   trackError,
 } from "../../../libs";
+
 const Templates = {
-  SendNoMatchTemplate: "getRecordDoesNotMatchParams",
-  SendNoMatchTemplateAB: "getRecordDoesNotExistParamsAB",
-  SendNoMatchTemplateChp: "getRecordDoesNotExistParamsChp",
-  SendNoMatchTemplateChpAB: "getRecordDoesNotExistParamsChpAB",
+  SendNoMatchTemplateInitial: "getRecordDoesNotMatchParams",
+  SendNoMatchTemplateFollowUp: "getRecordDoesNotExistParamsAB",
+  SendNoMatchTemplateChpInitial: "getRecordDoesNotExistParamsChp",
+  SendNoMatchTemplateChpFollowUp: "getRecordDoesNotExistParamsChpAB",
 };
+
 exports.handler = async function (
   event: { Payload: any },
   _context: any,
@@ -38,7 +40,7 @@ exports.handler = async function (
       // Secret doesnt exist - this will likely be the case on ephemeral branches
       const params = getEmailParams({
         id: data.id,
-        Template: Templates.SendNoMatchTemplate,
+        Template: Templates.SendNoMatchTemplateInitial,
       });
       console.log(
         "EMAIL NOT SENT - Secret does not exist for this stage. Example email details: ",
@@ -50,103 +52,92 @@ exports.handler = async function (
         message: `Alert for ${id} - TEST `,
       });
     } else {
-      let isProgramTypeChp = false;
-      if (data.programType == "CHP") {
-        secretId = `${project}/${stage}/alerts/CHP`;
-        isProgramTypeChp = true;
-      }
 
-      const {
-        emailRecipients,
-        sourceEmail,
-        emailRecipientsA,
-        emailRecipientsB,
-      } = await getSecretsValue(region, secretId);
+      const emailParams = await getSecretsValue(region, secretId);
 
       let recipientType;
       let recipients;
-      // if it greater then 2 days but less then 4 days
-      if (
-        data.secSinceMmdlSigned > 48 * 3600 &&
-        data.secSinceMmdlSigned < 48 * 2 * 3600
-      ) {
-        recipientType = "emailRecipientsA";
-        recipients = emailRecipientsA;
-        console.table({
-          secSinceMmdlSigned: data.secSinceMmdlSigned,
-          twoDays: 48 * 3600,
-          recipients,
-          recipientType,
-          "(data.secSinceMmdlSigned > (48 * 3600)) && (data.secSinceMmdlSigned < ((48 * 2) * 3600))":
-            data.secSinceMmdlSigned > 48 * 3600 &&
-            data.secSinceMmdlSigned < 48 * 2 * 3600,
-        });
-      }
-      // if it is greater then 4 days
-      else if (data.secSinceMmdlSigned > 48 * 2 * 3600) {
-        recipientType = "emailRecipientsB";
-        recipients = emailRecipientsB;
-        console.table({
-          secSinceMmdlSigned: data.secSinceMmdlSigned,
-          twoDays: 48 * 3600,
-          recipients,
-          recipientType,
-          "(data.secSinceMmdlSigned > (48 * 3600))":
-            data.secSinceMmdlSigned > 48 * 3600,
-        });
-      }
-      // if it is less then 2 days
-      else {
-        recipientType = "emailRecipients";
-        recipients = emailRecipients;
-        console.table({
-          secSinceMmdlSigned: data.secSinceMmdlSigned,
-          twoDays: 48 * 3600,
-          recipients,
-          recipientType,
-          "(data.secSinceMmdlSigned < (48 * 3600))":
-            data.secSinceMmdlSigned < 48 * 3600,
-        });
+      const isChp = data.programType == "CHP";
+
+      let emailData = { sourceEmail: emailParams.sourceEmail };
+
+      if (isChp) {
+        const { CHP } = emailParams
+        const { emailRecipientsInitial,
+          emailRecipientsFirstFollowUp,
+          emailRecipientsSecondFollowUp } = CHP
+        emailData['emailRecipientsInitial'] = emailRecipientsInitial  
+        emailData['emailRecipientsFirstFollowUp'] = emailRecipientsFirstFollowUp  
+        emailData['emailRecipientsSecondFollowUp'] = emailRecipientsSecondFollowUp  
+      }{
+        const { nonCHP } = emailParams
+        const { emailRecipientsInitial,
+          emailRecipientsFirstFollowUp,
+          emailRecipientsSecondFollowUp } = nonCHP
+        emailData['emailRecipientsInitial'] = emailRecipientsInitial  
+        emailData['emailRecipientsFirstFollowUp'] = emailRecipientsFirstFollowUp  
+        emailData['emailRecipientsSecondFollowUp'] = emailRecipientsSecondFollowUp            
       }
 
+      const emailRecipientsTypes = {
+        emailRecipientsInitial: !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
+          !(data.secSinceMmdlSigned > 48 * 3600) && (data.secSinceMmdlSigned < 48 * 2 * 3600),
+        emailRecipientsFirstFollowUp: (data.secSinceMmdlSigned > 48 * 3600) && (data.secSinceMmdlSigned < 48 * 2 * 3600),
+        emailRecipientsSecondFollowUp: (data.secSinceMmdlSigned > 48 * 2 * 3600)
+      };
+
+      // if it greater then 2 days but less then 4 days
+      if (emailRecipientsTypes.emailRecipientsFirstFollowUp) {
+        recipientType = "emailRecipientsFirstFollowUp";
+        recipients = emailData['emailRecipientsFirstFollowUp']; 
+
+      }
+      // if it is greater then 4 days
+      else if (emailRecipientsTypes.emailRecipientsSecondFollowUp) {
+        recipientType = "emailRecipientsSecondFollowUp";
+        recipients = emailData['emailRecipientsSecondFollowUp'];
+
+      }
+      // if it is less then 2 days
+      else if(emailRecipientsTypes.emailRecipientsInitial){
+        recipientType = "emailRecipientsInitial";
+        recipients = emailData['emailRecipientsInitial'];
+
+      }
+
+      console.log({
+        emailRecipientsTypes,
+        recipients,
+        thisRecipientType: recipientType
+      });
+
+      let paramsToGetEmailParams = {
+        emailRecipients: recipients,
+        sourceEmail: emailData.sourceEmail,
+        id: data.id,
+        Template: ''
+      };
+
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
-      let params;
-      if (!isProgramTypeChp) {
+
+      if (!isChp) {
+        
         //for non chip
-        if (recipientType == "emailRecipients") {
-          params = getEmailParams({
-            emailRecipients: recipients,
-            sourceEmail: sourceEmail,
-            id: data.id,
-            Template: Templates.SendNoMatchTemplate,
-          });
+        if (emailRecipientsTypes.emailRecipientsInitial) {
+          paramsToGetEmailParams.Template = Templates.SendNoMatchTemplateInitial;
         } else {
-          params = getEmailParams({
-            emailRecipients: recipients,
-            sourceEmail: sourceEmail,
-            id: data.id,
-            Template: Templates.SendNoMatchTemplateAB,
-          });
+          paramsToGetEmailParams.Template = Templates.SendNoMatchTemplateFollowUp;
         }
       } else {
         // for chip
-        if (recipientType == "emailRecipients") {
-          params = getEmailParams({
-            emailRecipients: recipients,
-            sourceEmail: sourceEmail,
-            id: data.id,
-            Template: Templates.SendNoMatchTemplateChp,
-          });
+        if (emailRecipientsTypes.emailRecipientsInitial) {
+          paramsToGetEmailParams.Template = Templates.SendNoMatchTemplateChpInitial;
         } else {
-          params = getEmailParams({
-            emailRecipients: recipients,
-            sourceEmail: sourceEmail,
-            id: data.id,
-            Template: Templates.SendNoMatchTemplateChpAB,
-          });
+          paramsToGetEmailParams.Template = Templates.SendNoMatchTemplateChpFollowUp;
         }
       }
 
+      const params = getEmailParams(paramsToGetEmailParams);
       // previously we were using sendAlert,
       //now we are using SendTemplatedEmail as we are sending template email
       await sendTemplatedEmail(params);
@@ -154,7 +145,7 @@ exports.handler = async function (
       await putLogsEvent({
         type: "NOTFOUND",
         message: `Alert for ${data.id} - sent to ${JSON.stringify(
-          emailRecipients
+          recipients
         )} recipient:${recipientType} `,
       });
     }

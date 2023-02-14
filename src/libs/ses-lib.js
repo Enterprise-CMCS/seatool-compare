@@ -25,7 +25,7 @@ export async function sendTemplatedEmail(params) {
   try {
     const command = new SendTemplatedEmailCommand(params);
     const result = await client.send(command);
-    console.log("Result from sending alert:", JSON.stringify(result, null, 2));
+    console.log("Result from sending email template:", JSON.stringify(result, null, 2));
     return result;
   } catch (e) {
     console.error(JSON.stringify(e, null, 2));
