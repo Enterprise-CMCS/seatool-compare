@@ -127,7 +127,6 @@ exports.handler = async function (
         id: data.id,
         Template: "",
       };
-    
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
       if (!isChp) {
