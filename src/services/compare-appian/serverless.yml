@@ -70,18 +70,22 @@ provider:
 params:
   master:
     initialWaitSec: 86400 # 1 days
+    tempWaitSec: 172800 # 2 days
     sinceSubmissionChoiceSec: 345600 # 4 days
     recordAgeChoiceSec: 17366000 # 201 days
   val:
     initialWaitSec: 86400
+    tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
   production:
     initialWaitSec: 86400
+    tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
   default:
     initialWaitSec: 2
+    tempWaitSec: 43200 # 12 hours
     sinceSubmissionChoiceSec: 3
     recordAgeChoiceSec: 17366000 # 201 days
 
@@ -262,7 +266,7 @@ stepFunctions:
             Default: TempWait
           TempWait:
             Type: Wait
-            Seconds: 43200
+            Seconds: ${param:tempWaitSec}
             Next: InitialWait
           LastLoopAMatchChoice:
             Type: Choice

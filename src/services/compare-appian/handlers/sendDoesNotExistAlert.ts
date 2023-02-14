@@ -25,7 +25,7 @@ exports.handler = async function (
   const secretId = `${project}/${stage}/alerts`;
 
   const data = { ...event.Payload };
-  const id = data.id;
+  const id = data.SPA_ID;
 
   const secretExists = await doesSecretExist(region, secretId);
 
@@ -39,7 +39,7 @@ exports.handler = async function (
       );
       await putLogsEvent({
         type: "NOTFOUND-APPIAN",
-        message: `Alert for ${id} - TEST `,
+        message: `Alert for SPA_ID ${id} - TEST `,
       });
     } else {
       const { emailRecipients, sourceEmail } = await getSecretsValue(
@@ -62,7 +62,9 @@ exports.handler = async function (
 
       await putLogsEvent({
         type: "NOTFOUND-APPIAN",
-        message: `Alert for ${id} - sent to ${JSON.stringify(emailRecipients)}`,
+        message: `Alert for SPA_ID ${id} - sent to ${JSON.stringify(
+          emailRecipients
+        )}`,
       });
     }
   } catch (e) {
@@ -89,12 +91,12 @@ function getRecordDoesNotExistParams({
       Body: {
         Text: {
           Charset: "UTF-8",
-          Data: `Record with id: ${id} does not exist in SEA Tool.`,
+          Data: `Record with SPA-ID ${id} does not exist in SEA Tool.`,
         },
       },
       Subject: {
         Charset: "UTF-8",
-        Data: `ACTION REQUIRED - Appian record for ${id} needs added in SEA Tool`,
+        Data: `ACTION REQUIRED - Appian record for SPA_ID${id} needs added in SEA Tool`,
       },
     },
     Source: sourceEmail,
