@@ -103,7 +103,7 @@ custom:
       - master
       - val
       - production
-  secretId: ${self:custom.project}/${sls:stage}/alerts
+  secretId: ${self:custom.project}/${sls:stage}/mmdl-alerts
 
 functions:
   workflowStarter:
