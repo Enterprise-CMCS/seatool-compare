@@ -300,6 +300,12 @@ resources:
       Properties:
         GroupDescription: Security Group for the Fargate Connect Workers.
         VpcId: ${self:custom.vpc.id}
+    KafkaConnectWorkerSecurityGroupEgress:
+      Type: AWS::EC2::SecurityGroupEgress
+      Properties:
+        GroupId: !Ref KafkaConnectWorkerSecurityGroup
+        IpProtocol: -1
+        CidrIp: 0.0.0.0/0
     KafkaConnectWorkerSecurityGroupIngressLambda:
       Type: AWS::EC2::SecurityGroupIngress
       Properties:
@@ -565,6 +571,12 @@ resources:
       Properties:
         GroupDescription: Security Group for configuring the connector.
         VpcId: ${self:custom.vpc.id}
+    LambdaConfigureConnectorsSecurityGroupEgress:
+      Type: AWS::EC2::SecurityGroupEgress
+      Properties:
+        GroupId: !Ref LambdaConfigureConnectorsSecurityGroup
+        IpProtocol: -1
+        CidrIp: 0.0.0.0/0
     ConnectorConfigMmdlSink:
       Type: AWS::SecretsManager::Secret
       Properties:
