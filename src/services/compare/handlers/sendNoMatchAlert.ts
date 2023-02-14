@@ -66,9 +66,9 @@ exports.handler = async function (
         const {
           emailRecipientsInitial,
           emailRecipientsFirstFollowUp,
-          emailRecipientsSecondFollowUp 
-        } = CHP
-        emailData["emailRecipientsInitial"] = emailRecipientsInitial; 
+          emailRecipientsSecondFollowUp,
+        } = CHP;
+        emailData["emailRecipientsInitial"] = emailRecipientsInitial;
         emailData["emailRecipientsFirstFollowUp"] =
           emailRecipientsFirstFollowUp;
         emailData["emailRecipientsSecondFollowUp"] =
@@ -76,27 +76,27 @@ exports.handler = async function (
       }
       {
         const { nonCHP } = emailParams;
-        const { 
+        const {
           emailRecipientsInitial,
           emailRecipientsFirstFollowUp,
           emailRecipientsSecondFollowUp,
-        } = nonCHP
+        } = nonCHP;
         emailData["emailRecipientsInitial"] = emailRecipientsInitial;
         emailData["emailRecipientsFirstFollowUp"] =
           emailRecipientsFirstFollowUp;
-        emailData["emailRecipientsSecondFollowUp"] = 
-          emailRecipientsSecondFollowUp;          
+        emailData["emailRecipientsSecondFollowUp"] =
+          emailRecipientsSecondFollowUp;
       }
 
       const emailRecipientsTypes = {
         emailRecipientsInitial:
           !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
-          !(data.secSinceMmdlSigned > 48 * 3600) && 
-          (data.secSinceMmdlSigned < 48 * 2 * 3600),
+          !(data.secSinceMmdlSigned > 48 * 3600) &&
+          data.secSinceMmdlSigned < 48 * 2 * 3600,
         emailRecipientsFirstFollowUp:
-          (data.secSinceMmdlSigned > 48 * 3600) &&
-          (data.secSinceMmdlSigned < 48 * 2 * 3600),
-        emailRecipientsSecondFollowUp: (data.secSinceMmdlSigned > 48 * 2 * 3600)
+          data.secSinceMmdlSigned > 48 * 3600 &&
+          data.secSinceMmdlSigned < 48 * 2 * 3600,
+        emailRecipientsSecondFollowUp: data.secSinceMmdlSigned > 48 * 2 * 3600,
       };
 
       // if it greater then 2 days but less then 4 days
@@ -112,7 +112,7 @@ exports.handler = async function (
 
       }
       // if it is less then 2 days
-      else if(emailRecipientsTypes.emailRecipientsInitial){
+      else if (emailRecipientsTypes.emailRecipientsInitial) {
         recipientType = "emailRecipientsInitial";
         recipients = emailData["emailRecipientsInitial"];
 
@@ -137,7 +137,7 @@ exports.handler = async function (
         
         //for non chip
         if (emailRecipientsTypes.emailRecipientsInitial) {
-          paramsToGetEmailParams.Template = 
+          paramsToGetEmailParams.Template =
             Templates.SendNoMatchTemplateInitial;
         } else {
           paramsToGetEmailParams.Template =
