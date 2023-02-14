@@ -73,7 +73,11 @@ provider:
             - states:ListExecutions
             - states:StopExecution
           Resource: "*"
-
+        - Effect: Allow
+          Action:
+            - kms:GenerateDataKey
+          Resource:
+            - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
 params:
   master:
     initialWaitSec: 172800 # 2 days
@@ -103,7 +107,7 @@ custom:
       - master
       - val
       - production
-  secretId: ${self:custom.project}/${sls:stage}/mmdl-alerts
+  secretId: ${self:custom.project}/${sls:stage}/alerts
 
 functions:
   workflowStarter:
