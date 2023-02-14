@@ -62,75 +62,90 @@ exports.handler = async function (
       let emailData = { sourceEmail: emailParams.sourceEmail }; 
 
       if (isChp) {
-        const { CHP } = emailParams
-        const { emailRecipientsInitial,
+        const { CHP } = emailParams;
+        const { 
+          emailRecipientsInitial,
           emailRecipientsFirstFollowUp,
-          emailRecipientsSecondFollowUp } = CHP
-        emailData['emailRecipientsInitial'] = emailRecipientsInitial  
-        emailData['emailRecipientsFirstFollowUp'] = emailRecipientsFirstFollowUp  
-        emailData['emailRecipientsSecondFollowUp'] = emailRecipientsSecondFollowUp  
-      }{
-        const { nonCHP } = emailParams
-        const { emailRecipientsInitial,
+          emailRecipientsSecondFollowUp,
+        } = CHP;
+        emailData['emailRecipientsInitial'] = emailRecipientsInitial; 
+        emailData['emailRecipientsFirstFollowUp'] = emailRecipientsFirstFollowUp;
+          emailData['emailRecipientsSecondFollowUp'] = emailRecipientsSecondFollowUp;
+      }
+      {
+        const { nonCHP } = emailParams;
+        const { 
+          emailRecipientsInitial,
           emailRecipientsFirstFollowUp,
-          emailRecipientsSecondFollowUp } = nonCHP
-        emailData['emailRecipientsInitial'] = emailRecipientsInitial  
-        emailData['emailRecipientsFirstFollowUp'] = emailRecipientsFirstFollowUp  
-        emailData['emailRecipientsSecondFollowUp'] = emailRecipientsSecondFollowUp            
+          emailRecipientsSecondFollowUp 
+        } = nonCHP
+        emailData['emailRecipientsInitial'] = emailRecipientsInitial;
+        emailData['emailRecipientsFirstFollowUp'] = 
+          emailRecipientsFirstFollowUp;
+        emailData['emailRecipientsSecondFollowUp'] = 
+          emailRecipientsSecondFollowUp; 
       }
 
       const emailRecipientsTypes = {
-        emailRecipientsInitial: !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
-          !(data.secSinceMmdlSigned > 48 * 3600) && (data.secSinceMmdlSigned < 48 * 2 * 3600),
-        emailRecipientsFirstFollowUp: (data.secSinceMmdlSigned > 48 * 3600) && (data.secSinceMmdlSigned < 48 * 2 * 3600),
+        emailRecipientsInitial:
+          !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
+          !(data.secSinceMmdlSigned > 48 * 3600) &&
+          (data.secSinceMmdlSigned < 48 * 2 * 3600),
+        emailRecipientsFirstFollowUp:
+          (data.secSinceMmdlSigned > 48 * 3600) && 
+          (data.secSinceMmdlSigned < 48 * 2 * 3600),
         emailRecipientsSecondFollowUp: (data.secSinceMmdlSigned > 48 * 2 * 3600)
       };
 
       // if it greater then 2 days but less then 4 days
       if (emailRecipientsTypes.emailRecipientsFirstFollowUp) {
         recipientType = "emailRecipientsFirstFollowUp";
-        recipients = emailData['emailRecipientsFirstFollowUp'];
+        recipients = emailData["emailRecipientsFirstFollowUp"];
 
       }
       // if it is greater then 4 days
       else if (emailRecipientsTypes.emailRecipientsSecondFollowUp) {
         recipientType = "emailRecipientsSecondFollowUp";
-        recipients = emailData['emailRecipientsSecondFollowUp'];
+        recipients = emailData["emailRecipientsSecondFollowUp"];
 
       }
       // if it is less then 2 days
-      else if(emailRecipientsTypes.emailRecipientsInitial){
+      else if(emailRecipientsTypes.emailRecipientsInitial) {
         recipientType = "emailRecipientsInitial";
-        recipients = emailData['emailRecipientsInitial'];
+        recipients = emailData["emailRecipientsInitial"];
 
       }
       console.log({
         emailRecipientsTypes,
         recipients,
-        thisRecipientType: recipientType
+        thisRecipientType: recipientType,
       });
 
       let paramsToGetEmailParams = {
         emailRecipients: recipients,
         sourceEmail: emailData.sourceEmail,
         id: data.id,
-        Template: ''
+        Template: "",
       };
     
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
       if (!isChp) {
         //for non chip
         if (emailRecipientsTypes.emailRecipientsInitial) {
-          paramsToGetEmailParams.Template = Templates.SendNoMatchTemplateInitial;
+          paramsToGetEmailParams.Template =
+            Templates.SendNoMatchTemplateInitial;
         } else {
-          paramsToGetEmailParams.Template = Templates.SendNoMatchTemplateFollowUp;
+          paramsToGetEmailParams.Template =
+            Templates.SendNoMatchTemplateFollowUp;
         }
       } else {
         // for chip
         if (emailRecipientsTypes.emailRecipientsInitial) {
-          paramsToGetEmailParams.Template = Templates.SendNoMatchTemplateChpInitial;
+          paramsToGetEmailParams.Template =
+            Templates.SendNoMatchTemplateChpInitial;
         } else {
-          paramsToGetEmailParams.Template = Templates.SendNoMatchTemplateChpFollowUp;
+          paramsToGetEmailParams.Template =
+            Templates.SendNoMatchTemplateChpFollowUp;
         }
       }
 
