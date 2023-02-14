@@ -91,11 +91,11 @@ exports.handler = async function (
       const emailRecipientsTypes = {
         emailRecipientsInitial:
           !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
-          !(data.secSinceMmdlSigned > 48 * 3600) &&
-          data.secSinceMmdlSigned < 48 * 2 * 3600),
+          !((data.secSinceMmdlSigned > 48 * 3600) &&
+          (data.secSinceMmdlSigned < 48 * 2 * 3600)),
         emailRecipientsFirstFollowUp:
-          data.secSinceMmdlSigned > 48 * 3600) &&
-          data.secSinceMmdlSigned < 48 * 2 * 3600),
+          (data.secSinceMmdlSigned > 48 * 3600) &&
+          (data.secSinceMmdlSigned < 48 * 2 * 3600),
         emailRecipientsSecondFollowUp: data.secSinceMmdlSigned > 48 * 2 * 3600
       };
 
@@ -103,19 +103,16 @@ exports.handler = async function (
       if (emailRecipientsTypes.emailRecipientsFirstFollowUp) {
         recipientType = "emailRecipientsFirstFollowUp";
         recipients = emailData["emailRecipientsFirstFollowUp"];
-
       }
       // if it is greater then 4 days
       else if (emailRecipientsTypes.emailRecipientsSecondFollowUp) {
         recipientType = "emailRecipientsSecondFollowUp";
         recipients = emailData["emailRecipientsSecondFollowUp"];
-
       }
       // if it is less then 2 days
       else if (emailRecipientsTypes.emailRecipientsInitial) {
         recipientType = "emailRecipientsInitial";
         recipients = emailData["emailRecipientsInitial"];
-
       }
       console.log({
         emailRecipientsTypes,
