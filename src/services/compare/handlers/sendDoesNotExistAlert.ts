@@ -153,6 +153,9 @@ exports.handler = async function (
 
       // previously we were using sendAlert,
       //now we are using SendTemplatedEmail as we are sending template email
+      console.log("LOOK HERE");
+      console.log(params);
+      console.log("LOOK HERE");
       await sendTemplatedEmail(params);
 
       await putLogsEvent({
