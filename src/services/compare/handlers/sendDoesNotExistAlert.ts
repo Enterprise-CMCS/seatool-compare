@@ -52,7 +52,6 @@ exports.handler = async function (
         message: `Alert for id: ${data.id} transmittal number: ${transmittalNumber} - TEST `,
       });
     } else {
-
       const emailParams = await getSecretsValue(region, secretId);
 
       let recipientType;
@@ -129,6 +128,7 @@ exports.handler = async function (
         Template: "",
       };
     
+
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
       if (!isChp) {
         //for non chip

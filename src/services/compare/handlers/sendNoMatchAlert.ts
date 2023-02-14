@@ -27,7 +27,7 @@ exports.handler = async function (
   if (!region) throw "process.env.region needs to be defined.";
 
   // use this secret path to define the { emailRecipients, sourceEmail } for the does not match email
-  let secretId = `${project}/${stage}/alerts`;
+  let secretId = `${project}/${stage}/mmdl-alerts`;
 
   const data = { ...event.Payload };
   const id: string = data.id;
