@@ -13,7 +13,7 @@ export interface MmdlStreamRecord {
   APPLICATION_WORKFLOW_STATUSES: ApplicationWorkflowStatus[];
 }
 
-export interface FormFields {
+interface FormFields {
   [key: string]: MmdlFormField;
 }
 
@@ -57,7 +57,7 @@ export interface MmdlFormField {
   C_WAITING_IRAI  =  10
 */
 
-export interface ApplicationWorkflowStatus {
+interface ApplicationWorkflowStatus {
   APLCTN_WRKFLW_STUS_ID: number;
   PLAN_WVR_RVSN_VRSN_ID: number;
   PLAN_WVR_RVSN_ID: number;
@@ -81,4 +81,29 @@ export interface MmdlSeatoolCompareData {
   id: string;
   transmittalNumber: string;
   programType?: string;
+}
+
+export interface MmdlRecordKeyObject {
+  AGGREGATED_FORM_FIELDS_WAIVER_ID: number;
+  STATE_CODE: string;
+  GROUP_CODE: string;
+  PROGRAM_TYPE_CODE: string;
+}
+
+export interface MmdlSigInfo {
+  secSinceMmdlSigned?: number;
+  mmdlSigned: boolean;
+  mmdlSigDate?: Date;
+  status?: number;
+  lastStatus?: number;
+}
+
+export interface MmdlReportData {
+  id: string;
+  iterations: number;
+  programType: string;
+  mmdlSigDate: string;
+  seatoolExist: boolean;
+  seatoolSigDate?: string;
+  match?: boolean;
 }

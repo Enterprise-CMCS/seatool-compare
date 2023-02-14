@@ -1,13 +1,5 @@
 import { has } from "lodash";
-import { MmdlRecord } from "../../../../libs/types/interfaces";
-
-interface MmdlSigInfo {
-  secSinceMmdlSigned?: number;
-  mmdlSigned: boolean;
-  mmdlSigDate?: Date;
-  status?: number;
-  lastStatus?: number;
-}
+import * as Types from "../../../../types";
 /**
  * It takes a MMDL record and returns an object with information about when it was signed
  * @param mmdlRecord - MMDL record
@@ -16,8 +8,10 @@ interface MmdlSigInfo {
  *   secSinceMmdlSigned: number
  *   mmdlSigDate: string
  */
-export function getMmdlSigInfo(mmdlRecord: MmdlRecord): MmdlSigInfo {
-  let result: MmdlSigInfo = {
+export function getMmdlSigInfo(
+  mmdlRecord: Types.MmdlRecord
+): Types.MmdlSigInfo {
+  let result: Types.MmdlSigInfo = {
     mmdlSigned: false,
   };
 
@@ -57,7 +51,7 @@ export function getMmdlSigInfo(mmdlRecord: MmdlRecord): MmdlSigInfo {
  * It takes a record from the MMDL database and returns the program type
  * @param mmdlRecord - the record from the MMDL table
  */
-export function getMmdlProgType(mmdlRecord: MmdlRecord): {
+export function getMmdlProgType(mmdlRecord: Types.MmdlRecord): {
   programType?: string;
 } {
   const result: {

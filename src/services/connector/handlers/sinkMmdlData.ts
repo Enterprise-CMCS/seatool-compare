@@ -1,5 +1,5 @@
 import * as dynamodb from "../../../libs/dynamodb-lib";
-import { MmdlRecord, MmdlStreamRecord } from "../../../libs/types/interfaces";
+import * as Types from "../../../types";
 
 async function myHandler(
   event: { value: string; key: string },
@@ -14,10 +14,10 @@ async function myHandler(
   }
 
   try {
-    const recordKeyObject = JSON.parse(event.key);
-    const recordValueObject = JSON.parse(event.value) as MmdlStreamRecord;
+    const recordKeyObject = JSON.parse(event.key) as Types.MmdlRecordKeyObject;
+    const recordValueObject = JSON.parse(event.value) as Types.MmdlStreamRecord;
 
-    const id = `${recordKeyObject.STATE_CODE}-${recordKeyObject.WAIVER_ID}-${recordKeyObject.PROGRAM_TYPE_CODE}`;
+    const id = `${recordKeyObject.STATE_CODE}-${recordKeyObject.AGGREGATED_FORM_FIELDS_WAIVER_ID}-${recordKeyObject.PROGRAM_TYPE_CODE}`;
 
     // Typically the PROGRAM_TYPE_CODE will match this _transNbr key
     //   MAC: "mac179_transNbr",
@@ -65,7 +65,7 @@ async function myHandler(
       return;
     }
 
-    const item: MmdlRecord = {
+    const item: Types.MmdlRecord = {
       id,
       transmittalNumber: transmittalNumber.trim().toUpperCase(), // remove empty strings and upper case
       ...recordValueObject.FORM_FIELDS,
