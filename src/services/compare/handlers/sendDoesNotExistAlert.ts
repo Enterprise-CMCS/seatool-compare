@@ -23,21 +23,21 @@ exports.handler = async function (
   const secretId = `${project}/${stage}/alerts`;
 
   const data = { ...event.Payload };
-  const id = data.id;
+  const transmittalNumber = data.transmittalNumber;
 
   const secretExists = await doesSecretExist(region, secretId);
 
   try {
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
-      const params = getRecordDoesNotExistParams({ id });
+      const params = getRecordDoesNotExistParams({ transmittalNumber });
       console.log(
         "EMAIL NOT SENT - Secret does not exist for this stage. Example email details: ",
         JSON.stringify(params, null, 2)
       );
       await putLogsEvent({
         type: "NOTFOUND",
-        message: `Alert for ${id} - TEST `,
+        message: `Alert for id: ${data.id} transmittal number: ${transmittalNumber} - TEST `,
       });
     } else {
       const { emailRecipients, sourceEmail } = await getSecretsValue(
@@ -49,14 +49,18 @@ exports.handler = async function (
       const params = getRecordDoesNotExistParams({
         emailRecipients,
         sourceEmail,
-        id,
+        transmittalNumber,
       });
 
       await sendAlert(params);
 
       await putLogsEvent({
         type: "NOTFOUND",
-        message: `Alert for ${id} - sent to ${JSON.stringify(emailRecipients)}`,
+        message: `Alert for id: ${
+          data.id
+        } transmittal number: ${transmittalNumber} - sent to ${JSON.stringify(
+          emailRecipients
+        )}`,
       });
     }
   } catch (e) {
@@ -69,11 +73,11 @@ exports.handler = async function (
 function getRecordDoesNotExistParams({
   emailRecipients = ["notexistrecipients@example.com"],
   sourceEmail = "officialcms@example.com",
-  id,
+  transmittalNumber,
 }: {
   emailRecipients?: string[];
   sourceEmail?: string;
-  id: string;
+  transmittalNumber: string;
 }) {
   return {
     Destination: {
@@ -83,12 +87,12 @@ function getRecordDoesNotExistParams({
       Body: {
         Text: {
           Charset: "UTF-8",
-          Data: `Record with id: ${id} does not exist in SEA Tool.`,
+          Data: `Record with transmittal number ${transmittalNumber} does not exist in SEA Tool.`,
         },
       },
       Subject: {
         Charset: "UTF-8",
-        Data: `ACTION REQUIRED - MMDL record for ${id} needs added in SEA Tool`,
+        Data: `ACTION REQUIRED - MMDL record for transmittal number ${transmittalNumber} needs added in SEA Tool`,
       },
     },
     Source: sourceEmail,

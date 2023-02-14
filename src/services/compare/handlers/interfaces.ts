@@ -4,4 +4,5 @@ export interface MmdlRecord {
   hhs_transNbr: { FIELD_PROGRAM_TYPE_CODE: string };
   stMedDirSgnDt: { FIELD_VALUE: any };
   id: any;
+  transmittalNumber: string;
 }
