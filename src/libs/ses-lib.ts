@@ -4,6 +4,7 @@ import {
   SESClient,
   SendEmailCommand,
   SendEmailCommandInput,
+  SendTemplatedEmailCommand,
 } from "@aws-sdk/client-ses";
 import { createTransport } from "nodemailer";
 import * as Mail from "nodemailer/lib/mailer";
@@ -41,5 +42,22 @@ export async function sendAttachment(mailOptions: Mail.Options) {
   } catch (e) {
     console.error("Error sending mail:", JSON.stringify(e, null, 2));
     return e;
+  }
+}
+
+export async function sendTemplatedEmail(params) {
+  console.log("sendingEmail using templates params are as following:");
+  console.table(params);
+
+  try {
+    const command = new SendTemplatedEmailCommand(params);
+    const result = await client.send(command);
+    console.log(
+      "Result from sending email template:",
+      JSON.stringify(result, null, 2)
+    );
+    return result;
+  } catch (e) {
+    console.error(JSON.stringify(e, null, 2));
   }
 }

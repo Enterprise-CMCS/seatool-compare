@@ -7,10 +7,10 @@ import {
 } from "../../../libs";
 
 const Templates = {
-  SendNoMatchTemplateInitial: "getRecordDoesNotMatchParams",
-  SendNoMatchTemplateFollowUp: "getRecordDoesNotExistParamsAB",
-  SendNoMatchTemplateChpInitial: "getRecordDoesNotExistParamsChp",
-  SendNoMatchTemplateChpFollowUp: "getRecordDoesNotExistParamsChpAB",
+  SendNoMatchTemplateInitial: "SendNoMatchTemplateInitialTemplate",
+  SendNoMatchTemplateFollowUp: "SendNoMatchTemplateInitialFollowUpTemplate",
+  SendNoMatchTemplateChpInitial: "SendNoMatchTemplateChpTemplate",
+  SendNoMatchTemplateChpFollowUp: "SendNoMatchTemplateChpFollowUpTemplate",
 };
 
 exports.handler = async function (
