@@ -26,7 +26,7 @@ exports.handler = async function (
   const id = data.id;
 
   const secretExists = await doesSecretExist(region, secretId);
-  console.log(secretId, secretExists);
+
   try {
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches

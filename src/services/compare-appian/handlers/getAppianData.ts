@@ -1,5 +1,5 @@
 import { getItem, trackError } from "../../../libs";
-
+import { secondsBetweenDates } from "./utils/timeHelper";
 exports.handler = async function (
   event: { Payload: any },
   _context: any,
@@ -14,24 +14,16 @@ exports.handler = async function (
     });
     data.appianRecord = appianRecord;
     data.SPA_ID = appianRecord.payload?.SPA_ID;
-    console.log(data.appianRecord, appianRecord, event.Payload);
-    console.log("spa_id", appianRecord.payload?.SPA_ID);
 
     /* Checking if the appian record was signed within the last 200 days. */
     const submissionDate = appianRecord.payload?.SBMSSN_DATE;
-
-    /* Calculating the difference between the current date and the date Appian was submitted. */
-    const today = new Date().getTime();
-    const submittedOn = new Date(submissionDate).getTime();
-    const diffInSec = Math.floor((today - submittedOn) / 1000); // from ms to sec we div by 1000
-    console.log("check seconds", diffInSec, submissionDate);
-    data.secSinceAppianSubmitted = diffInSec;
+    data.secSinceAppianSubmitted = secondsBetweenDates(submissionDate);
 
     // data.programType = programType;
     data.appianSubmitted =
       appianRecord.payload?.IS_SBMTD?.toLowerCase() === "y";
 
-    data.appianSubmittedDate = submittedOn;
+    data.appianSubmittedDate = new Date(submissionDate).getTime();
   } catch (e) {
     await trackError(e);
   } finally {

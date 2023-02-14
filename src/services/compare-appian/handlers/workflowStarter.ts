@@ -1,5 +1,6 @@
 import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
 import { getItem, trackError } from "../../../libs";
+import { secondsBetweenDates } from "./utils/timeHelper";
 
 /* This is the Lambda function that is triggered by the DynamoDB stream. It is responsible for starting
 the Step Function execution. */
@@ -18,18 +19,8 @@ exports.handler = async function (event: {
 
   /* Checking if the appian record was signed within the last 200 days. */
   const submissionDate = appianRecord.payload?.SBMSSN_DATE;
+  const diffInSec = secondsBetweenDates(submissionDate);
 
-  /* Calculating the difference between the current date and the date Appian was submitted. */
-  const today = new Date().getTime();
-  const submittedOn = new Date(submissionDate).getTime();
-
-  const diffInSec = Math.floor((today - submittedOn) / 1000); // from ms to sec we div by 1000
-  console.log(
-    diffInSec,
-    appianRecord.payload?.SBMSSN_TYPE,
-    appianRecord.payload?.IS_SBMTD
-  );
-  console.log(appianRecord);
   if (
     appianRecord.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
     appianRecord.payload?.IS_SBMTD?.toLowerCase() === "y" &&
