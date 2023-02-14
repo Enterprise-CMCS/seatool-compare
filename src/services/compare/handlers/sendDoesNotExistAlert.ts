@@ -68,7 +68,7 @@ exports.handler = async function (
           emailRecipientsFirstFollowUp,
           emailRecipientsSecondFollowUp,
         } = CHP;
-        emailData["emailRecipientsInitial"] = emailRecipientsInitial; 
+        emailData["emailRecipientsInitial"] = emailRecipientsInitial;
         emailData["emailRecipientsFirstFollowUp"] =
           emailRecipientsFirstFollowUp;
         emailData["emailRecipientsSecondFollowUp"] =
@@ -80,22 +80,25 @@ exports.handler = async function (
           emailRecipientsInitial,
           emailRecipientsFirstFollowUp,
           emailRecipientsSecondFollowUp 
-        } = nonCHP
-        emailData['emailRecipientsInitial'] = emailRecipientsInitial;
-        emailData['emailRecipientsFirstFollowUp'] =
+        } = nonCHP;
+        emailData["emailRecipientsInitial"] = emailRecipientsInitial;
+        emailData["emailRecipientsFirstFollowUp"] =
           emailRecipientsFirstFollowUp;
-        emailData['emailRecipientsSecondFollowUp'] =
-          emailRecipientsSecondFollowUp; 
+        emailData["emailRecipientsSecondFollowUp"] =
+          emailRecipientsSecondFollowUp;
       }
 
       const emailRecipientsTypes = {
         emailRecipientsInitial:
-          !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
-          !((data.secSinceMmdlSigned > 48 * 3600) &&
-          (data.secSinceMmdlSigned < 48 * 2 * 3600)),
+          !(
+            data.secSinceMmdlSigned > 48 * 2 * 3600) &&
+          !(
+            data.secSinceMmdlSigned > 48 * 3600 &&
+            data.secSinceMmdlSigned < 48 * 2 * 3600
+          ),
         emailRecipientsFirstFollowUp:
-          (data.secSinceMmdlSigned > 48 * 3600) &&
-          (data.secSinceMmdlSigned < 48 * 2 * 3600),
+          data.secSinceMmdlSigned > 48 * 3600 &&
+          data.secSinceMmdlSigned < 48 * 2 * 3600,
         emailRecipientsSecondFollowUp: data.secSinceMmdlSigned > 48 * 2 * 3600
       };
 

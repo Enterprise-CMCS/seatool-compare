@@ -52,7 +52,6 @@ exports.handler = async function (
         message: `Alert for ${id} - TEST `,
       });
     } else {
-
       const emailParams = await getSecretsValue(region, secretId);
 
       let recipientType;
@@ -91,8 +90,10 @@ exports.handler = async function (
       const emailRecipientsTypes = {
         emailRecipientsInitial:
           !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
-          !(data.secSinceMmdlSigned > 48 * 3600) &&
-          data.secSinceMmdlSigned < 48 * 2 * 3600,
+          !(
+            data.secSinceMmdlSigned > 48 * 3600 &&
+            data.secSinceMmdlSigned < 48 * 2 * 3600
+          ),
         emailRecipientsFirstFollowUp:
           data.secSinceMmdlSigned > 48 * 3600 &&
           data.secSinceMmdlSigned < 48 * 2 * 3600,
@@ -130,8 +131,7 @@ exports.handler = async function (
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
 
-      if (!isChp) {
-        
+      if (!isChp) {       
         //for non chip
         if (emailRecipientsTypes.emailRecipientsInitial) {
           paramsToGetEmailParams.Template =
