@@ -57,7 +57,7 @@ provider:
           Action:
             - secretsmanager:GetSecretValue
           Resource:
-            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/alerts*"
+            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/mmdl-alerts*"
         - Effect: Allow
           Action:
             - secretsmanager:ListSecrets
@@ -66,7 +66,6 @@ provider:
           Action:
             - logs:PutLogEvents
             - logs:GetLogEvents
-            - logs:FilterLogEvents
           Resource:
             - ${param:sesLogGroupArn}
         - Effect: Allow
