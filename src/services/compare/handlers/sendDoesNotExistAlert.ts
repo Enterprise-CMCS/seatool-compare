@@ -79,7 +79,7 @@ exports.handler = async function (
         const {
           emailRecipientsInitial,
           emailRecipientsFirstFollowUp,
-          emailRecipientsSecondFollowUp, 
+          emailRecipientsSecondFollowUp,
         } = nonCHP;
         emailData["emailRecipientsInitial"] = emailRecipientsInitial;
         emailData["emailRecipientsFirstFollowUp"] =
