@@ -7,23 +7,26 @@ import {
 
 interface Data {
   id: string;
+  appianSubmitted: boolean;
+  SPA_ID: string;
   iterations: number;
-  programType: string;
-  appianSigDate: string;
+  secSinceAppianSubmitted: string;
+  appianSubmittedDate: string;
   seatoolExist: boolean;
-  seatoolSigDate?: string;
+  seatoolSubmissionDate?: string;
   match?: boolean;
 }
+
+//! This work/logic will be done in another ticket
 
 function formatReportData(data: Data[]) {
   return data.map((i) => {
     return {
       "Transmittal ID": i.id,
       "Iterations ": i.iterations,
-      "Program Type": i.programType,
-      "Clock Start Date": i.appianSigDate,
+      "Clock Start Date": i.secSinceAppianSubmitted,
       "Seatool Record Exist": i.seatoolExist,
-      "Seatool Signed Date": i.seatoolSigDate || "N/A",
+      "Seatool Signed Date": i.seatoolSubmissionDate || "N/A",
       "Records Match": i.match || false,
     };
   });

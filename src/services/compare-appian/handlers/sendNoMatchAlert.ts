@@ -6,6 +6,8 @@ import {
   trackError,
 } from "../../../libs";
 
+//! This work/logic will be done in another ticket
+
 exports.handler = async function (
   event: { Payload: any },
   _context: any,
