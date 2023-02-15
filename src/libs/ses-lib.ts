@@ -5,7 +5,6 @@ import {
   SendEmailCommand,
   SendEmailCommandInput,
   SendTemplatedEmailCommand,
-  sendTemplatedEmail,
 } from "@aws-sdk/client-ses";
 import { createTransport } from "nodemailer";
 import * as Mail from "nodemailer/lib/mailer";

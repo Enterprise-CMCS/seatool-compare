@@ -35,6 +35,7 @@ exports.handler = async function (
   const transmittalNumber = data.transmittalNumber;
 
   const secretExists = await doesSecretExist(region, secretId);
+  console.log("secretExists",secretExists);
 
   try {
     if (!secretExists) {
