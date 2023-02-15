@@ -33,6 +33,7 @@ exports.handler = async function (
   const id: string = data.id;
 
   const secretExists = await doesSecretExist(region, secretId);
+  console.log("secretExists", secretExists);
 
   /* This is checking to see if the secret exists. If it does not exist, it will not send an email. */
   try {
