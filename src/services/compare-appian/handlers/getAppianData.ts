@@ -19,7 +19,6 @@ exports.handler = async function (
     const submissionDate = appianRecord.payload?.SBMSSN_DATE;
     data.secSinceAppianSubmitted = secondsBetweenDates(submissionDate);
 
-    // data.programType = programType;
     data.appianSubmitted =
       appianRecord.payload?.IS_SBMTD?.toLowerCase() === "y";
 
