@@ -220,7 +220,17 @@ stepFunctions:
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getMmdlData"
             Parameters:
               Payload.$: $
-            Next: DoesSeatoolRecordExistTask
+            Next: StatusSubmittedChoice
+          StatusSubmittedChoice:
+            Type: Choice
+            Choices:
+              - Variable: $.isStatusSubmitted
+                BooleanEquals: true
+                Next: DoesSeatoolRecordExistTask
+              - Variable: $.isStatusSubmitted
+                BooleanEquals: false
+                Next: UpdateStatusTask
+            Default: UpdateStatusTask
           DoesSeatoolRecordExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-seatoolRecordExist"

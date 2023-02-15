@@ -1,21 +1,7 @@
-import {
-  sendAttachment,
-  trackError,
-  scanTable,
-  getCsvFromJson,
-} from "../../../libs";
+import * as Libs from "../../../libs";
+import * as Types from "../../../types";
 
-interface Data {
-  id: string;
-  iterations: number;
-  programType: string;
-  mmdlSigDate: string;
-  seatoolExist: boolean;
-  seatoolSigDate?: string;
-  match?: boolean;
-}
-
-function formatReportData(data: Data[]) {
+function formatReportData(data: Types.MmdlReportData[]) {
   return data.map((i) => {
     return {
       "Transmittal ID": i.id,
@@ -25,6 +11,7 @@ function formatReportData(data: Data[]) {
       "Seatool Record Exist": i.seatoolExist,
       "Seatool Signed Date": i.seatoolSigDate || "N/A",
       "Records Match": i.match || false,
+      "Submitted Status": i.isStatusSubmitted || false,
     };
   });
 }
@@ -60,14 +47,18 @@ exports.handler = async function (event: { recipient: string }) {
     throw 'You must manually provide a recipient email in the event to send a report. ex. {"recipient": "user@example.com"}';
   }
 
+  if (!process.env.statusTable) {
+    throw "process.env.statusTable needs to be defined.";
+  }
+
   try {
-    const data = await scanTable(process.env.statusTable);
-    const reportDataJson = formatReportData(data as Data[]);
-    const csv = getCsvFromJson(reportDataJson);
+    const data = await Libs.scanTable(process.env.statusTable);
+    const reportDataJson = formatReportData(data as Types.MmdlReportData[]);
+    const csv = Libs.getCsvFromJson(reportDataJson);
     const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
 
-    await sendAttachment(mailOptions);
+    await Libs.sendAttachment(mailOptions);
   } catch (e) {
-    await trackError(e);
+    await Libs.trackError(e);
   }
 };
