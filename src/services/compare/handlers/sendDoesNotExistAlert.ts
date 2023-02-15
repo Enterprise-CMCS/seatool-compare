@@ -137,7 +137,7 @@ exports.handler = async function (
       };
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
-      // depending on if it is chip or not 
+      // depending on if it is chip or not
       // and if its inital or not we are getting the template names
       if (!isChp) {
         //for non chip
@@ -159,7 +159,7 @@ exports.handler = async function (
         }
       }
 
-      // finally getting the params to send email 
+      // finally getting the params to send email
       const params = getEmailParams(paramsToGetEmailParams);
 
       // previously we were using sendAlert,
