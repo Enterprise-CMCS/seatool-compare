@@ -13,8 +13,6 @@ export const getSecretsValue = async (region: string, secretId: string) => {
     const response = await client.send(command);
     console.log("response", response);
     console.log("type of response", typeof response);
- 
-    
     const result = JSON.parse(response.SecretString ?? "");
     return result;
   } catch (e) {
