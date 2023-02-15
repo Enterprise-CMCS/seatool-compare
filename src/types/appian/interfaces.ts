@@ -76,7 +76,7 @@ export interface AppianReportData {
   SPA_ID: string;
   iterations: number;
   secSinceAppianSubmitted: string;
-  appianSubmittedDate: string;
+  appianSubmittedDate: number;
   seatoolExist: boolean;
   seatoolSubmissionDate?: string;
   match?: boolean;
