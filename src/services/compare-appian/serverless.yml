@@ -66,7 +66,7 @@ provider:
             - logs:PutLogEvents
           Resource:
             - ${param:sesLogGroupArn}
-          - Effect: Allow
+        - Effect: Allow
           Action:
             - states:ListExecutions
             - states:StopExecution
