@@ -35,7 +35,7 @@
     "@stratiformdigital/serverless-stage-destroyer": "^2.0.0",
     "@types/node": "^18.11.18",
     "@types/yargs": "^17.0.20",
-    "@vitest/ui": "^0.26.2",
+    "@vitest/ui": "^0.28.5",
     "aws-sdk-client-mock": "^2.0.1",
     "esbuild": "0.16.17",
     "prettier": "2.7.1",
