@@ -5,6 +5,7 @@ import {
 } from "@aws-sdk/client-secrets-manager";
 
 export const getSecretsValue = async (region: string, secretId: string) => {
+  console.log("region", region, "secretId", secretId);
   const client = new SecretsManagerClient({ region });
   const input = { SecretId: secretId };
   const command = new GetSecretValueCommand(input);
@@ -13,6 +14,7 @@ export const getSecretsValue = async (region: string, secretId: string) => {
     const result = JSON.parse(response.SecretString ?? "");
     return result;
   } catch (e) {
+    console.log("getSecretsValue ERROR - ", e);
     console.log("getSecretsValue ERROR", JSON.stringify(e, null, 2));
   }
 };
