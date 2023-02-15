@@ -221,17 +221,7 @@ stepFunctions:
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getAppianData"
             Parameters:
               Payload.$: $
-            Next: StatusSubmittedChoice
-          StatusSubmittedChoice:
-            Type: Choice
-            Choices:
-              - Variable: $.isStatusSubmitted
-                BooleanEquals: true
-                Next: DoesSeatoolRecordExistTask
-              - Variable: $.isStatusSubmitted
-                BooleanEquals: false
-                Next: UpdateStatusTask
-            Default: UpdateStatusTask
+            Next: DoesSeatoolRecordExistTask
           DoesSeatoolRecordExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-seatoolRecordExist"
