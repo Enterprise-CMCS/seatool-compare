@@ -28,16 +28,16 @@ exports.handler = async function (
 
   // use this secret path to define the { emailRecipients, sourceEmail } for the does not exist email
   // changing alerts to mmdl-alerts
-  // it will contain { CHP:[], nonCHP:[]}
+  // secret will look like this {sourceEmail:"" CHP:[], nonCHP:[]}
   const secretId = `${project}/${stage}/mmdl-alerts`;
 
   const data = { ...event.Payload };
   const transmittalNumber = data.transmittalNumber;
 
   const secretExists = await doesSecretExist(region, secretId);
-  console.log("secretExists", secretExists);
 
   try {
+    //checking if the secrets exist
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
       const params = getEmailParams({
@@ -53,16 +53,20 @@ exports.handler = async function (
         message: `Alert for id: ${data.id} transmittal number: ${transmittalNumber} - TEST `,
       });
     } else {
+      //if secrests does not exist
       const emailParams = await getSecretsValue(region, secretId);
 
+      // i have defined these variables to use them as flags to fill the email data fields dynamocally
       let recipientType;
       let recipients;
-      const isChp = data.programType == "CHP";
+      const isChp = data.programType == "CHP"; // isChp caintains true||false
 
       let emailData = { sourceEmail: emailParams.sourceEmail };
 
+      // depending on if chip true||false filling in the info
       if (isChp) {
         const { CHP } = emailParams;
+        // CHP contains emailRecipientsInitial, emailRecipientsFirstFollowUp, emailRecipientsSecondFollowUp
         const {
           emailRecipientsInitial,
           emailRecipientsFirstFollowUp,
@@ -88,6 +92,7 @@ exports.handler = async function (
           emailRecipientsSecondFollowUp;
       }
 
+      // defining an object to map and calculate init, first and second followup email
       const emailRecipientsTypes = {
         emailRecipientsInitial:
           !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
@@ -122,6 +127,8 @@ exports.handler = async function (
         thisRecipientType: recipientType,
       });
 
+      // this object will go inside the send template email
+      // just the template is going to be chaned
       let paramsToGetEmailParams = {
         emailRecipients: recipients,
         sourceEmail: emailData.sourceEmail,
@@ -130,6 +137,8 @@ exports.handler = async function (
       };
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
+      // depending on if it is chip or not 
+      // and if its inital or not we are getting the template names
       if (!isChp) {
         //for non chip
         if (emailRecipientsTypes.emailRecipientsInitial) {
@@ -150,15 +159,15 @@ exports.handler = async function (
         }
       }
 
+      // finally getting the params to send email 
       const params = getEmailParams(paramsToGetEmailParams);
 
       // previously we were using sendAlert,
-      //now we are using SendTemplatedEmail as we are sending template email
-      console.log("LOOK HERE");
-      console.log(params);
-      console.log("LOOK HERE");
+      // now we are using SendTemplatedEmail as we are sending template email
+      // now finally sending the email
       await sendTemplatedEmail(params);
 
+      // putting the cloud watch logs event
       await putLogsEvent({
         type: "NOTFOUND",
         message: `Alert for ${data.id} - sent to ${JSON.stringify(
