@@ -11,6 +11,7 @@ function formatReportData(data: Types.MmdlReportData[]) {
       "Seatool Record Exist": i.seatoolExist,
       "Seatool Signed Date": i.seatoolSigDate || "N/A",
       "Records Match": i.match || false,
+      "Submitted Status": i.isStatusSubmitted || false,
     };
   });
 }

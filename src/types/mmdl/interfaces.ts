@@ -81,6 +81,7 @@ export interface MmdlSeatoolCompareData {
   id: string;
   transmittalNumber: string;
   programType?: string;
+  isStatusSubmitted?: boolean;
 }
 
 export interface MmdlRecordKeyObject {
@@ -106,4 +107,5 @@ export interface MmdlReportData {
   seatoolExist: boolean;
   seatoolSigDate?: string;
   match?: boolean;
+  isStatusSubmitted?: boolean;
 }

@@ -20,10 +20,13 @@ exports.handler = async function (
     const { programType } = getMmdlProgType(mmdlRecord as Types.MmdlRecord);
     const sigInfo = getMmdlSigInfo(mmdlRecord as Types.MmdlRecord);
 
+    const isStatusSubmitted = sigInfo.status === 1;
+
     data.programType = programType;
     data.secSinceMmdlSigned = sigInfo.secSinceMmdlSigned;
     data.mmdlSigned = sigInfo.mmdlSigned;
     data.mmdlSigDate = sigInfo.mmdlSigDate;
+    data.isStatusSubmitted = isStatusSubmitted;
   } catch (e) {
     await trackError(e);
   } finally {
