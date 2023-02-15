@@ -1,4 +1,4 @@
-export function secondsBetweenDates(dateToCompare: Date) {
+export function secondsBetweenDates(dateToCompare: Date): number {
   const today = new Date().getTime();
   const comparisonDate = new Date(dateToCompare).getTime();
 

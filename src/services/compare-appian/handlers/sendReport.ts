@@ -1,25 +1,9 @@
-import {
-  sendAttachment,
-  trackError,
-  scanTable,
-  getCsvFromJson,
-} from "../../../libs";
-
-interface Data {
-  id: string;
-  appianSubmitted: boolean;
-  SPA_ID: string;
-  iterations: number;
-  secSinceAppianSubmitted: string;
-  appianSubmittedDate: string;
-  seatoolExist: boolean;
-  seatoolSubmissionDate?: string;
-  match?: boolean;
-}
+import * as Libs from "../../../libs";
+import * as Types from "../../../types";
 
 //! This work/logic will be done in another ticket
 
-function formatReportData(data: Data[]) {
+function formatReportData(data: Types.AppianReportData[]) {
   return data.map((i) => {
     return {
       "Transmittal ID": i.id,
@@ -63,14 +47,18 @@ exports.handler = async function (event: { recipient: string }) {
     throw 'You must manually provide a recipient email in the event to send a report. ex. {"recipient": "user@example.com"}';
   }
 
+  if (!process.env.statusTable) {
+    throw "process.env.statusTable needs to be defined.";
+  }
+
   try {
-    const data = await scanTable(process.env.statusTable);
-    const reportDataJson = formatReportData(data as Data[]);
-    const csv = getCsvFromJson(reportDataJson);
+    const data = await Libs.scanTable(process.env.statusTable);
+    const reportDataJson = formatReportData(data as Types.AppianReportData[]);
+    const csv = Libs.getCsvFromJson(reportDataJson);
     const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
 
-    await sendAttachment(mailOptions);
+    await Libs.sendAttachment(mailOptions);
   } catch (e) {
-    await trackError(e);
+    await Libs.trackError(e);
   }
 };

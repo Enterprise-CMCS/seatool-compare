@@ -15,7 +15,7 @@ exports.handler = async function (
         data.seatoolRecord.STATE_PLAN.SUBMISSION_DATE;
     }
     if (
-      data.appianSubmittedDate &&
+      data.isAppianSubmittedDate &&
       data.seatoolSubmissionDate &&
       data.appianSubmittedDate === data.seatoolSubmissionDate
     ) {

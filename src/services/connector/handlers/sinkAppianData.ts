@@ -1,4 +1,5 @@
 import * as dynamodb from "../../../libs/dynamodb-lib";
+import * as Types from "../../../types";
 
 async function myHandler(
   event: { key: string; value: string },
@@ -10,7 +11,7 @@ async function myHandler(
     throw "process.env.tableName needs to be defined.";
   }
   try {
-    const eventValue = JSON.parse(event.value);
+    const eventValue = JSON.parse(event.value) as Types.AppianStreamRecord;
 
     await dynamodb.putItem({
       tableName: process.env.tableName,
