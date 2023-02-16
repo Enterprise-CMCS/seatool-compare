@@ -13,7 +13,7 @@ export const getSecretsValue = async (region: string, secretId: string) => {
     const result = JSON.parse(response.SecretString ?? "");
     return result;
   } catch (e) {
-    console.log("getSecretsValue ERROR", JSON.stringify(e, null, 2));
+    console.log("ERROR getting secrets value", JSON.stringify(e, null, 2));
   }
 };
 

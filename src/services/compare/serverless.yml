@@ -47,12 +47,10 @@ provider:
             - !Sub "arn:aws:states:${self:provider.region}:${AWS::AccountId}:execution:${MMDLAlertingStateMachine.Name}:*"
         - Effect: Allow
           Action:
-            - ses:SendTemplatedEmail
             - ses:SendEmail
             - ses:SendRawEmail
           Resource:
             - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/*"
-            - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:template/*"
         - Effect: Allow
           Action:
             - secretsmanager:GetSecretValue
