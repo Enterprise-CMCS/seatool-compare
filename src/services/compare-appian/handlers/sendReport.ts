@@ -1,17 +1,17 @@
 import * as Libs from "../../../libs";
 import * as Types from "../../../types";
 
-function formatReportData(data: Types.MmdlReportData[]) {
+//! This work/logic will be done in another ticket
+
+function formatReportData(data: Types.AppianReportData[]) {
   return data.map((i) => {
     return {
       "Transmittal ID": i.id,
       "Iterations ": i.iterations,
-      "Program Type": i.programType,
-      "Clock Start Date": i.mmdlSigDate,
+      "Clock Start Date": i.secSinceAppianSubmitted,
       "Seatool Record Exist": i.seatoolExist,
-      "Seatool Signed Date": i.seatoolSigDate || "N/A",
+      "Seatool Signed Date": i.seatoolSubmissionDate || "N/A",
       "Records Match": i.match || false,
-      "Submitted Status": i.isStatusSubmitted || false,
     };
   });
 }
@@ -23,14 +23,14 @@ function getMailOptionsWithAttachment(
   const todaysDate = new Date().toISOString().split("T")[0];
   const mailOptions = {
     from: "noreply@cms.hhs.gov",
-    subject: `MMDL SEA Tool Status - ${todaysDate}`,
+    subject: `Appian SEA Tool Status - ${todaysDate}`,
     html:
-      `<p>Attached is a csv indicating the current status of MMDL and SEA Tool records.</p>` +
+      `<p>Attached is a csv indicating the current status of Appian and SEA Tool records.</p>` +
       `<p>This report can be opened in your favorite spreadsheet viewing application.</p>`,
     to: recipientEmail,
     attachments: [
       {
-        filename: `MMDL SEA Tool Status - ${todaysDate}.csv`,
+        filename: `Appian SEA Tool Status - ${todaysDate}.csv`,
         content: attachment,
       },
     ],
@@ -53,7 +53,7 @@ exports.handler = async function (event: { recipient: string }) {
 
   try {
     const data = await Libs.scanTable(process.env.statusTable);
-    const reportDataJson = formatReportData(data as Types.MmdlReportData[]);
+    const reportDataJson = formatReportData(data as Types.AppianReportData[]);
     const csv = Libs.getCsvFromJson(reportDataJson);
     const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
 

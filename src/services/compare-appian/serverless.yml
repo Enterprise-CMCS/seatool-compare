@@ -1,4 +1,4 @@
-service: ${self:custom.project}-compare
+service: ${self:custom.project}-compare-appian
 
 frameworkVersion: "3"
 
@@ -11,6 +11,7 @@ plugins:
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-iam-helper"
   - serverless-step-functions
+  - serverless-plugin-scripts
   - serverless-esbuild
 
 provider:
@@ -31,7 +32,7 @@ provider:
             - dynamodb:PutItem
             - dynamodb:Scan
           Resource:
-            - ${param:mmdlTableArn}
+            - ${param:appianTableArn}
             - ${param:seatoolTableArn}
             - ${param:statusTableArn}
         - Effect: Allow
@@ -43,21 +44,19 @@ provider:
           Action:
             - states:StartExecution
           Resource:
-            - !Ref MMDLAlertingStateMachine
-            - !Sub "arn:aws:states:${self:provider.region}:${AWS::AccountId}:execution:${MMDLAlertingStateMachine.Name}:*"
+            - !Ref AppianAlertingStateMachine
+            - !Sub "arn:aws:states:${self:provider.region}:${AWS::AccountId}:execution:${AppianAlertingStateMachine.Name}:*"
         - Effect: Allow
           Action:
-            - ses:SendTemplatedEmail
             - ses:SendEmail
             - ses:SendRawEmail
           Resource:
             - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/*"
-            - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:template/*"
         - Effect: Allow
           Action:
             - secretsmanager:GetSecretValue
           Resource:
-            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/mmdl-alerts*"
+            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/alerts*"
         - Effect: Allow
           Action:
             - secretsmanager:ListSecrets
@@ -65,7 +64,6 @@ provider:
         - Effect: Allow
           Action:
             - logs:PutLogEvents
-            - logs:GetLogEvents
           Resource:
             - ${param:sesLogGroupArn}
         - Effect: Allow
@@ -73,32 +71,28 @@ provider:
             - states:ListExecutions
             - states:StopExecution
           Resource: "*"
-        - Effect: Allow
-          Action:
-            - kms:GenerateDataKey
-          Resource:
-            - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
+
 params:
   master:
-    initialWaitSec: 172800 # 2 days
+    initialWaitSec: 86400 # 1 days
     tempWaitSec: 172800 # 2 days
-    signedSinceChoiceSec: 345600 # 4 days
-    recordAgeChoiceSec: 21686400 # 251 days
+    sinceSubmissionChoiceSec: 345600 # 4 days
+    recordAgeChoiceSec: 17366000 # 201 days
   val:
-    initialWaitSec: 172800
+    initialWaitSec: 86400
     tempWaitSec: 172800
-    signedSinceChoiceSec: 345600
-    recordAgeChoiceSec: 21686400
+    sinceSubmissionChoiceSec: 345600
+    recordAgeChoiceSec: 17366000
   production:
-    initialWaitSec: 172800
+    initialWaitSec: 86400
     tempWaitSec: 172800
-    signedSinceChoiceSec: 345600
-    recordAgeChoiceSec: 21686400
+    sinceSubmissionChoiceSec: 345600
+    recordAgeChoiceSec: 17366000
   default:
     initialWaitSec: 2
     tempWaitSec: 43200 # 12 hours
-    signedSinceChoiceSec: 3
-    recordAgeChoiceSec: 21686400 # 251 days
+    sinceSubmissionChoiceSec: 3
+    recordAgeChoiceSec: 17366000 # 201 days
 
 custom:
   project: ${env:PROJECT}
@@ -108,19 +102,20 @@ custom:
       - val
       - production
   secretId: ${self:custom.project}/${sls:stage}/alerts
+  scripts:
 
 functions:
   workflowStarter:
     handler: handlers/workflowStarter.handler
     events:
       - stream:
-          arn: ${param:mmdlTableStreamArn}
+          arn: ${param:appianTableStreamArn}
           startingPosition: LATEST
           maximumRetryAttempts: 0
     environment:
-      stateMachineArn: !Ref MMDLAlertingStateMachine
+      stateMachineArn: !Ref AppianAlertingStateMachine
       region: ${self:provider.region}
-      mmdlTableName: ${param:mmdlTableName}
+      appianTableName: ${param:appianTableName}
       errorsTopicArn: ${param:errorsTopicArn}
     maximumRetryAttempts: 0
   sendReport:
@@ -167,31 +162,30 @@ functions:
       stage: ${sls:stage}
       sesLogGroupName: ${param:sesLogGroupName}
       errorsTopicArn: ${param:errorsTopicArn}
-  getMmdlData:
-    handler: handlers/getMmdlData.handler
+  getAppianData:
+    handler: handlers/getAppianData.handler
     environment:
       region: ${self:provider.region}
       project: ${self:custom.project}
       stage: ${sls:stage}
-      mmdlTableName: ${param:mmdlTableName}
-      errorsTopicArn: ${param:errorsTopicArn}
+      appianTableName: ${param:appianTableName}
   stopExecutions:
     handler: handlers/stopExecutions.handler
     environment:
       region: ${self:provider.region}
-      stateMachineArn: !Ref MMDLAlertingStateMachine
+      stateMachineArn: !Ref AppianAlertingStateMachine
 resources:
   Resources:
     NoMatchStream:
       Type: AWS::Logs::LogStream
       Properties:
         LogGroupName: ${param:sesLogGroupName}
-        LogStreamName: NOMATCH
+        LogStreamName: NOMATCH-APPIAN
     NotFoundStream:
       Type: AWS::Logs::LogStream
       Properties:
         LogGroupName: ${param:sesLogGroupName}
-        LogStreamName: NOTFOUND
+        LogStreamName: NOTFOUND-APPIAN
     StateMachineLogGroup:
       Type: AWS::Logs::LogGroup
       Properties:
@@ -200,15 +194,15 @@ resources:
 stepFunctions:
   stateMachines:
     compareAlertFunc:
-      name: ${self:service}-${sls:stage}-compare-alerting
-      id: MMDLAlertingStateMachine
+      name: ${self:service}-${sls:stage}-compare-appian-alerting
+      id: AppianAlertingStateMachine
       loggingConfig:
         level: ALL
         includeExecutionData: true
         destinations:
           - !GetAtt StateMachineLogGroup.Arn
       definition:
-        Comment: "A State Machine to orchestrate a CMS alerting workflow for MMDL."
+        Comment: "A State Machine to orchestrate a CMS alerting workflow for Appian."
         StartAt: InitializeTask
         States:
           InitializeTask:
@@ -221,23 +215,13 @@ stepFunctions:
           InitialWait:
             Type: Wait
             Seconds: ${param:initialWaitSec}
-            Next: GetMmdlDataTask
-          GetMmdlDataTask:
+            Next: GetAppianDataTask
+          GetAppianDataTask:
             Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getMmdlData"
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getAppianData"
             Parameters:
               Payload.$: $
-            Next: StatusSubmittedChoice
-          StatusSubmittedChoice:
-            Type: Choice
-            Choices:
-              - Variable: $.isStatusSubmitted
-                BooleanEquals: true
-                Next: DoesSeatoolRecordExistTask
-              - Variable: $.isStatusSubmitted
-                BooleanEquals: false
-                Next: UpdateStatusTask
-            Default: UpdateStatusTask
+            Next: DoesSeatoolRecordExistTask
           DoesSeatoolRecordExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-seatoolRecordExist"
@@ -249,21 +233,20 @@ stepFunctions:
             Choices:
               - Variable: $.seatoolExist
                 BooleanEquals: true
-                Next: UpdateStatusTask # for now we are skipping the compare task
-                # Next: CompareTask
+                Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
-                Next: SignedSinceChoice
-            Default: SignedSinceChoice
-          SignedSinceChoice:
+                Next: SinceSubmissionChoice
+            Default: SinceSubmissionChoice
+          SinceSubmissionChoice:
             Type: Choice
             Choices:
               - And:
-                  - Variable: $.secSinceMmdlSigned
+                  - Variable: $.secSinceAppianSubmitted
                     IsPresent: true
-                  - Variable: $.secSinceMmdlSigned
-                    NumericGreaterThanEquals: ${param:signedSinceChoiceSec}
-                  - Variable: $.mmdlSigned
+                  - Variable: $.secSinceAppianSubmitted
+                    NumericGreaterThanEquals: ${param:sinceSubmissionChoiceSec}
+                  - Variable: $.isAppianSubmitted
                     BooleanEquals: true
                 Next: SendNotExistTask
             Default: UpdateStatusTask
@@ -276,7 +259,7 @@ stepFunctions:
           RecordAgeChoice:
             Type: Choice
             Choices:
-              - Variable: $.secSinceMmdlSigned
+              - Variable: $.secSinceAppianSubmitted
                 NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
                 Next: LastLoopAMatchChoice
             Default: TempWait
@@ -294,28 +277,28 @@ stepFunctions:
                     BooleanEquals: true
                 Next: SuccessState
             Default: FailState
-          # CompareTask:
-          #   Type: Task
-          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
-          #   Parameters:
-          #     Payload.$: $
-          #   Next: RecordsMatchChoice
-          # RecordsMatchChoice:
-          #   Type: Choice
-          #   Choices:
-          #     - Variable: $.match
-          #       BooleanEquals: true
-          #       Next: UpdateStatusTask
-          #     - Variable: $.match
-          #       BooleanEquals: false
-          #       Next: SendNotMatchTask
-          #   Default: SendNotMatchTask
-          # SendNotMatchTask:
-          #   Type: Task
-          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
-          #   Parameters:
-          #     Payload.$: $
-          #   Next: UpdateStatusTask
+          CompareTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
+            Parameters:
+              Payload.$: $
+            Next: RecordsMatchChoice
+          RecordsMatchChoice:
+            Type: Choice
+            Choices:
+              - Variable: $.match
+                BooleanEquals: true
+                Next: UpdateStatusTask
+              - Variable: $.match
+                BooleanEquals: false
+                Next: SendNotMatchTask
+            Default: SendNotMatchTask
+          SendNotMatchTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
+            Parameters:
+              Payload.$: $
+            Next: UpdateStatusTask
           UpdateStatusTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-updateStatus"

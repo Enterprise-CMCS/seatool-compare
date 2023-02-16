@@ -1,7 +1,6 @@
 import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
 import { getItem, trackError } from "../../../libs";
-import { getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
-import * as Types from "../../../types";
+import { secondsBetweenDates } from "./utils/timeHelper";
 
 /* This is the Lambda function that is triggered by the DynamoDB stream. It is responsible for starting
 the Step Function execution. */
@@ -13,21 +12,19 @@ exports.handler = async function (event: {
   const id = event.Records[0].dynamodb.Keys.id.S;
 
   /* Retrieving the record from the DynamoDB table. */
-  const mmdlRecord = await getItem({
-    tableName: process.env.mmdlTableName,
+  const appianRecord = await getItem({
+    tableName: process.env.appianTableName,
     id,
   });
 
-  /* A function that returns an object with the following properties:
-  - mmdlSigned: boolean
-  - secSinceMmdlSigned?: number */
-  const sigInfo = getMmdlSigInfo(mmdlRecord as Types.MmdlRecord);
+  /* Checking if the appian record was signed within the last 200 days. */
+  const submissionDate = appianRecord.payload?.SBMSSN_DATE;
+  const diffInSec = secondsBetweenDates(submissionDate);
 
-  /* Checking if the mmdl was signed within the last 250 days. */
   if (
-    sigInfo.mmdlSigned &&
-    sigInfo.secSinceMmdlSigned &&
-    sigInfo.secSinceMmdlSigned < 21686400
+    appianRecord.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
+    appianRecord.payload?.IS_SBMTD?.toLowerCase() === "y" &&
+    diffInSec < 17366000 // 201 days
   ) {
     /* Creating an object that will be passed to the StartExecutionCommand. */
     const params = {
@@ -54,6 +51,6 @@ exports.handler = async function (event: {
       console.log("finally");
     }
   } else {
-    console.log(`Record ${id} not signed within last 250 days. Ignoring...`);
+    console.log(`Record ${id} not submitted within last 200 days. Ignoring...`);
   }
 };
