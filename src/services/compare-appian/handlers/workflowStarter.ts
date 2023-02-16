@@ -23,7 +23,7 @@ exports.handler = async function (event: {
 
   if (
     appianRecord.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
-    appianRecord.payload?.IS_SBMTD?.toLowerCase() === "y" &&
+    appianRecord.payload?.SPA_PCKG_ID?.toLowerCase()?.at(-1) === "o" &&
     diffInSec < 17366000 // 201 days
   ) {
     /* Creating an object that will be passed to the StartExecutionCommand. */
