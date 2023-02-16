@@ -9,6 +9,8 @@ services:
     path: src/services/seatool
   status:
     path: src/services/status
+  appian-status:
+    path: src/services/appian-status
   compare:
     dependsOn: alerts
     path: src/services/compare
@@ -23,12 +25,29 @@ services:
       sesLogGroupArn: ${alerts.SesLogGroupArn}
       sesLogGroupName: ${alerts.SesLogGroupName}
       errorsTopicArn: ${alerts.ErrorsTopicArn}
+  compare-appian:
+    dependsOn: alerts
+    path: src/services/compare-appian
+    params:
+      appianTableArn: ${appian.TableArn}
+      appianTableName: ${appian.TableName}
+      appianTableStreamArn: ${appian.TableStreamArn}
+      seatoolTableName: ${seatool.TableName}
+      seatoolTableArn: ${seatool.TableArn}
+      statusTableName: ${appian-status.TableName}
+      statusTableArn: ${appian-status.TableArn}
+      sesLogGroupArn: ${alerts.SesLogGroupArn}
+      sesLogGroupName: ${alerts.SesLogGroupName}
+      errorsTopicArn: ${alerts.ErrorsTopicArn}
   connector:
-    dependsOn: compare
+    dependsOn:
+      - compare
+      - compare-appian
     path: src/services/connector
     params:
-      appianTableName: ${appian.TableName}
       appianTableArn: ${appian.TableArn}
+      appianTableName: ${appian.TableName}
+      appianTableStreamArn: ${appian.TableStreamArn}
       mmdlTableName: ${mmdl.TableName}
       mmdlTableArn: ${mmdl.TableArn}
       mmdlTableStreamArn: ${mmdl.TableStreamArn}
