@@ -73,7 +73,8 @@ exports.handler = async function (
 
       emailData["emailRecipientsInitial"] = emailRecipientsInitial;
       emailData["emailRecipientsFirstFollowUp"] = emailRecipientsFirstFollowUp;
-      emailData["emailRecipientsSecondFollowUp"] = emailRecipientsSecondFollowUp;
+      emailData["emailRecipientsSecondFollowUp"] = 
+        emailRecipientsSecondFollowUp;
 
       const emailRecipientsTypes = {
         emailRecipientsInitial: data.secSinceMmdlSigned < 48 * 3600,
