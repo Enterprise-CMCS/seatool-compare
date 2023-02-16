@@ -73,7 +73,7 @@ exports.handler = async function (
 
       emailData["emailRecipientsInitial"] = emailRecipientsInitial;
       emailData["emailRecipientsFirstFollowUp"] = emailRecipientsFirstFollowUp;
-      emailData["emailRecipientsSecondFollowUp"] = 
+      emailData["emailRecipientsSecondFollowUp"] =
         emailRecipientsSecondFollowUp;
 
       const emailRecipientsTypes = {

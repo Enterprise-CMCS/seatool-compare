@@ -77,7 +77,7 @@ exports.handler = async function (
 
       emailData["emailRecipientsInitial"] = emailRecipientsInitial;
       emailData["emailRecipientsFirstFollowUp"] = emailRecipientsFirstFollowUp;
-      emailData["emailRecipientsSecondFollowUp"] = 
+      emailData["emailRecipientsSecondFollowUp"] =
         emailRecipientsSecondFollowUp;
 
       // defining an object to map and calculate init, first and second followup email
