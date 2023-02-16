@@ -60,11 +60,11 @@ exports.handler = async function (
 
       let emailData = { sourceEmail: emailParams.sourceEmail };
 
-      let recipientEmails
+      let recipientEmails;
 
       const { CHP, nonCHP } = emailParams;
       // CHP or nonCHP contains emailRecipientsInitial, emailRecipientsFirstFollowUp, emailRecipientsSecondFollowUp
-      recipientEmails = isChp ? CHP : nonCHP
+      recipientEmails = isChp ? CHP : nonCHP;
       const {
         emailRecipientsInitial,
         emailRecipientsFirstFollowUp,
@@ -72,10 +72,8 @@ exports.handler = async function (
       } = recipientEmails;
 
       emailData["emailRecipientsInitial"] = emailRecipientsInitial;
-      emailData["emailRecipientsFirstFollowUp"] =
-        emailRecipientsFirstFollowUp;
-      emailData["emailRecipientsSecondFollowUp"] =
-        emailRecipientsSecondFollowUp;
+      emailData["emailRecipientsFirstFollowUp"] = emailRecipientsFirstFollowUp;
+      emailData["emailRecipientsSecondFollowUp"] = emailRecipientsSecondFollowUp;
 
       const emailRecipientsTypes = {
         emailRecipientsInitial: data.secSinceMmdlSigned < 48 * 3600,

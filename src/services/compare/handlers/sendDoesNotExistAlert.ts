@@ -64,11 +64,11 @@ exports.handler = async function (
       let emailData = { sourceEmail: emailParams.sourceEmail };
 
       // depending on if chip true||false filling in the info
-      let recipientEmails
+      let recipientEmails;
 
       const { CHP, nonCHP } = emailParams;
       // CHP or nonCHP contains emailRecipientsInitial, emailRecipientsFirstFollowUp, emailRecipientsSecondFollowUp
-      recipientEmails = isChp ? CHP : nonCHP
+      recipientEmails = isChp ? CHP : nonCHP;
       const {
         emailRecipientsInitial,
         emailRecipientsFirstFollowUp,
@@ -76,10 +76,8 @@ exports.handler = async function (
       } = recipientEmails;
 
       emailData["emailRecipientsInitial"] = emailRecipientsInitial;
-      emailData["emailRecipientsFirstFollowUp"] =
-        emailRecipientsFirstFollowUp;
-      emailData["emailRecipientsSecondFollowUp"] =
-        emailRecipientsSecondFollowUp;
+      emailData["emailRecipientsFirstFollowUp"] = emailRecipientsFirstFollowUp;
+      emailData["emailRecipientsSecondFollowUp"] = emailRecipientsSecondFollowUp;
 
       // defining an object to map and calculate init, first and second followup email
       const emailRecipientsTypes = {
