@@ -1,17 +1,29 @@
-import {
-  sendTemplatedEmail,
-  doesSecretExist,
-  getSecretsValue,
-  putLogsEvent,
-  trackError,
-} from "../../../libs";
+import * as Libs from "../../../libs";
+import * as Types from "../../../types";
+import { getEmailBody } from "../../../libs";
+import { getEmailContent } from "./utils/getEmailContent";
 
-const Templates = {
-  SendNoMatchTemplateInitial: "SendNoMatchTemplateInitialTemplate",
-  SendNoMatchTemplateFollowUp: "SendNoMatchTemplateInitialFollowUpTemplate",
-  SendNoMatchTemplateChpInitial: "SendNoMatchTemplateChpTemplate",
-  SendNoMatchTemplateChpFollowUp: "SendNoMatchTemplateChpFollowUpTemplate",
-};
+/*
+  secret should be formatted like this: validate your JSON!!
+  secret name: compare/[stage]/mmdl-alerts
+  {
+    "sourceEmail":"someAuthorizedSender@example.com",
+    "CHP": {
+      "ToAddresses": ["probablySomeGovernmentEmail@example.com"],
+      "CcAddresses":[
+        {"email":"emailOne@example.com","alertIfGreaterThanSeconds":345600},
+        {"email":"emailTwo@example.com","alertIfGreaterThanSeconds":518400},
+      ]
+    },
+    "nonCHP":{
+      "ToAddresses":["probablySomeGovernmentEmail@example.com"],
+      "CcAddresses":[
+        {"email":"emailOne@example.com","alertIfGreaterThanSeconds":345600},
+        {"email":"emailTwo@example.com","alertIfGreaterThanSeconds":518400},
+      ]
+    }
+  }
+*/
 
 exports.handler = async function (
   event: { Payload: any },
@@ -26,162 +38,78 @@ exports.handler = async function (
 
   if (!region) throw "process.env.region needs to be defined.";
 
-  // use this secret path to define the { emailRecipients, sourceEmail } for the does not match email
-  let secretId = `${project}/${stage}/mmdl-alerts`;
+  const secretId = `${project}/${stage}/mmdl-alerts`;
 
-  const data = { ...event.Payload };
-  const id: string = data.id;
+  const data = { ...event.Payload } as Types.MmdlSeatoolCompareData;
+  const isCHP = data.programType == "CHP";
+  const transmittalNumber = data.transmittalNumber;
+  const secretExists = await Libs.doesSecretExist(region, secretId);
+  const secSinceMmdlSigned = data.secSinceMmdlSigned || 0;
 
-  const secretExists = await doesSecretExist(region, secretId);
+  // has this been signed more than five days ago - if so its urgent
+  const isUrgent = secSinceMmdlSigned >= 432000; // five days
 
-  /* This is checking to see if the secret exists. If it does not exist, it will not send an email. */
+  const emailContent = getEmailContent({ id: transmittalNumber, isUrgent });
+  const emailBody = getEmailBody(emailContent);
+  const subjectText = `${transmittalNumber} - ACTION REQUIRED - No matching record in SEA Tool`;
+
   try {
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
-      const params = getEmailParams({
-        id: data.id,
-        Template: Templates.SendNoMatchTemplateInitial,
+
+      const params = Libs.getEmailParams({
+        id: transmittalNumber,
+        Body: emailBody,
       });
+
       console.log(
-        "EMAIL NOT SENT - Secret does not exist for this stage. Example email details: ",
+        "EMAIL NOT SENT - Secret does not exist for this stage. Example email details:",
         JSON.stringify(params, null, 2)
       );
 
-      await putLogsEvent({
+      await Libs.putLogsEvent({
         type: "NOTFOUND",
-        message: `Alert for ${id} - TEST `,
+        message: `Alert for id: ${transmittalNumber} - TEST `,
       });
     } else {
-      const emailParams = await getSecretsValue(region, secretId);
+      // if secrests does exist
 
-      let recipientType;
-      let recipients;
-      const isChp = data.programType == "CHP";
+      const mmdlSecret = (await Libs.getSecretsValue(
+        region,
+        secretId
+      )) as Types.MmdlSecret;
 
-      let emailData = { sourceEmail: emailParams.sourceEmail };
+      const sourceEmail = mmdlSecret.sourceEmail;
+      const ToAddresses = mmdlSecret[isCHP ? "CHP" : "nonCHP"].ToAddresses;
 
-      if (isChp) {
-        const { CHP } = emailParams;
-        const {
-          emailRecipientsInitial,
-          emailRecipientsFirstFollowUp,
-          emailRecipientsSecondFollowUp,
-        } = CHP;
-        emailData["emailRecipientsInitial"] = emailRecipientsInitial;
-        emailData["emailRecipientsFirstFollowUp"] =
-          emailRecipientsFirstFollowUp;
-        emailData["emailRecipientsSecondFollowUp"] =
-          emailRecipientsSecondFollowUp;
-      }
-      {
-        const { nonCHP } = emailParams;
-        const {
-          emailRecipientsInitial,
-          emailRecipientsFirstFollowUp,
-          emailRecipientsSecondFollowUp,
-        } = nonCHP;
-        emailData["emailRecipientsInitial"] = emailRecipientsInitial;
-        emailData["emailRecipientsFirstFollowUp"] =
-          emailRecipientsFirstFollowUp;
-        emailData["emailRecipientsSecondFollowUp"] =
-          emailRecipientsSecondFollowUp;
-      }
+      const CcAddresses = mmdlSecret[
+        isCHP ? "CHP" : "nonCHP"
+      ].CcAddresses.filter(
+        (r) => secSinceMmdlSigned >= r.alertIfGreaterThanSeconds
+      ).map((r) => r.email);
 
-      const emailRecipientsTypes = {
-        emailRecipientsInitial:
-          !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
-          !(
-            data.secSinceMmdlSigned > 48 * 3600 &&
-            data.secSinceMmdlSigned < 48 * 2 * 3600
-          ),
-        emailRecipientsFirstFollowUp:
-          data.secSinceMmdlSigned > 48 * 3600 &&
-          data.secSinceMmdlSigned < 48 * 2 * 3600,
-        emailRecipientsSecondFollowUp: data.secSinceMmdlSigned > 48 * 2 * 3600,
-      };
-
-      // if it greater then 2 days but less then 4 days
-      if (emailRecipientsTypes.emailRecipientsFirstFollowUp) {
-        recipientType = "emailRecipientsFirstFollowUp";
-        recipients = emailData["emailRecipientsFirstFollowUp"];
-      }
-      // if it is greater then 4 days
-      else if (emailRecipientsTypes.emailRecipientsSecondFollowUp) {
-        recipientType = "emailRecipientsSecondFollowUp";
-        recipients = emailData["emailRecipientsSecondFollowUp"];
-      }
-      // if it is less then 2 days
-      else if (emailRecipientsTypes.emailRecipientsInitial) {
-        recipientType = "emailRecipientsInitial";
-        recipients = emailData["emailRecipientsInitial"];
-      }
-
-      console.log({
-        emailRecipientsTypes,
-        recipients,
-        thisRecipientType: recipientType,
+      const emailParams = Libs.getEmailParams({
+        Body: emailBody,
+        id: transmittalNumber,
+        CcAddresses,
+        sourceEmail,
+        subjectText,
+        ToAddresses,
       });
 
-      let paramsToGetEmailParams = {
-        emailRecipients: recipients,
-        sourceEmail: emailData.sourceEmail,
-        id: data.id,
-        Template: "",
-      };
+      await Libs.sendAlert(emailParams);
 
-      // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
-
-      if (!isChp) {
-        //for non chip
-        if (emailRecipientsTypes.emailRecipientsInitial) {
-          paramsToGetEmailParams.Template =
-            Templates.SendNoMatchTemplateInitial;
-        } else {
-          paramsToGetEmailParams.Template =
-            Templates.SendNoMatchTemplateFollowUp;
-        }
-      } else {
-        // for chip
-        if (emailRecipientsTypes.emailRecipientsInitial) {
-          paramsToGetEmailParams.Template =
-            Templates.SendNoMatchTemplateChpInitial;
-        } else {
-          paramsToGetEmailParams.Template =
-            Templates.SendNoMatchTemplateChpFollowUp;
-        }
-      }
-
-      const params = getEmailParams(paramsToGetEmailParams);
-      // previously we were using sendAlert,
-      //now we are using SendTemplatedEmail as we are sending template email
-      await sendTemplatedEmail(params);
-
-      await putLogsEvent({
+      await Libs.putLogsEvent({
         type: "NOTFOUND",
-        message: `Alert for ${data.id} - sent to ${JSON.stringify(
-          recipients
-        )} recipient:${recipientType} `,
+        message: `Alert for ID: ${transmittalNumber} - sent to ${[
+          ...ToAddresses,
+          ...CcAddresses,
+        ].join(", ")}`,
       });
     }
   } catch (e) {
-    await trackError(e);
+    await Libs.trackError(e);
   } finally {
     callback(null, data);
   }
-};
-
-const getEmailParams = ({
-  emailRecipients = ["notexistrecipients@example.com"],
-  sourceEmail = "officialcms@example.com",
-  id,
-  Template,
-}) => {
-  return {
-    Destination: {
-      ToAddresses: emailRecipients,
-    },
-    Source: sourceEmail,
-    Template: Template,
-    TemplateData: JSON.stringify({ id: id }),
-  };
 };

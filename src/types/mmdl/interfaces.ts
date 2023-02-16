@@ -109,3 +109,19 @@ export interface MmdlReportData {
   match?: boolean;
   isStatusSubmitted?: boolean;
 }
+
+interface Recipients {
+  ToAddresses: string[];
+  CcAddresses: CcAddress[];
+}
+
+interface CcAddress {
+  email: string;
+  alertIfGreaterThanSeconds: number;
+}
+
+export interface MmdlSecret {
+  sourceEmail: string;
+  CHP: Recipients;
+  nonCHP: Recipients;
+}
