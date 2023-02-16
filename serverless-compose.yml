@@ -9,6 +9,8 @@ services:
     path: src/services/seatool
   status:
     path: src/services/status
+  appian-status:
+    path: src/services/appian-status
   compare:
     dependsOn: alerts
     path: src/services/compare
@@ -32,8 +34,8 @@ services:
       appianTableStreamArn: ${appian.TableStreamArn}
       seatoolTableName: ${seatool.TableName}
       seatoolTableArn: ${seatool.TableArn}
-      statusTableName: ${status.TableName}
-      statusTableArn: ${status.TableArn}
+      statusTableName: ${appian-status.TableName}
+      statusTableArn: ${appian-status.TableArn}
       sesLogGroupArn: ${alerts.SesLogGroupArn}
       sesLogGroupName: ${alerts.SesLogGroupName}
       errorsTopicArn: ${alerts.ErrorsTopicArn}
