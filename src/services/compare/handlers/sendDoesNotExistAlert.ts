@@ -64,46 +64,30 @@ exports.handler = async function (
       let emailData = { sourceEmail: emailParams.sourceEmail };
 
       // depending on if chip true||false filling in the info
-      if (isChp) {
-        const { CHP } = emailParams;
-        // CHP contains emailRecipientsInitial, emailRecipientsFirstFollowUp, emailRecipientsSecondFollowUp
-        const {
-          emailRecipientsInitial,
-          emailRecipientsFirstFollowUp,
-          emailRecipientsSecondFollowUp,
-        } = CHP;
-        emailData["emailRecipientsInitial"] = emailRecipientsInitial;
-        emailData["emailRecipientsFirstFollowUp"] =
-          emailRecipientsFirstFollowUp;
-        emailData["emailRecipientsSecondFollowUp"] =
-          emailRecipientsSecondFollowUp;
-      }
-      {
-        const { nonCHP } = emailParams;
-        const {
-          emailRecipientsInitial,
-          emailRecipientsFirstFollowUp,
-          emailRecipientsSecondFollowUp,
-        } = nonCHP;
-        emailData["emailRecipientsInitial"] = emailRecipientsInitial;
-        emailData["emailRecipientsFirstFollowUp"] =
-          emailRecipientsFirstFollowUp;
-        emailData["emailRecipientsSecondFollowUp"] =
-          emailRecipientsSecondFollowUp;
-      }
+      let recipientEmails
+
+      const { CHP, nonCHP } = emailParams;
+      // CHP or nonCHP contains emailRecipientsInitial, emailRecipientsFirstFollowUp, emailRecipientsSecondFollowUp
+      recipientEmails = isChp ? CHP : nonCHP
+      const {
+        emailRecipientsInitial,
+        emailRecipientsFirstFollowUp,
+        emailRecipientsSecondFollowUp,
+      } = recipientEmails;
+
+      emailData["emailRecipientsInitial"] = emailRecipientsInitial;
+      emailData["emailRecipientsFirstFollowUp"] =
+        emailRecipientsFirstFollowUp;
+      emailData["emailRecipientsSecondFollowUp"] =
+        emailRecipientsSecondFollowUp;
 
       // defining an object to map and calculate init, first and second followup email
       const emailRecipientsTypes = {
-        emailRecipientsInitial:
-          !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
-          !(
-            data.secSinceMmdlSigned > 48 * 3600 &&
-            data.secSinceMmdlSigned < 48 * 2 * 3600
-          ),
+        emailRecipientsInitial: data.secSinceMmdlSigned < 48 * 3600, // less hen tow days
         emailRecipientsFirstFollowUp:
-          data.secSinceMmdlSigned > 48 * 3600 &&
-          data.secSinceMmdlSigned < 48 * 2 * 3600,
-        emailRecipientsSecondFollowUp: data.secSinceMmdlSigned > 48 * 2 * 3600,
+          data.secSinceMmdlSigned > 48 * 3600 && // if it is after two days
+          data.secSinceMmdlSigned < 48 * 2 * 3600, // and before four days
+        emailRecipientsSecondFollowUp: data.secSinceMmdlSigned > 48 * 2 * 3600, // after four days
       };
 
       // if it greater then 2 days but less then 4 days

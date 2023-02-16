@@ -60,40 +60,25 @@ exports.handler = async function (
 
       let emailData = { sourceEmail: emailParams.sourceEmail };
 
-      if (isChp) {
-        const { CHP } = emailParams;
-        const {
-          emailRecipientsInitial,
-          emailRecipientsFirstFollowUp,
-          emailRecipientsSecondFollowUp,
-        } = CHP;
-        emailData["emailRecipientsInitial"] = emailRecipientsInitial;
-        emailData["emailRecipientsFirstFollowUp"] =
-          emailRecipientsFirstFollowUp;
-        emailData["emailRecipientsSecondFollowUp"] =
-          emailRecipientsSecondFollowUp;
-      }
-      {
-        const { nonCHP } = emailParams;
-        const {
-          emailRecipientsInitial,
-          emailRecipientsFirstFollowUp,
-          emailRecipientsSecondFollowUp,
-        } = nonCHP;
-        emailData["emailRecipientsInitial"] = emailRecipientsInitial;
-        emailData["emailRecipientsFirstFollowUp"] =
-          emailRecipientsFirstFollowUp;
-        emailData["emailRecipientsSecondFollowUp"] =
-          emailRecipientsSecondFollowUp;
-      }
+      let recipientEmails
+
+      const { CHP, nonCHP } = emailParams;
+      // CHP or nonCHP contains emailRecipientsInitial, emailRecipientsFirstFollowUp, emailRecipientsSecondFollowUp
+      recipientEmails = isChp ? CHP : nonCHP
+      const {
+        emailRecipientsInitial,
+        emailRecipientsFirstFollowUp,
+        emailRecipientsSecondFollowUp,
+      } = recipientEmails;
+
+      emailData["emailRecipientsInitial"] = emailRecipientsInitial;
+      emailData["emailRecipientsFirstFollowUp"] =
+        emailRecipientsFirstFollowUp;
+      emailData["emailRecipientsSecondFollowUp"] =
+        emailRecipientsSecondFollowUp;
 
       const emailRecipientsTypes = {
-        emailRecipientsInitial:
-          !(data.secSinceMmdlSigned > 48 * 2 * 3600) &&
-          !(
-            data.secSinceMmdlSigned > 48 * 3600 &&
-            data.secSinceMmdlSigned < 48 * 2 * 3600
-          ),
+        emailRecipientsInitial: data.secSinceMmdlSigned < 48 * 3600,
         emailRecipientsFirstFollowUp:
           data.secSinceMmdlSigned > 48 * 3600 &&
           data.secSinceMmdlSigned < 48 * 2 * 3600,
