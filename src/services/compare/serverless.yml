@@ -189,6 +189,10 @@ resources:
       Type: AWS::Logs::LogGroup
       Properties:
         LogGroupName: /aws/vendedlogs/states/${self:service}-${sls:stage}-alert
+    StopExecutions:
+      Type: Custom::StopExecutions
+      Properties:
+        ServiceToken: !GetAtt StopExecutionsLambdaFunction.Arn
 
 stepFunctions:
   stateMachines:
