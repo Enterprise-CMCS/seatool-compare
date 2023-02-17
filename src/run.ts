@@ -95,20 +95,18 @@ yargs(process.argv.slice(2))
       await runner.run_command_and_output(`SLS Deploy`, deployCmd, ".");
     }
   )
-  .command(
-    "test",
-    "run any available tests for an mmdl stage.",
-    {
-      stage: { type: "string", demandOption: true },
-    },
-    async (options) => {
-      await install_deps_for_services();
-      await refreshOutputs(options.stage);
-      console.log(
-        `Here, we would run tests for ${options.stage}, but there are no tests yet!`
-      );
-    }
-  )
+  .command("test", "run all available tests.", {}, async () => {
+    await install_deps_for_services();
+    await runner.run_command_and_output(`Unit Tests`, ["yarn", "test-ci"], ".");
+  })
+  .command("test-gui", "open unit-testing gui for vitest.", {}, async () => {
+    await install_deps_for_services();
+    await runner.run_command_and_output(
+      `Unit Tests`,
+      ["yarn", "test-gui"],
+      "."
+    );
+  })
   .command(
     "destroy",
     "destroy a stage in AWS",
@@ -152,36 +150,6 @@ yargs(process.argv.slice(2))
       await runner.run_command_and_output(
         `SLS connect`,
         ["sls", options.service, "connect", "--stage", options.stage],
-        "."
-      );
-    }
-  )
-  .command(
-    "deleteTopics",
-    "Deletes topics from Bigmac which were created by development/ephemeral branches.",
-    {
-      stage: { type: "string", demandOption: true },
-      // verify: { type: "boolean", demandOption: false, default: true },
-    },
-    async (options) => {
-      await install_deps_for_services();
-      await refreshOutputs("master");
-      await runner.run_command_and_output(
-        `Delete Topics`,
-        [
-          "sls",
-          "topics",
-          "invoke",
-          "--stage",
-          "master",
-          "--function",
-          "deleteTopics",
-          "--data",
-          JSON.stringify({
-            project: process.env.PROJECT,
-            stage: options.stage,
-          }),
-        ],
         "."
       );
     }

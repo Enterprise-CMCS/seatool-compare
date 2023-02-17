@@ -65,7 +65,7 @@ jobs:
           source /tmp/.profile
           nvm use
           direnv allow
-          direnv exec run test --stage $STAGE_NAME
+          direnv exec run test
 
       - name: Test destroy
         run: |
