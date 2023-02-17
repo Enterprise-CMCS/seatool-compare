@@ -55,7 +55,7 @@ provider:
           Action:
             - secretsmanager:GetSecretValue
           Resource:
-            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/alerts*"
+            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/mmdl-alerts*"
         - Effect: Allow
           Action:
             - secretsmanager:ListSecrets
@@ -63,6 +63,7 @@ provider:
         - Effect: Allow
           Action:
             - logs:PutLogEvents
+            - logs:GetLogEvents
           Resource:
             - ${param:sesLogGroupArn}
         - Effect: Allow
@@ -70,7 +71,11 @@ provider:
             - states:ListExecutions
             - states:StopExecution
           Resource: "*"
-
+        - Effect: Allow
+          Action:
+            - kms:GenerateDataKey
+          Resource:
+            - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
 params:
   master:
     initialWaitSec: 172800 # 2 days
@@ -143,14 +148,6 @@ functions:
     environment:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
-      errorsTopicArn: ${param:errorsTopicArn}
-  sendDoesNotExistAlert:
-    handler: handlers/sendDoesNotExistAlert.handler
-    environment:
-      region: ${self:provider.region}
-      project: ${self:custom.project}
-      stage: ${sls:stage}
-      sesLogGroupName: ${param:sesLogGroupName}
       errorsTopicArn: ${param:errorsTopicArn}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
@@ -266,7 +263,7 @@ stepFunctions:
             Default: UpdateStatusTask
           SendNotExistTask:
             Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendDoesNotExistAlert"
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
             Parameters:
               Payload.$: $
             Next: UpdateStatusTask
