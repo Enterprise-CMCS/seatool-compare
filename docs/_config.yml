@@ -38,6 +38,10 @@ team:
       description: The authority on all data related concerns of the project, such as schema design and topic architecture.
       name: Milind Kalkar
       email: mkalkar@gswell.com
+    - role: Software Engineer
+      description: Implimentation, monitoring, development.
+      name: James dinh
+      email: jdinh@gswell.com
   core_hours: 10:00am - 3:00pm ET
 
   repo:

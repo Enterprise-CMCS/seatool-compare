@@ -20,7 +20,6 @@ exports.handler = async function (
     /* Checking if the appian record was signed within the last 200 days. */
     const submissionDate = appianRecord.payload?.SBMSSN_DATE;
     data.secSinceAppianSubmitted = secondsBetweenDates(submissionDate);
-
     data.isAppianSubmitted =
       appianRecord.payload?.IS_SBMTD?.toLowerCase() === "y";
 
