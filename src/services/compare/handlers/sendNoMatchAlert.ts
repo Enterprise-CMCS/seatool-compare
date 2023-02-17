@@ -69,7 +69,7 @@ exports.handler = async function (
 
       await Libs.putLogsEvent({
         type: "NOTFOUND",
-        message: `Alert for id: ${transmittalNumber} - TEST `,
+        message: `Alert for id: ${data.id} with transmittal number: ${transmittalNumber} - TEST `,
       });
     } else {
       // if secrests does exist
@@ -101,7 +101,9 @@ exports.handler = async function (
 
       await Libs.putLogsEvent({
         type: "NOTFOUND",
-        message: `Alert for ID: ${transmittalNumber} - sent to ${[
+        message: `Alert for id: ${
+          data.id
+        } with transmittal number: ${transmittalNumber} - to ${[
           ...ToAddresses,
           ...CcAddresses,
         ].join(", ")}`,
