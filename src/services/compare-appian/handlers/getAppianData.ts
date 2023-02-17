@@ -9,6 +9,7 @@ exports.handler = async function (
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data: Types.AppianSeatoolCompareData = { ...event.Payload };
+  console.log(data);
   try {
     const appianRecord = await getItem({
       tableName: process.env.appianTableName,
@@ -20,7 +21,7 @@ exports.handler = async function (
     /* Checking if the appian record was signed within the last 200 days. */
     const submissionDate = appianRecord.payload?.SBMSSN_DATE;
     data.secSinceAppianSubmitted = secondsBetweenDates(submissionDate);
-
+    console.log(data);
     data.isAppianSubmitted =
       appianRecord.payload?.IS_SBMTD?.toLowerCase() === "y";
 
