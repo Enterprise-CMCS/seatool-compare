@@ -25,6 +25,8 @@ export async function putItem({
   };
 
   try {
+    if (item && item.id) console.log(`Putting item with id: ${item.id}:`);
+
     const command = new PutItemCommand(params);
     const result = await client.send(command);
     if (item && item.id)
