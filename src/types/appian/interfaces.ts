@@ -3,7 +3,7 @@ export interface AppianRecord {
 }
 
 export interface AppianStreamRecord {
-  FORM_FIELDS: FormFields;
+  payload: FormFields;
 }
 
 interface FormFields {

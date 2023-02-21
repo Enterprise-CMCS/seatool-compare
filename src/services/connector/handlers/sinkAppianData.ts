@@ -11,6 +11,7 @@ async function myHandler(
     throw "process.env.tableName needs to be defined.";
   }
   try {
+    console.log("eventvalue:", event);
     const eventValue = JSON.parse(event.value) as Types.AppianStreamRecord;
 
     await dynamodb.putItem({
