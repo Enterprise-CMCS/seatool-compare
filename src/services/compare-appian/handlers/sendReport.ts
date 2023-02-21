@@ -52,6 +52,7 @@ exports.handler = async function (event: { recipient: string }) {
   }
 
   try {
+    console.log("Status Table: ", process.env.statusTable)
     const data = await Libs.scanTable(process.env.statusTable);
     const reportDataJson = formatReportData(data as Types.AppianReportData[]);
     const csv = Libs.getCsvFromJson(reportDataJson);
