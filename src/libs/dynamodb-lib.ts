@@ -34,7 +34,7 @@ export async function putItem({
         `Record processed for item: ${item.id}:`,
         JSON.stringify(result, null, 2)
       );
-
+    console.log("before sending metric data to put:", process.env.namespace);
     await sendMetricData({
       Namespace: process.env.namespace,
       MetricData: [

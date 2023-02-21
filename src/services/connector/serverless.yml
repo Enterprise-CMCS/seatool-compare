@@ -488,6 +488,32 @@ resources:
                 "stoppedReason": "$.detail.stoppedReason"
               InputTemplate: |
                 "A Cluster Task Failure Event has occured in seatool-compare. Account: <account> Cluster ARN: <clusterArn> Status: <status> Reason: <stoppedReason>"
+    AppianTaskAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 2
+        EvaluationPeriods: 5
+        MetricName: ${self:service}-${sls:stage}.lambda.appianData_task
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    AppianConnectorAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 2
+        EvaluationPeriods: 5
+        MetricName: ${self:service}-${sls:stage}.lambda.appianData
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
     SeatoolTaskAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
@@ -562,6 +588,19 @@ resources:
         DatapointsToAlarm: 1
         EvaluationPeriods: 5
         MetricName: ${param:mmdlTableName}_dynamo_updates
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    AppianDynamoUpdateAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 1
+        EvaluationPeriods: 5
+        MetricName: ${param:appianTableName}_dynamo_updates
         Namespace: ${self:service}-${sls:stage}
         Period: 60
         Statistic: Sum
