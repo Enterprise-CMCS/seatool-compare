@@ -1,6 +1,6 @@
 ---
 layout: default
-title: mmdl-status
+title: status-mmdl
 parent: Services
 nav_order: 6
 ---

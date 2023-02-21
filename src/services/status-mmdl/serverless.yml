@@ -1,4 +1,4 @@
-service: ${self:custom.project}-mmdl-status
+service: ${self:custom.project}-status-mmdl
 
 frameworkVersion: "3"
 
@@ -30,7 +30,7 @@ resources:
     Table:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:service}-${sls:stage}-status
+        TableName: ${self:service}-${sls:stage}-status-mmdl
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: true
         AttributeDefinitions:
