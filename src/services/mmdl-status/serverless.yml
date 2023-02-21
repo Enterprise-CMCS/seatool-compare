@@ -1,4 +1,4 @@
-service: ${self:custom.project}-status
+service: ${self:custom.project}-mmdl-status
 
 frameworkVersion: "3"
 

@@ -7,21 +7,21 @@ services:
     path: src/services/mmdl
   seatool:
     path: src/services/seatool
-  status:
-    path: src/services/status
+  mmdl-status:
+    path: src/services/mmdl-status
   appian-status:
     path: src/services/appian-status
-  compare:
+  compare-mmdl:
     dependsOn: alerts
-    path: src/services/compare
+    path: src/services/compare-mmdl
     params:
       mmdlTableName: ${mmdl.TableName}
       mmdlTableArn: ${mmdl.TableArn}
       mmdlTableStreamArn: ${mmdl.TableStreamArn}
       seatoolTableName: ${seatool.TableName}
       seatoolTableArn: ${seatool.TableArn}
-      statusTableName: ${status.TableName}
-      statusTableArn: ${status.TableArn}
+      statusTableName: ${mmdl-status.TableName}
+      statusTableArn: ${mmdl-status.TableArn}
       sesLogGroupArn: ${alerts.SesLogGroupArn}
       sesLogGroupName: ${alerts.SesLogGroupName}
       errorsTopicArn: ${alerts.ErrorsTopicArn}
@@ -41,7 +41,7 @@ services:
       errorsTopicArn: ${alerts.ErrorsTopicArn}
   connector:
     dependsOn:
-      - compare
+      - compare-mmdl
       - compare-appian
     path: src/services/connector
     params:
