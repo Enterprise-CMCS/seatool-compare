@@ -15,11 +15,7 @@ import {
  * @returns The response from the PutMetricDataCommand.
  */
 export async function sendMetricData(params: PutMetricDataCommandInput) {
-  console.log(
-    "Sending metric data: ",
-    JSON.stringify(params),
-    params.Namespace
-  );
+  console.log("Sending metric data: ", JSON.stringify(params));
   const client = new CloudWatchClient({});
   const command = new PutMetricDataCommand(params);
   try {

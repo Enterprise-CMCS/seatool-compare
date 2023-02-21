@@ -143,12 +143,14 @@ functions:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
+      namespace: ${self:service}-${sls:stage}
   updateStatus:
     handler: handlers/updateStatus.handler
     environment:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
+      namespace: ${self:service}-${sls:stage}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
     environment:
