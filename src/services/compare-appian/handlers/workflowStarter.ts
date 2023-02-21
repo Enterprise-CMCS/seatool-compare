@@ -17,7 +17,7 @@ exports.handler = async function (event: {
     id,
   });
 
-  /* Checking if the appian record was signed within the last 200 days. */
+  /* Checking if the appian record was submitted within the last 200 days. */
   const submissionDate = appianRecord.payload?.SBMSSN_DATE;
   const diffInSec = secondsBetweenDates(submissionDate);
 
