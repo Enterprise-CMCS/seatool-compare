@@ -76,9 +76,10 @@ provider:
             - kms:GenerateDataKey
           Resource:
             - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
-        # - Effect: "Allow"
-        #   Action:
-        #     - cloudwatch:PutMetricData
+        - Effect: "Allow"
+          Action:
+            - cloudwatch:PutMetricData
+          Resource: "*"
 
 params:
   master:
