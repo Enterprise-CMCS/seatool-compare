@@ -149,14 +149,14 @@ functions:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
-      Namespace: ${self:service}-${sls:stage}
+      namespace: ${self:service}-${sls:stage}
   updateStatus:
     handler: handlers/updateStatus.handler
     environment:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
-      Namespace: ${self:service}-${sls:stage}
+      namespace: ${self:service}-${sls:stage}
   sendDoesNotExistAlert:
     handler: handlers/sendDoesNotExistAlert.handler
     environment:
