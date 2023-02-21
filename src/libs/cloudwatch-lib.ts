@@ -30,13 +30,20 @@ export async function sendMetricData(params: PutMetricDataCommandInput) {
 
 /**
  * We log an event for each email that is (or would be) sent.
- * There are four log streams 'NOMATCH' | 'NOTFOUND | NOMATCH-APPIAN | NOTFOUND-APPIAN'
+ * There are four log streams 'NOMATCH-MMDL' | 'NOTFOUND-MMDL' | 'NOMATCH-APPIAN' | 'NOTFOUND-APPIAN'
  */
+
+type LogStream =
+  | "NOMATCH-MMDL"
+  | "NOTFOUND-MMDL"
+  | "NOMATCH-APPIAN"
+  | "NOTFOUND-APPIAN";
+
 export async function putLogsEvent({
   type,
   message,
 }: {
-  type: string;
+  type: LogStream;
   message: string;
 }) {
   const client = new CloudWatchLogsClient({ region: process.env.region });
