@@ -56,7 +56,7 @@ provider:
           Action:
             - secretsmanager:GetSecretValue
           Resource:
-            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/alerts*"
+            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/appian-alerts*"
         - Effect: Allow
           Action:
             - secretsmanager:ListSecrets
@@ -71,6 +71,14 @@ provider:
             - states:ListExecutions
             - states:StopExecution
           Resource: "*"
+        - Effect: Allow
+          Action:
+            - kms:GenerateDataKey
+          Resource:
+            - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
+        - Effect: "Allow"
+          Action:
+            - cloudwatch:PutMetricData
 
 params:
   master:
