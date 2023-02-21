@@ -2,7 +2,7 @@
 layout: default
 title: Subscribing to Alerts
 parent: Development Workflows
-nav_order: 6
+nav_order: 7
 ---
 
 # Subscribing to Alerts

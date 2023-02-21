@@ -16,7 +16,39 @@
 # Theme settings
 
 title: seatool-compare
-description: Teaching you how to send it
+description: Project that perfoms data comparisons of legacy and seatool data and alerts accordingly when mismatches are found.
+
+contact_email: bpaige@gswell.com
+
+team:
+  members: # This list automatically populates the Team Introduction page.  Add/Edit as appropriate.
+    - role: Product Owner
+      description: Responsible for project scope, direction, and delivery.
+      name: Berry Davenport
+      email: bdavenport@gswell.com
+    - role: Tech Lead
+      description: Leads tooling, tech, and arch discussions and decisions.
+      name: Mike Dial
+      email: mdial@gswell.com
+    - role: Product Engineer
+      description: Implimentation, monitoring, development.
+      name: Ben Paige
+      email: bpaige@gswell.com
+    - role: Data SME
+      description: The authority on all data related concerns of the project, such as schema design and topic architecture.
+      name: Milind Kalkar
+      email: mkalkar@gswell.com
+    - role: Software Engineer
+      description: Implimentation, monitoring, development.
+      name: James dinh
+      email: jdinh@gswell.com
+  core_hours: 10:00am - 3:00pm ET
+
+  repo:
+  org: CMSgov
+  name: seatool-compare
+  url: https://github.com/CMSgov/seatool-compare
+
 # baseurl: "/just-the-docs" # the subpath of your site, e.g. /blog
 # url: "https://just-the-docs.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 remote_theme: just-the-docs/just-the-docs
@@ -45,59 +77,30 @@ nav_order: 2
 has_children: true
 has_toc: false
 
-# Set a path/url to a logo that will be displayed instead of the title
-#logo: "/assets/images/just-the-docs.png"
-
-# Enable or disable the site search
-# Supports true (default) or false
+# Default search settings.
 search_enabled: true
 search:
-  # Split pages into sections that can be searched individually
-  # Supports 1 - 6, default: 2
-  heading_level: 2
-  # Maximum amount of previews per search result
-  # Default: 3
+  heading_level: 2 
   previews: 2
-  # Maximum amount of words to display before a matched word in the preview
-  # Default: 5
   preview_words_before: 3
-  # Maximum amount of words to display after a matched word in the preview
-  # Default: 10
   preview_words_after: 3
-  # Set the search token separator
-  # Default: /[\s\-/]+/
-  # Example: enable support for hyphenated search words
   tokenizer_separator: /[\s/]+/
-  # Display the relative url in search results
-  # Supports true (default) or false
   rel_url: true
-  # Enable or disable the search button that appears in the bottom right corner of every page
-  # Supports true or false (default)
   button: false
 
-# To disable support for mermaid diagrams (https://mermaid-js.github.io/mermaid/),
-# comment out the `mermaid` and `version` keys below
-# By default, consuming the theme as a gem leaves mermaid disabled; it is opt-in
-mermaid:
-  # Version of mermaid library
-  # Pick an available version from https://cdn.jsdelivr.net/npm/mermaid/
-  version: "9.1.6"
-  # Put any additional configuration, such as setting the theme, in _includes/mermaid_config.js
-  # See also docs/ui-components/code
-
-# Enable or disable heading anchors
 heading_anchors: true
 
 # Aux links for the upper right navigation
 aux_links:
-  "seatool-compare on GitHub":
+  "GitHub":
     - "https://github.com/cmsgov/seatool-compare"
-
-# Makes Aux links open in a new tab. Default is false
+  "Jira":
+    - "https://qmacbis.atlassian.net/jira/software/c/projects/OY2/boards/246"
+  "Slack":
+    - "https://cmsgov.slack.com/archives/C04D6HXJ3GA"
 aux_links_new_tab: false
 
 # Sort order for navigation links
-# nav_sort: case_insensitive # default, equivalent to nil
 nav_sort: case_sensitive # Capital letters sorted before lowercase
 
 # External navigation links
