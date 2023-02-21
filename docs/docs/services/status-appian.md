@@ -1,17 +1,17 @@
 ---
 layout: default
-title: appian-status
+title: status-appian
 parent: Services
 nav_order: 6
 ---
 
-# appian-status
+# status-appian
 
 {: .no_toc }
 
 #### Summary
 
-- The appian-status service consists of a single dynamodb table
+- The status-appian service consists of a single dynamodb table
 - This table is updated from `services/compare-appian/handlers/initStatus` and `services/compare-appian/handlers/updateStatus` to track records as they cycle/traverse the compare step functions workflow. 
 
 #### Fields

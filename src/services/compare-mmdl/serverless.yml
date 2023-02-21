@@ -1,4 +1,4 @@
-service: ${self:custom.project}-compare
+service: ${self:custom.project}-compare-mmdl
 
 frameworkVersion: "3"
 
@@ -178,12 +178,12 @@ resources:
       Type: AWS::Logs::LogStream
       Properties:
         LogGroupName: ${param:sesLogGroupName}
-        LogStreamName: NOMATCH
+        LogStreamName: NOMATCH-MMDL
     NotFoundStream:
       Type: AWS::Logs::LogStream
       Properties:
         LogGroupName: ${param:sesLogGroupName}
-        LogStreamName: NOTFOUND
+        LogStreamName: NOTFOUND-MMDL
     StateMachineLogGroup:
       Type: AWS::Logs::LogGroup
       Properties:
