@@ -1,6 +1,6 @@
 ---
 layout: default
-title: compare
+title: mmdl-compare
 parent: Services
 nav_order: 5
 ---
