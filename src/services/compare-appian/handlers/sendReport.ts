@@ -52,10 +52,12 @@ exports.handler = async function (event: { recipient: string }) {
   }
 
   try {
-    console.log("Status Table: ", process.env.statusTable)
     const data = await Libs.scanTable(process.env.statusTable);
+    console.log("Data: ", data)
     const reportDataJson = formatReportData(data as Types.AppianReportData[]);
+    console.log("Report Data JSON: ", reportDataJson)
     const csv = Libs.getCsvFromJson(reportDataJson);
+    console.log("CSV: ", csv)
     const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
 
     await Libs.sendAttachment(mailOptions);
