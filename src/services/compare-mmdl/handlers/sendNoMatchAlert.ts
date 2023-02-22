@@ -68,7 +68,7 @@ exports.handler = async function (
       );
 
       await Libs.putLogsEvent({
-        type: "NOTFOUND",
+        type: "NOTFOUND-MMDL",
         message: `Alert for id: ${data.id} with transmittal number: ${transmittalNumber} - TEST `,
       });
     } else {
@@ -100,7 +100,7 @@ exports.handler = async function (
       await Libs.sendAlert(emailParams);
 
       await Libs.putLogsEvent({
-        type: "NOTFOUND",
+        type: "NOTFOUND-MMDL",
         message: `Alert for id: ${
           data.id
         } with transmittal number: ${transmittalNumber} - to ${[
