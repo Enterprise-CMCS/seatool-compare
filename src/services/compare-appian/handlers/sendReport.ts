@@ -52,9 +52,22 @@ exports.handler = async function (event: { recipient: string }) {
   }
 
   try {
-    const data = await Libs.scanTable(process.env.statusTable);
-    console.log("Data: ", data)
-    const reportDataJson = formatReportData(data as Types.AppianReportData[]);
+    const appianData = await Libs.scanTable(process.env.appianTableName);
+    const seatoolData = await Libs.scanTable(process.env.seatoolTableName);
+    console.log("Appian Data: ", appianData)
+    console.log("Seatool Data: ", seatoolData)
+
+    // const appianRecord = await getItem({
+    //   tableName: process.env.appianTableName,
+    //   id: data.id,
+    // });
+    
+    // const item = await getItem({
+    //   tableName: process.env.seatoolTableName,
+    //   id: data.SPA_ID,
+    // });
+
+    const reportDataJson = formatReportData(appianData as Types.AppianReportData[]);
     console.log("Report Data JSON: ", reportDataJson)
     const csv = Libs.getCsvFromJson(reportDataJson);
     console.log("CSV: ", csv)
