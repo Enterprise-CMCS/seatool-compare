@@ -196,7 +196,7 @@ resources:
 stepFunctions:
   stateMachines:
     compareAlertFunc:
-      name: ${self:service}-${sls:stage}-compare-alerting
+      name: ${self:service}-${sls:stage}-compare-alerting-mmdl
       id: MMDLAlertingStateMachine
       loggingConfig:
         level: ALL
