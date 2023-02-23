@@ -47,8 +47,14 @@ exports.handler = async function (event: { recipient: string }) {
     throw 'You must manually provide a recipient email in the event to send a report. ex. {"recipient": "user@example.com"}';
   }
 
-  if (!process.env.statusTable) {
-    throw "process.env.statusTable needs to be defined.";
+  // if (!process.env.statusTable) {
+  //   throw "process.env.statusTable needs to be defined.";
+  // }
+  if (!process.env.appianTableName) {
+    throw "process.env.appianTableName needs to be defined.";
+  }
+  if (!process.env.seatoolTableName) {
+    throw "process.env.seatoolTableName needs to be defined.";
   }
 
   try {
@@ -67,7 +73,8 @@ exports.handler = async function (event: { recipient: string }) {
     //   id: data.SPA_ID,
     // });
 
-    const reportDataJson = formatReportData(appianData as Types.AppianReportData[]);
+    // const reportDataJson = formatReportData(appianData as Types.AppianReportData[]);
+    const reportDataJson = formatReportData(appianData);
     console.log("Report Data JSON: ", reportDataJson)
     const csv = Libs.getCsvFromJson(reportDataJson);
     console.log("CSV: ", csv)
