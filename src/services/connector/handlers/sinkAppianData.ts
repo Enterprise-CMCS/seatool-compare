@@ -12,7 +12,7 @@ async function myHandler(
   }
   try {
     const eventValue = JSON.parse(event.value) as Types.AppianStreamRecord;
-    console.log("test", eventValue.payload);
+
     await dynamodb.putItem({
       tableName: process.env.tableName,
       item: {

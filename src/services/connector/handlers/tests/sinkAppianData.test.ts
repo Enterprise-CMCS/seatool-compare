@@ -1,5 +1,5 @@
 import { it, beforeAll, describe, expect, vi } from "vitest";
-import * as handler from "../sinkAppianData";
+import * as sink from "../sinkAppianData";
 import * as dynamodb from "../../../../libs/dynamodb-lib";
 vi.mock("../../../../libs/dynamodb-lib", () => {
   return {
@@ -12,30 +12,21 @@ describe("appian sink service tests", () => {
     process.env.tableName = "appian-table";
   });
 
-  it("function returns appian table update", async () => {
-    // const workflowFunction = vi.fn(() => (
-    //   Context: { Execution: { Input: { cluster: "test" } } },
-    // }));
-
-    const event: any = {
+  it("function tests putting an item to appian table", async () => {
+    const event = {
       key: "",
-      value: `{"payload": "{'PCKG_ID': '4433'}"}`,
+      value: '{"payload":{"PCKG_ID":21782}}',
     };
+    await sink.handler(event);
 
-    const result = await handler.handler(event);
-    expect(dynamodb.putItem).toHaveBeenCalledWith(event);
-
-    // handler.handlerEvent(
-    //   {}, //event
-    //   {}, //content
-    //   function (data, ss) {
-    //     //callback function with two arguments
-    //     console.log(data);
-    //   }
-    // );
-    expect(result).toEqual(200);
-    expect(result.body).toEqual(
-      `Queries: ${JSON.stringify(event.queryStringParameters)}`
-    );
+    expect(dynamodb.putItem).toHaveBeenCalledWith({
+      tableName: "appian-table",
+      item: {
+        id: "21782",
+        payload: {
+          PCKG_ID: 21782,
+        },
+      },
+    });
   });
 });
