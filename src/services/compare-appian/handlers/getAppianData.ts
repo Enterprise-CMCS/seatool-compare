@@ -17,11 +17,12 @@ exports.handler = async function (
     data.appianRecord = appianRecord as Types.AppianRecord;
     data.SPA_ID = appianRecord.payload?.SPA_ID;
 
-    /* Checking if the appian record was signed within the last 200 days. */
+    /* Checking if the appian record was submitted within the last 200 days. */
     const submissionDate = appianRecord.payload?.SBMSSN_DATE;
     data.secSinceAppianSubmitted = secondsBetweenDates(submissionDate);
     data.isAppianSubmitted =
-      appianRecord.payload?.IS_SBMTD?.toLowerCase() === "y";
+      appianRecord.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
+      appianRecord.payload?.SPA_PCKG_ID?.toLowerCase()?.at(-1) === "o";
 
     data.appianSubmittedDate = new Date(submissionDate).getTime();
   } catch (e) {

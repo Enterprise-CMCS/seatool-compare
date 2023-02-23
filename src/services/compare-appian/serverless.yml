@@ -56,7 +56,7 @@ provider:
           Action:
             - secretsmanager:GetSecretValue
           Resource:
-            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/alerts*"
+            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/alerts-appian*"
         - Effect: Allow
           Action:
             - secretsmanager:ListSecrets
@@ -70,6 +70,15 @@ provider:
           Action:
             - states:ListExecutions
             - states:StopExecution
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - kms:GenerateDataKey
+          Resource:
+            - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
+        - Effect: "Allow"
+          Action:
+            - cloudwatch:PutMetricData
           Resource: "*"
 
 params:
@@ -140,12 +149,14 @@ functions:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
+      namespace: ${self:service}-${sls:stage}
   updateStatus:
     handler: handlers/updateStatus.handler
     environment:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
+      namespace: ${self:service}-${sls:stage}
   sendDoesNotExistAlert:
     handler: handlers/sendDoesNotExistAlert.handler
     environment:
@@ -198,7 +209,7 @@ resources:
 stepFunctions:
   stateMachines:
     compareAlertFunc:
-      name: ${self:service}-${sls:stage}-compare-appian-alerting
+      name: ${self:service}-${sls:stage}-compare-alerting-appian
       id: AppianAlertingStateMachine
       loggingConfig:
         level: ALL
