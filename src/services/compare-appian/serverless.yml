@@ -131,7 +131,8 @@ functions:
     handler: handlers/sendReport.handler
     environment:
       region: ${self:provider.region}
-      statusTable: ${param:statusTableName}
+      appianTableName: ${param:appianTableName}
+      seatoolTableName: ${param:seatoolTableName}
   compare:
     handler: handlers/compare.handler
     environment:
