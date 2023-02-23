@@ -77,10 +77,8 @@ exports.handler = async function (event: { recipient: string }) {
     // });
 
     // const reportDataJson = formatReportData(appianData as Types.AppianReportData[]);
-    const reportDataJson = formatReportData(appianData);
-    // console.log("Report Data JSON: ", reportDataJson)
+    const reportDataJson = formatReportData(data);
     const csv = Libs.getCsvFromJson(reportDataJson);
-    // console.log("CSV: ", csv)
     const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
 
     await Libs.sendAttachment(mailOptions);
