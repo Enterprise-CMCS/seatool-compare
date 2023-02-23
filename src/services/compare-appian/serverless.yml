@@ -133,6 +133,7 @@ functions:
       region: ${self:provider.region}
       appianTableName: ${param:appianTableName}
       seatoolTableName: ${param:seatoolTableName}
+      statusTable: ${param:statusTableName}
   compare:
     handler: handlers/compare.handler
     environment:

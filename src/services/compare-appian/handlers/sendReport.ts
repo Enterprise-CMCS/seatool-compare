@@ -60,8 +60,11 @@ exports.handler = async function (event: { recipient: string }) {
   try {
     const appianData = await Libs.scanTable(process.env.appianTableName);
     const seatoolData = await Libs.scanTable(process.env.seatoolTableName);
-    console.log("Appian Data: ", appianData)
-    console.log("Seatool Data: ", seatoolData)
+    const data = await Libs.scanTable(process.env.statusTable);
+    console.log("Data:", data)
+    
+    // console.log("Appian Data: ", appianData)
+    // console.log("Seatool Data: ", seatoolData)
 
     // const appianRecord = await getItem({
     //   tableName: process.env.appianTableName,
