@@ -1,11 +1,8 @@
 import * as Libs from "../../../libs";
 import * as Types from "../../../types";
 
-function formatDateString(dateMilliseconds: number | string) {
-  const ms = Number(dateMilliseconds)
-  const dateObj = new Date(0);
-  dateObj.setUTCMilliseconds(ms);
-  return dateObj.toLocaleString('en-US', { timeZone: 'America/New_York' }) 
+function formatDateString(dateMs: number) {
+  return new Date(dateMs).toLocaleString('en-US', { timeZone: 'America/New_York' }) 
 }
 
 function formatReportData(data: Types.AppianReportData[]) {
@@ -15,9 +12,8 @@ function formatReportData(data: Types.AppianReportData[]) {
       "SPA ID": i.SPA_ID,
       "Iterations ": i.iterations,
       "Submission Date": i.appianSubmittedDate ? formatDateString(i.appianSubmittedDate) : "",
-      "Clock Start Date": i.secSinceAppianSubmitted ? formatDateString(i.secSinceAppianSubmitted) : "",
       "Seatool Record Exist": i.seatoolExist,
-      "Seatool Signed Date": i.seatoolSubmissionDate ? formatDateString(i.seatoolSubmissionDate) : "N/A",
+      "Seatool Signed Date": i.seatoolSubmissionDate ? formatDateString(Number(i.seatoolSubmissionDate)) : "N/A",
       "Records Match": i.match || false,
     };
   });
