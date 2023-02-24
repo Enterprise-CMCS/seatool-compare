@@ -1,5 +1,5 @@
 import { it, beforeAll, describe, expect, vi } from "vitest";
-import * as sink from "../sinkAppianData";
+import * as sink from "../sinkMmdlData";
 import * as dynamodb from "../../../../libs/dynamodb-lib";
 vi.mock("../../../../libs/dynamodb-lib", () => {
   return {
@@ -14,19 +14,30 @@ describe("mmdl sink service tests", () => {
 
   it("function tests putting an item to mmdl table", async () => {
     const event = {
-      key: '{"AGGREGATED_FORM_FIELDS_WAIVER_ID":16358,"STATE_CODE":"ZZ","GROUP_CODE":"HCBS","PROGRAM_TYPE_CODE":"ABP"}',
+      key: '{"AGGREGATED_FORM_FIELDS_WAIVER_ID":16358,"STATE_CODE":"ZZ","GROUP_CODE":"HCBS","PROGRAM_TYPE_CODE":"ABP" }',
       value:
-        '{"FORM_FIELDS":{"abp_AssuranceThree":{"FIELD_NAME":"abp_AssuranceThree","FIELD_DESCRIPTION":"The state/territory assures that it has included in the notice a description of the method for complying with the provisions of section 5006(e) of the American Recovery and Reinvestment Act of 2009.","FIELD_VALUE":"false","FIELD_MAPPING_DATA_TYPE":"cb","FIELD_CHANGE_TYPE_CODE":"MOD","FIELD_MAPPING_NOTE_TEXT":null,"FIELD_PROGRAM_TYPE_CODE":"ABP","REVISION_ID":30143}',
+        '{"FORM_FIELDS":{"mac179_transNbr":{"FIELD_NAME":"abp_AssuranceThree","FIELD_DESCRIPTION":"The American Recovery and Reinvestment Act of 2009.","FIELD_VALUE":"false","FIELD_MAPPING_DATA_TYPE":"cb","FIELD_CHANGE_TYPE_CODE":"MOD","FIELD_MAPPING_NOTE_TEXT":null,"FIELD_PROGRAM_TYPE_CODE":"ABP","REVISION_ID":30143}}}',
     };
+
     await sink.handler(event);
 
     expect(dynamodb.putItem).toHaveBeenCalledWith({
       tableName: "mmdl-table",
       item: {
-        id: "21782",
-        payload: {
-          PCKG_ID: 21782,
+        id: "ZZ-16358-ABP",
+        mac179_transNbr: {
+          FIELD_CHANGE_TYPE_CODE: "MOD",
+          FIELD_DESCRIPTION:
+            "The American Recovery and Reinvestment Act of 2009.",
+          FIELD_MAPPING_DATA_TYPE: "cb",
+          FIELD_MAPPING_NOTE_TEXT: null,
+          FIELD_NAME: "abp_AssuranceThree",
+          FIELD_PROGRAM_TYPE_CODE: "ABP",
+          FIELD_VALUE: "false",
+          REVISION_ID: 30143,
         },
+        statuses: undefined,
+        transmittalNumber: "FALSE",
       },
     });
   });
