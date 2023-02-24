@@ -6,9 +6,11 @@ import * as Types from "../../../types";
 function formatReportData(data: Types.AppianReportData[]) {
   return data.map((i) => {
     return {
-      "Transmittal ID": i.id,
+      "SPA ID": i.SPA_ID,
+      // "Transmittal ID": i.id,
       "Iterations ": i.iterations,
-      "Clock Start Date": i.secSinceAppianSubmitted,
+      "Submission Date": i.appianSubmittedDate,
+      // "Clock Start Date": i.secSinceAppianSubmitted,
       "Seatool Record Exist": i.seatoolExist,
       "Seatool Signed Date": i.seatoolSubmissionDate || "N/A",
       "Records Match": i.match || false,
