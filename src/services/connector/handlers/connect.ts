@@ -23,8 +23,7 @@ export async function createConnector(event: {
   Payload: { ip: string };
   Context: { Execution: { Input: { connectorConfigSecret: string } } };
 }) {
-  console.log("Received eventd:", JSON.stringify(event, null, 2));
-  console.log("test", event);
+  console.log("Received event:", JSON.stringify(event, null, 2));
   return await connect.createConnector(
     event.Payload.ip,
     event.Context.Execution.Input.connectorConfigSecret
