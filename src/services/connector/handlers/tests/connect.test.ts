@@ -1,4 +1,4 @@
-import { it, beforeAll, describe, expect, vi } from "vitest";
+import { it, describe, expect, vi } from "vitest";
 import { findTaskIp, checkIfConnectIsReady, createConnector } from "../connect";
 import * as connect from "../../../../libs/connect-lib";
 
@@ -11,10 +11,6 @@ vi.mock("../../../../libs/connect-lib", () => {
 });
 
 describe("connect service function", () => {
-  beforeAll(() => {
-    // process.env.tableName = "seatool-table";
-  });
-
   it("function tests finding an ip task", async () => {
     const event = {
       Context: { Execution: { Input: { cluster: "test-cluster" } } },

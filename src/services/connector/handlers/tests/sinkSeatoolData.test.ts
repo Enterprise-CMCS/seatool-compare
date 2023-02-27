@@ -1,6 +1,9 @@
 import { it, beforeAll, describe, expect, vi } from "vitest";
 import * as sink from "../sinkSeatoolData";
 import * as dynamodb from "../../../../libs/dynamodb-lib";
+
+const seaToolSink = sink as { handler: Function };
+
 vi.mock("../../../../libs/dynamodb-lib", () => {
   return {
     putItem: vi.fn(),
@@ -18,7 +21,7 @@ describe("SEATool sink service tests", () => {
       value:
         '{"STATE_PLAN":{"ID_NUMBER":"NC-11-020","SUBMISSION_DATE":1311638400000}}',
     };
-    await sink.handler(event);
+    await seaToolSink.handler(event);
 
     expect(dynamodb.putItem).toHaveBeenCalledWith({
       tableName: "seatool-table",
