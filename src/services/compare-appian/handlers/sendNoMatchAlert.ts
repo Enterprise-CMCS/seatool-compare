@@ -6,7 +6,39 @@ import {
   trackError,
 } from "../../../libs";
 
-//! This work/logic will be done in another ticket
+/*
+  secret should be formatted like this: validate your JSON!!
+  secret name: compare/[stage]/alerts-appian
+  {
+    "sourceEmail":"someAuthorizedSender@example.com",
+    "CHP": {
+      "ToAddresses": ["probablySomeGovernmentEmail@example.com"],
+      "CcAddresses":[
+        {"email":"emailOne@example.com","alertIfGreaterThanSeconds":345600},
+        {"email":"emailTwo@example.com","alertIfGreaterThanSeconds":518400},
+      ]
+    },
+    "nonCHP":{
+      "ToAddresses":["probablySomeGovernmentEmail@example.com"],
+      "CcAddresses":[
+        {"email":"emailOne@example.com","alertIfGreaterThanSeconds":345600},
+        {"email":"emailTwo@example.com","alertIfGreaterThanSeconds":518400},
+      ]
+    }
+  }
+
+  {
+    "emailRecipients": {
+      "ToAddresses": ["recipient@example.com"],
+      "CcAddresses":[
+        {"email":"emailOne@example.com","alertIfGreaterThanSeconds":345600},
+        {"email":"emailTwo@example.com","alertIfGreaterThanSeconds":518400},
+      ]
+    }
+    "sourceEmail":"source@example.com"
+  }
+
+*/
 
 exports.handler = async function (
   event: { Payload: any },
