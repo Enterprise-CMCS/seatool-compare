@@ -1,4 +1,10 @@
-export const getEmailContent = (id: string) => {
+export const getEmailContent = ({
+  id,
+  isUrgent,
+}: {
+  id: string;
+  isUrgent: boolean;
+}) => {
   const htmlData = `
     <html lang='en'>
     <head>
@@ -8,9 +14,16 @@ export const getEmailContent = (id: string) => {
     </head>
     <body>
         <center>
-        <h2>This is a reminder that there's no matching record in SEA Tool for ${id}.</h2>
+        <h2>This is ${
+          isUrgent ? "an urgent" : "a"
+        } reminder that there's no matching record in SEA Tool for ${id}.</h2>
         <br>
         <p>Either a record wasn't created in SEA Tool, or the SPA ID in Appian and SEA Tool don't match.</p>
+        ${
+          isUrgent
+            ? "<em>Failure to address this could lead to critical delay in the review process and a deemed aproved SPA.</em>"
+            : ""
+        }
         <br>
         <div style=' background-color: rgb(22, 82, 150); width: 580px; padding: 20px; margin: 20px; color: white;'> if you have any questions, please contact the help desk at <a href="mailto:SEATool_helpDesk@cms.hhs.org" style="color:#ffffff;">SEATool_helpDesk@cms.hhs.org</a> </div>
         </center>
