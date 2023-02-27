@@ -1,10 +1,5 @@
-import {
-  sendAlert,
-  doesSecretExist,
-  getSecretsValue,
-  putLogsEvent,
-  trackError,
-} from "../../../libs";
+import * as Libs from "../../../libs";
+import * as Types from "../../../types";
 
 /*
   secret should be formatted like this: validate your JSON!!
@@ -56,8 +51,9 @@ exports.handler = async function (
   // use this secret path to define the { emailRecipients, sourceEmail } for the does not match email
   const secretId = `${project}/${stage}/alerts-appian`;
 
-  const data = { ...event.Payload };
+  const data = { ...event.Payload } as Types.AppianSeatoolCompareData;
   const id: string = data.SPA_ID;
+  const secretExists = await Libs.doesSecretExist(region, secretId);
 
   const secretExists = await doesSecretExist(region, secretId);
 
@@ -71,7 +67,7 @@ exports.handler = async function (
         JSON.stringify(params, null, 2)
       );
 
-      await putLogsEvent({
+      await Libs.putLogsEvent({
         type: "NOTFOUND-APPIAN",
         message: `Alert for ${id} - TEST `,
       });
@@ -79,7 +75,7 @@ exports.handler = async function (
       const { emailRecipients, sourceEmail } = await getSecretsValue(
         region,
         secretId
-      );
+      )) as Types.AppianSecret;
 
       // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
       const params = getRecordDoesNotMatchParams({
@@ -88,15 +84,15 @@ exports.handler = async function (
         id,
       });
 
-      await sendAlert(params);
+      await Libs.sendAlert(emailParams);
 
-      await putLogsEvent({
+      await Libs.putLogsEvent({
         type: "NOTFOUND-APPIAN",
         message: `Alert for ${id} - sent to ${JSON.stringify(emailRecipients)}`,
       });
     }
   } catch (e) {
-    await trackError(e);
+    await Libs.trackError(e);
   } finally {
     callback(null, data);
   }
