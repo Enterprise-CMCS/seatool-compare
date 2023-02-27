@@ -1,36 +1,25 @@
 import * as Libs from "../../../libs";
 import * as Types from "../../../types";
+import { getEmailContent } from "./utils/getEmailContent";
 
 /*
   secret should be formatted like this: validate your JSON!!
   secret name: compare/[stage]/alerts-appian
-  {
-    "sourceEmail":"someAuthorizedSender@example.com",
-    "CHP": {
-      "ToAddresses": ["probablySomeGovernmentEmail@example.com"],
-      "CcAddresses":[
-        {"email":"emailOne@example.com","alertIfGreaterThanSeconds":345600},
-        {"email":"emailTwo@example.com","alertIfGreaterThanSeconds":518400},
-      ]
-    },
-    "nonCHP":{
-      "ToAddresses":["probablySomeGovernmentEmail@example.com"],
-      "CcAddresses":[
-        {"email":"emailOne@example.com","alertIfGreaterThanSeconds":345600},
-        {"email":"emailTwo@example.com","alertIfGreaterThanSeconds":518400},
-      ]
-    }
-  }
 
   {
-    "emailRecipients": {
-      "ToAddresses": ["recipient@example.com"],
-      "CcAddresses":[
-        {"email":"emailOne@example.com","alertIfGreaterThanSeconds":345600},
-        {"email":"emailTwo@example.com","alertIfGreaterThanSeconds":518400},
-      ]
-    }
-    "sourceEmail":"source@example.com"
+  	"sourceEmail": "source@example.com",
+  	"emailRecipients": {
+  		"ToAddresses": ["recipient@example.com"],
+  		"CcAddresses": [{
+  				"email": "emailOne@example.com",
+  				"alertIfGreaterThanSeconds": 345600
+  			},
+  			{
+  				"email": "emailTwo@example.com",
+  				"alertIfGreaterThanSeconds": 518400
+  			}
+  		]
+  	}
   }
 
 */
@@ -48,20 +37,30 @@ exports.handler = async function (
 
   if (!region) throw "process.env.region needs to be defined.";
 
-  // use this secret path to define the { emailRecipients, sourceEmail } for the does not match email
   const secretId = `${project}/${stage}/alerts-appian`;
 
   const data = { ...event.Payload } as Types.AppianSeatoolCompareData;
   const id: string = data.SPA_ID;
   const secretExists = await Libs.doesSecretExist(region, secretId);
+  const secSinceAppianSubmitted = data.secSinceAppianSubmitted || 0;
 
-  const secretExists = await doesSecretExist(region, secretId);
+  // Was this submitted more than five days ago? If so, it's urgent:
+  const isUrgent = secSinceAppianSubmitted >= 432000; // Five days in secs
 
-  /* This is checking to see if the secret exists. If it does not exist, it will not send an email. */
+  // Build the email from the template:
+  const emailContent = getEmailContent({ id, isUrgent });
+  const emailBody = Libs.getEmailBody(emailContent);
+  const subjectText = `${id} - ACTION REQUIRED - No matching record in SEA Tool`;
+
   try {
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
-      const params = getRecordDoesNotMatchParams({ id });
+
+      const params = Libs.getEmailParams({
+        id: id,
+        Body: emailBody,
+      });
+
       console.log(
         "EMAIL NOT SENT - Secret does not exist for this stage. Example email details: ",
         JSON.stringify(params, null, 2)
@@ -72,23 +71,40 @@ exports.handler = async function (
         message: `Alert for ${id} - TEST `,
       });
     } else {
-      const { emailRecipients, sourceEmail } = await getSecretsValue(
+      // Secret does exist:
+
+      const appianSecret = (await Libs.getSecretsValue(
         region,
         secretId
       )) as Types.AppianSecret;
 
-      // you can also use the data.programType value here if needed "MAC" | "HHS" | "CHP"
-      const params = getRecordDoesNotMatchParams({
-        emailRecipients,
+      const sourceEmail = appianSecret.sourceEmail;
+      const ToAddresses = appianSecret.emailRecipients.ToAddresses;
+
+      // Add CC addresses only if the time since submission is longer than the
+      // duration set in `alertIfGreaterThanSeconds` in the secrets JSON
+      // (see example at top of file)
+      const CcAddresses = appianSecret.emailRecipients.CcAddresses.filter(
+        (r) => secSinceAppianSubmitted >= r.alertIfGreaterThanSeconds
+      ).map((r) => r.email);
+
+      const emailParams = Libs.getEmailParams({
+        Body: emailBody,
+        id: id,
+        CcAddresses,
         sourceEmail,
-        id,
+        subjectText,
+        ToAddresses,
       });
 
       await Libs.sendAlert(emailParams);
 
       await Libs.putLogsEvent({
         type: "NOTFOUND-APPIAN",
-        message: `Alert for ${id} - sent to ${JSON.stringify(emailRecipients)}`,
+        message: `Alert for ${id} - sent to ${[
+          ...ToAddresses,
+          ...CcAddresses,
+        ].join(", ")}`,
       });
     }
   } catch (e) {
@@ -97,32 +113,3 @@ exports.handler = async function (
     callback(null, data);
   }
 };
-
-function getRecordDoesNotMatchParams({
-  emailRecipients = ["nomatchrecipients@example.com"],
-  sourceEmail = "officialcms@example.com",
-  id,
-}: {
-  emailRecipients?: string[];
-  sourceEmail?: string;
-  id: string;
-}) {
-  return {
-    Destination: {
-      ToAddresses: emailRecipients,
-    },
-    Message: {
-      Body: {
-        Text: {
-          Charset: "UTF-8",
-          Data: `Record with id: ${id} does not match in SEA Tool.`,
-        },
-      },
-      Subject: {
-        Charset: "UTF-8",
-        Data: `ACTION REQUIRED - Appian record for ${id} needs corrected in SEA Tool`,
-      },
-    },
-    Source: sourceEmail,
-  };
-}
