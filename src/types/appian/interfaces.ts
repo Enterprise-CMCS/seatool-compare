@@ -81,3 +81,18 @@ export interface AppianReportData {
   seatoolSubmissionDate?: string;
   match?: boolean;
 }
+
+interface CcAddress {
+  email: string;
+  alertIfGreaterThanSeconds: number;
+}
+
+interface Recipients {
+  ToAddresses: string[];
+  CcAddresses: CcAddress[];
+}
+
+export interface AppianSecret {
+  emailRecipients: Recipients;
+  sourceEmail: string;
+}
