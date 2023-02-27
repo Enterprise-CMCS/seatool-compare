@@ -32,10 +32,10 @@ describe("connect service function", () => {
   it("function tests finding an ip task", async () => {
     const event = {
       Payload: { ip: "1000" },
-      Context: { Execution: { Input: { connectorConfigSecret: "secret" } } },
+      Context: { Execution: { Input: { connectorConfigSecret: "payload" } } },
     };
     await createConnector(event);
 
-    expect(connect.createConnector).toHaveBeenCalledWith("1000", "secret");
+    expect(connect.createConnector).toHaveBeenCalledWith("1000", "payload");
   });
 });
