@@ -4,7 +4,7 @@ import * as Types from "../../../types";
 function formatDateString(dateMs: number) {
   return new Date(dateMs).toLocaleString('en-US', {
     timeZone: 'America/New_York',
-  }) 
+  });
 }
 
 function formatReportData(data: Types.AppianReportData[]) {
