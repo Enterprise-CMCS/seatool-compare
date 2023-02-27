@@ -32,7 +32,7 @@ describe("connect service function", () => {
   it("function tests finding an ip task", async () => {
     const event = {
       Payload: { ip: "1000" },
-      Context: { Execution: { Input: { connectorConfigSecret: "payload" } } }, // pragma: allowlist secret
+      Context: { Execution: { Input: { connectorConfigSecret: "secret" } } }, // pragma: allowlist secret
     };
     await createConnector(event);
 
