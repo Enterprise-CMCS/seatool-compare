@@ -2,7 +2,9 @@ import * as Libs from "../../../libs";
 import * as Types from "../../../types";
 
 function formatDateString(dateMs: number) {
-  return new Date(dateMs).toLocaleString('en-US', { timeZone: 'America/New_York' }) 
+  return new Date(dateMs).toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+  }) 
 }
 
 function formatReportData(data: Types.AppianReportData[]) {
@@ -11,9 +13,13 @@ function formatReportData(data: Types.AppianReportData[]) {
       "Appian Transmittal ID": i.id,
       "SPA ID": i.SPA_ID,
       "Iterations ": i.iterations,
-      "Submission Date": i.appianSubmittedDate ? formatDateString(i.appianSubmittedDate) : "",
+      "Submission Date": i.appianSubmittedDate
+        ? formatDateString(i.appianSubmittedDate)
+        : "",
       "Seatool Record Exist": i.seatoolExist,
-      "Seatool Signed Date": i.seatoolSubmissionDate ? formatDateString(Number(i.seatoolSubmissionDate)) : "N/A",
+      "Seatool Signed Date": i.seatoolSubmissionDate
+        ? formatDateString(Number(i.seatoolSubmissionDate))
+        : "N/A",
       "Records Match": i.match || false,
     };
   });
