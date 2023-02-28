@@ -1,16 +1,25 @@
 import * as Libs from "../../../libs";
 import * as Types from "../../../types";
 
-//! This work/logic will be done in another ticket
+function formatDateString(dateMs: number) {
+  return new Date(dateMs).toLocaleString("{en-US", {
+    timeZone: "America/New_York",
+  });
+}
 
 function formatReportData(data: Types.AppianReportData[]) {
   return data.map((i) => {
     return {
-      "Transmittal ID": i.id,
+      "Appian Transmittal ID": i.id,
+      "SPA ID": i.SPA_ID,
       "Iterations ": i.iterations,
-      "Clock Start Date": i.secSinceAppianSubmitted,
+      "Submission Date": i.appianSubmittedDate
+        ? formatDateString(i.appianSubmittedDate)
+        : "",
       "Seatool Record Exist": i.seatoolExist,
-      "Seatool Signed Date": i.seatoolSubmissionDate || "N/A",
+      "Seatool Signed Date": i.seatoolSubmissionDate
+        ? formatDateString(Number(i.seatoolSubmissionDate))
+        : "N/A",
       "Records Match": i.match || false,
     };
   });
@@ -53,7 +62,7 @@ exports.handler = async function (event: { recipient: string }) {
 
   try {
     const data = await Libs.scanTable(process.env.statusTable);
-    const reportDataJson = formatReportData(data as Types.AppianReportData[]);
+    const reportDataJson = formatReportData(data);
     const csv = Libs.getCsvFromJson(reportDataJson);
     const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
 
