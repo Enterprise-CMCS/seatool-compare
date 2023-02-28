@@ -157,14 +157,6 @@ functions:
       statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
       namespace: ${self:service}-${sls:stage}
-  sendDoesNotExistAlert:
-    handler: handlers/sendDoesNotExistAlert.handler
-    environment:
-      region: ${self:provider.region}
-      project: ${self:custom.project}
-      stage: ${sls:stage}
-      sesLogGroupName: ${param:sesLogGroupName}
-      errorsTopicArn: ${param:errorsTopicArn}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
     environment:
