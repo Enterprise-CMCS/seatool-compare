@@ -12,6 +12,7 @@ export const getSecretsValue = async (region: string, secretId: string) => {
   console.log("in get secrets", client, input, command);
 
   try {
+    console.log("in serets manger try block");
     const response = await client.send(command);
     const result = JSON.parse(response.SecretString ?? "");
     return result;
