@@ -82,7 +82,7 @@ exports.handler = async function (
 
       const sourceEmail = appianSecret.sourceEmail;
       const ToAddresses = appianSecret.emailRecipients.ToAddresses;
-
+      console.log(appianSecret, sourceEmail, ToAddresses);
       // Add CC addresses only if the time since submission is longer than the
       // duration set in `alertIfGreaterThanSeconds` in the secrets JSON
       // (see example at top of file)
