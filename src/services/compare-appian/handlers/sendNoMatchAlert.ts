@@ -72,7 +72,7 @@ exports.handler = async function (
       });
     } else {
       // Secret does exist:
-
+      console.log("Secret Exist");
       const appianSecret = (await Libs.getSecretsValue(
         region,
         secretId
@@ -88,6 +88,7 @@ exports.handler = async function (
         (r) => secSinceAppianSubmitted >= r.alertIfGreaterThanSeconds
       ).map((r) => r.email);
 
+      console.log("Before Email");
       const emailParams = Libs.getEmailParams({
         Body: emailBody,
         id: id,
@@ -97,8 +98,10 @@ exports.handler = async function (
         ToAddresses,
       });
 
-      await Libs.sendAlert(emailParams);
+      console.log("Before Send alert");
 
+      await Libs.sendAlert(emailParams);
+      console.log("Before Put Logs");
       await Libs.putLogsEvent({
         type: "NOTFOUND-APPIAN",
         message: `Alert for ${id} - sent to ${[
