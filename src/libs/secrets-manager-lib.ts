@@ -5,9 +5,12 @@ import {
 } from "@aws-sdk/client-secrets-manager";
 
 export const getSecretsValue = async (region: string, secretId: string) => {
+  console.log("in get secrets", region, secretId);
   const client = new SecretsManagerClient({ region });
   const input = { SecretId: secretId };
   const command = new GetSecretValueCommand(input);
+  console.log("in get secrets", client, input, command);
+
   try {
     const response = await client.send(command);
     const result = JSON.parse(response.SecretString ?? "");
