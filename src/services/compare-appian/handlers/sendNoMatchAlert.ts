@@ -80,6 +80,8 @@ exports.handler = async function (
         secretId
       )) as Types.AppianSecret;
 
+      console.log("appianSecret", appianSecret);
+
       const sourceEmail = appianSecret.sourceEmail;
       const ToAddresses = appianSecret.emailRecipients.ToAddresses;
       console.log(appianSecret, sourceEmail, ToAddresses);
