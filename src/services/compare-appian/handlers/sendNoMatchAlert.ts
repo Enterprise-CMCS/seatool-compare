@@ -46,7 +46,6 @@ exports.handler = async function (
 
   // Was this submitted more than five days ago? If so, it's urgent:
   const isUrgent = secSinceAppianSubmitted >= 432000; // Five days in secs
-  console.log("before build the email");
 
   // Build the email from the template:
   const emailContent = getEmailContent({ id, isUrgent });
@@ -54,7 +53,6 @@ exports.handler = async function (
   const subjectText = `${id} - ACTION REQUIRED - No matching record in SEA Tool`;
 
   try {
-    console.log("does secret exist", secretExists);
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
 
@@ -74,17 +72,13 @@ exports.handler = async function (
       });
     } else {
       // Secret does exist:
-      console.log("Secret Exist");
       const appianSecret = (await Libs.getSecretsValue(
         region,
         secretId
       )) as Types.AppianSecret;
 
-      console.log("appianSecret", appianSecret);
-
       const sourceEmail = appianSecret.sourceEmail;
       const ToAddresses = appianSecret.emailRecipients.ToAddresses;
-      console.log(appianSecret, sourceEmail, ToAddresses);
       // Add CC addresses only if the time since submission is longer than the
       // duration set in `alertIfGreaterThanSeconds` in the secrets JSON
       // (see example at top of file)
@@ -92,7 +86,6 @@ exports.handler = async function (
         (r) => secSinceAppianSubmitted >= r.alertIfGreaterThanSeconds
       ).map((r) => r.email);
 
-      console.log("Before Email");
       const emailParams = Libs.getEmailParams({
         Body: emailBody,
         id: id,
@@ -102,10 +95,7 @@ exports.handler = async function (
         ToAddresses,
       });
 
-      console.log("Before Send alert");
-
       await Libs.sendAlert(emailParams);
-      console.log("Before Put Logs");
       await Libs.putLogsEvent({
         type: "NOTFOUND-APPIAN",
         message: `Alert for ${id} - sent to ${[
