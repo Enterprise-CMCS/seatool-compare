@@ -46,6 +46,7 @@ exports.handler = async function (
 
   // Was this submitted more than five days ago? If so, it's urgent:
   const isUrgent = secSinceAppianSubmitted >= 432000; // Five days in secs
+  console.log("before build the email");
 
   // Build the email from the template:
   const emailContent = getEmailContent({ id, isUrgent });
@@ -53,6 +54,7 @@ exports.handler = async function (
   const subjectText = `${id} - ACTION REQUIRED - No matching record in SEA Tool`;
 
   try {
+    console.log("does secret exist", secretExists);
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
 
