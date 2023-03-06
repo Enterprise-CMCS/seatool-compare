@@ -27,7 +27,7 @@ describe("mmdl sink service tests", () => {
     expect(dynamodb.putItem).toHaveBeenCalledWith({
       tableName: "mmdl-table",
       item: {
-        id: "ZZ-16358-ABP",
+        PK: "ZZ-16358-ABP",
         mac179_transNbr: {
           FIELD_CHANGE_TYPE_CODE: "MOD",
           FIELD_DESCRIPTION:
@@ -40,7 +40,7 @@ describe("mmdl sink service tests", () => {
           REVISION_ID: 30143,
         },
         statuses: undefined,
-        transmittalNumber: "FALSE",
+        TN: "FALSE",
       },
     });
   });
