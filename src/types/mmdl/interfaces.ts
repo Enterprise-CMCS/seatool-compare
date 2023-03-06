@@ -4,8 +4,8 @@ export interface MmdlRecord {
   hhs_transNbr?: { FIELD_PROGRAM_TYPE_CODE: string };
   stMedDirSgnDt?: { FIELD_VALUE: any };
   statuses: ApplicationWorkflowStatus[];
-  id: any;
-  transmittalNumber: string;
+  PK: string; // State-WaiverID-ProgramCode
+  TN: string; // Transmittal Number
 }
 
 export interface MmdlStreamRecord {
@@ -72,14 +72,19 @@ interface ApplicationWorkflowStatus {
 }
 
 export interface MmdlSeatoolCompareData {
-  mmdlSigned: boolean;
+  iterations?: number;
+  mmdlSigned?: boolean;
   secSinceMmdlSigned?: number;
-  mmdlSigDate?: Date;
+  seatoolSigDate?: string;
+  mmdlSigDate?: string;
   status?: number;
+  match?: boolean;
   lastStatus?: number;
-  mmdlRecord: MmdlRecord;
-  id: string;
-  transmittalNumber: string;
+  mmdlRecord?: MmdlRecord;
+  seatoolExist?: boolean;
+  seatoolRecord?: any;
+  PK: string;
+  TN: string;
   programType?: string;
   isStatusSubmitted?: boolean;
 }
@@ -94,7 +99,7 @@ export interface MmdlRecordKeyObject {
 export interface MmdlSigInfo {
   secSinceMmdlSigned?: number;
   mmdlSigned: boolean;
-  mmdlSigDate?: Date;
+  mmdlSigDate?: string;
   status?: number;
   lastStatus?: number;
 }

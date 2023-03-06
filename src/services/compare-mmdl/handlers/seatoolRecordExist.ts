@@ -1,4 +1,5 @@
 import { getItem, trackError } from "../../../libs";
+import * as Types from "../../../types";
 
 exports.handler = async function (
   event: { Payload: any },
@@ -6,11 +7,21 @@ exports.handler = async function (
   callback: Function
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
-  const data = { ...event.Payload, seatoolExist: false };
+  const data: Types.MmdlSeatoolCompareData = {
+    ...event.Payload,
+    seatoolExist: false,
+  };
+
+  if (!process.env.seatoolTableName) {
+    throw "process.env.seatoolTableName needs to be defined.";
+  }
+
   try {
     const item = await getItem({
       tableName: process.env.seatoolTableName,
-      id: data.transmittalNumber, // we use the transmittal number here
+      key: {
+        id: data.TN,
+      },
     });
 
     if (item) {
@@ -18,7 +29,7 @@ exports.handler = async function (
       data.seatoolRecord = item;
     } else {
       console.log(
-        `No Seatool record found for mmdl record id: ${data.id}, tranmittalNumber: ${data.transmittalNumber}`
+        `No Seatool record found for mmdl record id: ${data.PK}, Tranmittal Number: ${data.TN}`
       );
     }
   } catch (e) {

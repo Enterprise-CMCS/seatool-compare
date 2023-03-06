@@ -36,11 +36,15 @@ resources:
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
+          - AttributeName: "PK"
+            AttributeType: "S"
+          - AttributeName: "TN"
+            AttributeType: "S"
         KeySchema:
-          - AttributeName: id
-            KeyType: HASH
+          - AttributeName: "PK"
+            KeyType: "HASH"
+          - AttributeName: "TN"
+            KeyType: "RANGE"
         BillingMode: PAY_PER_REQUEST
   Outputs:
     TableName:

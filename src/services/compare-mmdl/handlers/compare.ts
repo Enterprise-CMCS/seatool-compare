@@ -1,5 +1,6 @@
 import { has } from "lodash";
 import { trackError } from "../../../libs";
+import * as Types from "../../../types";
 
 exports.handler = async function (
   event: { Payload: any },
@@ -7,7 +8,7 @@ exports.handler = async function (
   callback: Function
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
-  const data = { ...event.Payload, match: false };
+  const data: Types.MmdlSeatoolCompareData = { ...event.Payload, match: false };
 
   try {
     if (has(data, ["seatoolRecord", "STATE_PLAN", "SUBMISSION_DATE"])) {

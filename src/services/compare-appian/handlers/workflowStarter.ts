@@ -11,11 +11,19 @@ exports.handler = async function (event: {
   const client = new SFNClient({ region: process.env.region });
   const id = event.Records[0].dynamodb.Keys.id.S;
 
+  if (!process.env.appianTableName) {
+    throw "process.env.appianTableName needs to be defined.";
+  }
+
   /* Retrieving the record from the DynamoDB table. */
   const appianRecord = await getItem({
     tableName: process.env.appianTableName,
-    id,
+    key: { id },
   });
+
+  if (!appianRecord) {
+    throw "No appian record found";
+  }
 
   /* Checking if the appian record was submitted within the last 200 days. */
   const submissionDate = appianRecord.payload?.SBMSSN_DATE;

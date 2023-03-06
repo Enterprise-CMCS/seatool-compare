@@ -6,16 +6,21 @@ import * as Types from "../../../types";
 /* This is the Lambda function that is triggered by the DynamoDB stream. It is responsible for starting
 the Step Function execution. */
 exports.handler = async function (event: {
-  Records: { dynamodb: { Keys: { id: { S: any } } } }[];
+  Records: { dynamodb: { Keys: { PK: { S: any }; TN: { S: any } } } }[];
 }) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const client = new SFNClient({ region: process.env.region });
-  const id = event.Records[0].dynamodb.Keys.id.S;
+  const PK = event.Records[0].dynamodb.Keys.PK.S;
+  const TN = event.Records[0].dynamodb.Keys.TN.S;
+
+  if (!process.env.mmdlTableName) {
+    throw "process.env.mmdlTableName needs to be defined.";
+  }
 
   /* Retrieving the record from the DynamoDB table. */
   const mmdlRecord = await getItem({
     tableName: process.env.mmdlTableName,
-    id,
+    key: { PK, TN },
   });
 
   /* A function that returns an object with the following properties:
@@ -31,10 +36,8 @@ exports.handler = async function (event: {
   ) {
     /* Creating an object that will be passed to the StartExecutionCommand. */
     const params = {
-      input: JSON.stringify({
-        id,
-      }),
-      name: id,
+      input: JSON.stringify({ TN, PK }),
+      name: `${PK}#${TN}`,
       stateMachineArn: process.env.stateMachineArn,
     };
 
@@ -54,6 +57,6 @@ exports.handler = async function (event: {
       console.log("finally");
     }
   } else {
-    console.log(`Record ${id} not signed within last 250 days. Ignoring...`);
+    console.log(`Record ${PK} not signed within last 250 days. Ignoring...`);
   }
 };
