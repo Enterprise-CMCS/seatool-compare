@@ -32,7 +32,7 @@ export const getEmailContent = ({
   `;
 
   const textData = `
-    This is a reminder that there's no matching record in SEA Tool for ${id}. Either a record wasn't created in SEA Tool, or the SPA ID in MMDL and SEA Tool don't match.
+    This is a reminder that there's no matching record in SEA Tool for ${id}. Either a record wasn't created in SEA Tool, or the SPA ID in Appian and SEA Tool don't match.
   `;
 
   return {
