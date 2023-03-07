@@ -4,6 +4,8 @@ import {
   GetItemCommand,
   ScanCommand,
   GetItemCommandInput,
+  DeleteItemCommand,
+  DeleteItemCommandInput,
 } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { sendMetricData } from "./cloudwatch-lib";
@@ -110,3 +112,26 @@ export const scanTable = async (tableName: string) => {
     return;
   }
 };
+
+export async function deleteItem({
+  tableName,
+  key,
+}: {
+  tableName: string;
+  key: {
+    [key: string]: NativeAttributeValue;
+  };
+}) {
+  try {
+    const deleteItemCommandInput: DeleteItemCommandInput = {
+      TableName: tableName,
+      Key: marshall(key),
+    };
+
+    console.log("DELETING ITEM:", deleteItemCommandInput);
+
+    await client.send(new DeleteItemCommand(deleteItemCommandInput));
+  } catch (error) {
+    console.log("ERROR Deleting Item: ", error);
+  }
+}
