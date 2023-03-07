@@ -50,6 +50,10 @@ exports.handler = async function (
   // has this been signed more than five days ago - if so its urgent
   const isUrgent = secSinceMmdlSigned >= 432000; // five days
 
+  if (!data.TN) {
+    throw "transmittal number required to get email content";
+  }
+
   const emailContent = getEmailContent({ id: data.TN, isUrgent });
   const emailBody = getEmailBody(emailContent);
   const subjectText = `${data.TN} - ACTION REQUIRED - No matching record in SEA Tool`;
@@ -70,7 +74,7 @@ exports.handler = async function (
 
       await Libs.putLogsEvent({
         type: "NOTFOUND-MMDL",
-        message: `Alert for id: ${data.PK} with transmittal number: ${data.TN} - TEST `,
+        message: `Alert for id: ${data.id} with transmittal number: ${data.TN} - TEST `,
       });
     } else {
       // if secrests does exist
@@ -102,7 +106,7 @@ exports.handler = async function (
 
       await Libs.putLogsEvent({
         type: "NOTFOUND-MMDL",
-        message: `Alert for id: ${data.PK} with transmittal number: ${
+        message: `Alert for id: ${data.id} with transmittal number: ${
           data.TN
         } - to ${[...ToAddresses, ...CcAddresses].join(", ")}`,
       });

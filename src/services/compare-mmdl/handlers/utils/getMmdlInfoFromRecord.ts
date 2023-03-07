@@ -26,7 +26,7 @@ export function getMmdlSigInfo(
     const diffInSec = (today - signedOn) / 1000; // from ms to sec we div by 1000
 
     if (diffInSec < 0) {
-      throw `Signed date is future date for MMDL record: ${mmdlRecord.PK}`;
+      throw `Signed date is future date for MMDL record: ${mmdlRecord.id}`;
     }
 
     const statuses = mmdlRecord.statuses.sort(

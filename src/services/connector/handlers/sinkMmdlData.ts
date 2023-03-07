@@ -17,7 +17,7 @@ async function myHandler(
     const recordKeyObject = JSON.parse(event.key) as Types.MmdlRecordKeyObject;
     const recordValueObject = JSON.parse(event.value) as Types.MmdlStreamRecord;
 
-    const primaryKey = `${recordKeyObject.STATE_CODE}-${recordKeyObject.AGGREGATED_FORM_FIELDS_WAIVER_ID}-${recordKeyObject.PROGRAM_TYPE_CODE}`;
+    const id = `${recordKeyObject.STATE_CODE}-${recordKeyObject.AGGREGATED_FORM_FIELDS_WAIVER_ID}-${recordKeyObject.PROGRAM_TYPE_CODE}`;
 
     // Typically the PROGRAM_TYPE_CODE will match this _transNbr key
     //   MAC: "mac179_transNbr",
@@ -66,7 +66,7 @@ async function myHandler(
     }
 
     const item: Types.MmdlRecord = {
-      PK: primaryKey,
+      id: id,
       TN: transmittalNumber.trim().toUpperCase(),
       ...recordValueObject.FORM_FIELDS,
       statuses: recordValueObject.APPLICATION_WORKFLOW_STATUSES,

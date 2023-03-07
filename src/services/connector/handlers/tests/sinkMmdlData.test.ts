@@ -27,7 +27,7 @@ describe("mmdl sink service tests", () => {
     expect(dynamodb.putItem).toHaveBeenCalledWith({
       tableName: "mmdl-table",
       item: {
-        PK: "ZZ-16358-ABP",
+        id: "ZZ-16358-ABP",
         mac179_transNbr: {
           FIELD_CHANGE_TYPE_CODE: "MOD",
           FIELD_DESCRIPTION:

@@ -2,13 +2,13 @@ import { putItem, trackError } from "../../../libs";
 import { MmdlSeatoolCompareData } from "../../../types";
 
 exports.handler = async function (
-  event: { Context: { Execution: { Input: { PK: string; TN: string } } } },
+  event: { Context: { Execution: { Input: { id: string } } } },
   _context: any,
   callback: Function
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
-  const { PK, TN } = event.Context.Execution.Input;
-  const data: MmdlSeatoolCompareData = { iterations: 0, PK, TN };
+  const id = event.Context.Execution.Input.id;
+  const data: MmdlSeatoolCompareData = { iterations: 0, id };
 
   if (!process.env.statusTableName) {
     throw "process.env.statusTableName needs to be defined.";

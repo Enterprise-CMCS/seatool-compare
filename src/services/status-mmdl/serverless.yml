@@ -34,15 +34,11 @@ resources:
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: true
         AttributeDefinitions:
-          - AttributeName: "PK"
-            AttributeType: "S"
-          - AttributeName: "TN"
-            AttributeType: "S"
+          - AttributeName: id
+            AttributeType: S
         KeySchema:
-          - AttributeName: "PK"
-            KeyType: "HASH"
-          - AttributeName: "TN"
-            KeyType: "RANGE"
+          - AttributeName: id
+            KeyType: HASH
         BillingMode: PAY_PER_REQUEST
   Outputs:
     TableName:
