@@ -3,10 +3,17 @@ import {
   PutItemCommand,
   GetItemCommand,
   ScanCommand,
+  GetItemCommandInput,
+  DeleteItemCommand,
+  DeleteItemCommandInput,
 } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { sendMetricData } from "./cloudwatch-lib";
-import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import {
+  marshall,
+  NativeAttributeValue,
+  unmarshall,
+} from "@aws-sdk/util-dynamodb";
 
 const client = new DynamoDBClient({ region: process.env.region });
 
@@ -63,23 +70,19 @@ export async function putItem({
 
 export async function getItem({
   tableName,
-  id,
+  key,
 }: {
-  tableName: string | undefined;
-  id: string;
+  tableName: string;
+  key: {
+    [key: string]: NativeAttributeValue;
+  };
 }) {
-  const item = (
-    await client.send(
-      new GetItemCommand({
-        TableName: tableName,
-        Key: {
-          id: {
-            S: id,
-          },
-        },
-      })
-    )
-  ).Item;
+  const getItemCommandInput: GetItemCommandInput = {
+    TableName: tableName,
+    Key: marshall(key),
+  };
+  const item = (await client.send(new GetItemCommand(getItemCommandInput)))
+    .Item;
   if (!item) return null;
 
   /* Converting the DynamoDB record to a JavaScript object. */
@@ -109,3 +112,26 @@ export const scanTable = async (tableName: string) => {
     return;
   }
 };
+
+export async function deleteItem({
+  tableName,
+  key,
+}: {
+  tableName: string;
+  key: {
+    [key: string]: NativeAttributeValue;
+  };
+}) {
+  try {
+    const deleteItemCommandInput: DeleteItemCommandInput = {
+      TableName: tableName,
+      Key: marshall(key),
+    };
+
+    console.log("DELETING ITEM:", deleteItemCommandInput);
+
+    await client.send(new DeleteItemCommand(deleteItemCommandInput));
+  } catch (error) {
+    console.log("ERROR Deleting Item: ", error);
+  }
+}

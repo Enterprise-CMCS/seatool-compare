@@ -1,4 +1,5 @@
 import { putItem, trackError } from "../../../libs";
+import * as Types from "../../../types";
 
 exports.handler = async function (
   event: { Payload: { iterations: number } },
@@ -6,11 +7,16 @@ exports.handler = async function (
   callback: Function
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
-  const data = { ...event.Payload, iterations: event.Payload.iterations + 1 };
+
+  const data = {
+    ...event.Payload,
+    iterations: event.Payload.iterations + 1,
+  } as Types.MmdlSeatoolCompareData;
 
   if (!process.env.statusTableName) {
     throw "process.env.statusTableName needs to be defined.";
   }
+
   try {
     await putItem({
       tableName: process.env.statusTableName,

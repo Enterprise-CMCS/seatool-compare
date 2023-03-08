@@ -40,25 +40,30 @@ exports.handler = async function (
 
   const secretId = `${project}/${stage}/mmdl-alerts`;
 
-  const data = { ...event.Payload } as Types.MmdlSeatoolCompareData;
+  const data: Types.MmdlSeatoolCompareData = {
+    ...event.Payload,
+  } as Types.MmdlSeatoolCompareData;
   const isCHP = data.programType == "CHP";
-  const transmittalNumber = data.transmittalNumber;
   const secretExists = await Libs.doesSecretExist(region, secretId);
   const secSinceMmdlSigned = data.secSinceMmdlSigned || 0;
 
   // has this been signed more than five days ago - if so its urgent
   const isUrgent = secSinceMmdlSigned >= 432000; // five days
 
-  const emailContent = getEmailContent({ id: transmittalNumber, isUrgent });
+  if (!data.TN) {
+    throw "transmittal number required to get email content";
+  }
+
+  const emailContent = getEmailContent({ id: data.TN, isUrgent });
   const emailBody = getEmailBody(emailContent);
-  const subjectText = `${transmittalNumber} - ACTION REQUIRED - No matching record in SEA Tool`;
+  const subjectText = `${data.TN} - ACTION REQUIRED - No matching record in SEA Tool`;
 
   try {
     if (!secretExists) {
       // Secret doesnt exist - this will likely be the case on ephemeral branches
 
       const params = Libs.getEmailParams({
-        id: transmittalNumber,
+        id: data.TN,
         Body: emailBody,
       });
 
@@ -69,7 +74,7 @@ exports.handler = async function (
 
       await Libs.putLogsEvent({
         type: "NOTFOUND-MMDL",
-        message: `Alert for id: ${data.id} with transmittal number: ${transmittalNumber} - TEST `,
+        message: `Alert for id: ${data.id} with transmittal number: ${data.TN} - TEST `,
       });
     } else {
       // if secrests does exist
@@ -90,7 +95,7 @@ exports.handler = async function (
 
       const emailParams = Libs.getEmailParams({
         Body: emailBody,
-        id: transmittalNumber,
+        id: data.TN,
         CcAddresses,
         sourceEmail,
         subjectText,
@@ -101,12 +106,9 @@ exports.handler = async function (
 
       await Libs.putLogsEvent({
         type: "NOTFOUND-MMDL",
-        message: `Alert for id: ${
-          data.id
-        } with transmittal number: ${transmittalNumber} - to ${[
-          ...ToAddresses,
-          ...CcAddresses,
-        ].join(", ")}`,
+        message: `Alert for id: ${data.id} with transmittal number: ${
+          data.TN
+        } - to ${[...ToAddresses, ...CcAddresses].join(", ")}`,
       });
     }
   } catch (e) {

@@ -12,10 +12,14 @@ exports.handler = async function (event: {
   const client = new SFNClient({ region: process.env.region });
   const id = event.Records[0].dynamodb.Keys.id.S;
 
+  if (!process.env.mmdlTableName) {
+    throw "process.env.mmdlTableName needs to be defined.";
+  }
+
   /* Retrieving the record from the DynamoDB table. */
   const mmdlRecord = await getItem({
     tableName: process.env.mmdlTableName,
-    id,
+    key: { id },
   });
 
   /* A function that returns an object with the following properties:

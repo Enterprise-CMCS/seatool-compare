@@ -9,11 +9,22 @@ exports.handler = async function (
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data: Types.AppianSeatoolCompareData = { ...event.Payload };
+
+  if (!process.env.appianTableName) {
+    throw "process.env.appianTableName needs to be defined.";
+  }
   try {
     const appianRecord = await getItem({
       tableName: process.env.appianTableName,
-      id: data.id,
+      key: {
+        id: data.id,
+      },
     });
+
+    if (!appianRecord) {
+      throw "No Appian record found";
+    }
+
     data.appianRecord = appianRecord as Types.AppianRecord;
     data.SPA_ID = appianRecord.payload?.SPA_ID;
 

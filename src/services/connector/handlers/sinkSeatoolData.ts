@@ -9,10 +9,22 @@ async function myHandler(
   if (!process.env.tableName) {
     throw "process.env.tableName needs to be defined.";
   }
-  await dynamodb.putItem({
-    tableName: process.env.tableName,
-    item: { id: JSON.parse(event.key), ...JSON.parse(event.value) },
-  });
+
+  const tableName = process.env.tableName;
+  const id = JSON.parse(event.key);
+
+  // an empty string value will represent deleted records
+  if (event.value === "") {
+    await dynamodb.deleteItem({
+      tableName,
+      key: { id },
+    });
+  } else {
+    await dynamodb.putItem({
+      tableName,
+      item: { id, ...JSON.parse(event.value) },
+    });
+  }
 }
 
 exports.handler = myHandler;

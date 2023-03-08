@@ -66,8 +66,8 @@ async function myHandler(
     }
 
     const item: Types.MmdlRecord = {
-      id,
-      transmittalNumber: transmittalNumber.trim().toUpperCase(), // remove empty strings and upper case
+      id: id,
+      TN: transmittalNumber.trim().toUpperCase(),
       ...recordValueObject.FORM_FIELDS,
       statuses: recordValueObject.APPLICATION_WORKFLOW_STATUSES,
     };

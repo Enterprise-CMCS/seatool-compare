@@ -9,13 +9,21 @@ exports.handler = async function (
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data: Types.MmdlSeatoolCompareData = { ...event.Payload };
+
+  if (!process.env.mmdlTableName) {
+    throw "process.env.mmdlTableName needs to be defined.";
+  }
+
   try {
     const mmdlRecord = await getItem({
       tableName: process.env.mmdlTableName,
-      id: data.id,
+      key: {
+        id: data.id,
+      },
     });
+
     data.mmdlRecord = mmdlRecord as Types.MmdlRecord;
-    data.transmittalNumber = mmdlRecord?.transmittalNumber;
+    data.TN = mmdlRecord?.TN;
 
     const { programType } = getMmdlProgType(mmdlRecord as Types.MmdlRecord);
     const sigInfo = getMmdlSigInfo(mmdlRecord as Types.MmdlRecord);

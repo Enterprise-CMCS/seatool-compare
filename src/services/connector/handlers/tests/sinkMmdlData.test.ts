@@ -40,7 +40,7 @@ describe("mmdl sink service tests", () => {
           REVISION_ID: 30143,
         },
         statuses: undefined,
-        transmittalNumber: "FALSE",
+        TN: "FALSE",
       },
     });
   });

@@ -4,14 +4,12 @@ import * as Types from "../../../types";
 function formatReportData(data: Types.MmdlReportData[]) {
   return data.map((i) => {
     return {
-      "Transmittal ID": i.id,
+      "Transmittal Number": i.TN,
+      ID: i.id,
       "Iterations ": i.iterations,
       "Program Type": i.programType,
       "Clock Start Date": i.mmdlSigDate,
-      "Seatool Record Exist": i.seatoolExist,
-      "Seatool Signed Date": i.seatoolSigDate || "N/A",
-      "Records Match": i.match || false,
-      "Submitted Status": i.isStatusSubmitted || false,
+      "Seatool Record Exist": i.seatoolExist || false,
     };
   });
 }
