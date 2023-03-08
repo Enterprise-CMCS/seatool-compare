@@ -17,7 +17,8 @@ exports.handler = async function (
     const appianRecord = await getItem({
       tableName: process.env.appianTableName,
       key: {
-        id: data.id,
+        PK: data.PK,
+        SK: data.SK,
       },
     });
 

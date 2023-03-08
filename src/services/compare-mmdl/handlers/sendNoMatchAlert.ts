@@ -74,7 +74,7 @@ exports.handler = async function (
 
       await Libs.putLogsEvent({
         type: "NOTFOUND-MMDL",
-        message: `Alert for id: ${data.id} with transmittal number: ${data.TN} - TEST `,
+        message: `Alert for id: ${data.PK} with transmittal number: ${data.TN} - TEST `,
       });
     } else {
       // if secrests does exist
@@ -106,7 +106,7 @@ exports.handler = async function (
 
       await Libs.putLogsEvent({
         type: "NOTFOUND-MMDL",
-        message: `Alert for id: ${data.id} with transmittal number: ${
+        message: `Alert for id: ${data.PK} with transmittal number: ${
           data.TN
         } - to ${[...ToAddresses, ...CcAddresses].join(", ")}`,
       });

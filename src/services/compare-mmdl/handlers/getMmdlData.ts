@@ -18,7 +18,8 @@ exports.handler = async function (
     const mmdlRecord = await getItem({
       tableName: process.env.mmdlTableName,
       key: {
-        id: data.id,
+        PK: data.PK,
+        SK: data.SK,
       },
     });
 

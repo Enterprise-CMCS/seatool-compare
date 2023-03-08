@@ -17,6 +17,7 @@ nav_order: 6
 #### Fields
 - There several possible fields for these records:
   - `id: string` ID - id of the mmdl record they reference. 
+  - `TN: string` - transmittal number. 
   - `iterations: number` - number of times the record has gone through the workflow.
   - `mmdlSigned: boolean` - Signaature state of the mmdl record.
   - `mmdlSigDate: string` (ex: 'DD/MM/YYYY') - Date mmdl record was signed.

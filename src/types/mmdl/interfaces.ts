@@ -4,7 +4,8 @@ export interface MmdlRecord {
   hhs_transNbr?: { FIELD_PROGRAM_TYPE_CODE: string };
   stMedDirSgnDt?: { FIELD_VALUE: any };
   statuses: ApplicationWorkflowStatus[];
-  id: string; // State-WaiverID-ProgramCode
+  PK: string; // State-WaiverID-ProgramCode
+  SK: string; // State-WaiverID-ProgramCode
   TN: string; // Transmittal Number
 }
 
@@ -83,7 +84,8 @@ export interface MmdlSeatoolCompareData {
   mmdlRecord?: MmdlRecord;
   seatoolExist?: boolean;
   seatoolRecord?: any;
-  id: string;
+  PK: string;
+  SK: string;
   TN?: string;
   programType?: string;
   isStatusSubmitted?: boolean;
@@ -105,7 +107,8 @@ export interface MmdlSigInfo {
 }
 
 export interface MmdlReportData {
-  id: string;
+  PK: string;
+  SK: string;
   TN: string;
   iterations: number;
   programType: string;

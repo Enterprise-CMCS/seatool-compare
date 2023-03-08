@@ -12,17 +12,18 @@ async function myHandler(
 
   const tableName = process.env.tableName;
   const id = JSON.parse(event.key);
+  const key = { PK: id, SK: id };
 
   // an empty string value will represent deleted records
   if (event.value === "") {
     await dynamodb.deleteItem({
       tableName,
-      key: { id },
+      key,
     });
   } else {
     await dynamodb.putItem({
       tableName,
-      item: { id, ...JSON.parse(event.value) },
+      item: { ...key, ...JSON.parse(event.value) },
     });
   }
 }

@@ -20,7 +20,8 @@ exports.handler = async function (
     const item = await getItem({
       tableName: process.env.seatoolTableName,
       key: {
-        id: data.TN,
+        PK: data.TN,
+        SK: data.TN,
       },
     });
 
@@ -29,7 +30,7 @@ exports.handler = async function (
       data.seatoolRecord = item;
     } else {
       console.log(
-        `No Seatool record found for mmdl record id: ${data.id}, Tranmittal Number: ${data.TN}`
+        `No Seatool record found for mmdl record id: ${data.PK}, Tranmittal Number: ${data.TN}`
       );
     }
   } catch (e) {

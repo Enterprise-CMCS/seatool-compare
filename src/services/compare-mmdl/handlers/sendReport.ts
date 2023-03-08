@@ -5,7 +5,7 @@ function formatReportData(data: Types.MmdlReportData[]) {
   return data.map((i) => {
     return {
       "Transmittal Number": i.TN,
-      ID: i.id,
+      ID: i.PK,
       "Iterations ": i.iterations,
       "Program Type": i.programType,
       "Clock Start Date": i.mmdlSigDate,

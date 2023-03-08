@@ -22,7 +22,7 @@ export async function putItem({
   item,
 }: {
   tableName: string;
-  item: { [key: string]: any };
+  item: { [key: string]: NativeAttributeValue };
 }) {
   const params = {
     TableName: tableName,
@@ -32,13 +32,14 @@ export async function putItem({
   };
 
   try {
-    if (item && item.id) console.log(`Putting item with id: ${item.id}:`);
+    if (item && item.PK && item.SK)
+      console.log(`Putting item with PK: ${item.PK} and SK: ${item.SK}:`);
 
     const command = new PutItemCommand(params);
     const result = await client.send(command);
-    if (item && item.id)
+    if (result)
       console.log(
-        `Record processed for item: ${item.id}:`,
+        `Record processed for item: ${item.PK}:`,
         JSON.stringify(result, null, 2)
       );
 
