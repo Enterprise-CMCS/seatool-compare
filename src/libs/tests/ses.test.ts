@@ -1,14 +1,7 @@
 import { getEmailParams, sendAlert, sendAttachment } from "../ses-lib";
 import { it, describe, expect, beforeEach, vi } from "vitest";
 import { mockClient } from "aws-sdk-client-mock";
-import {
-  // SendRawEmailCommand,
-  // SES,
-  SESClient,
-  SendEmailCommand,
-  // SendEmailCommandInput,
-  // Message,
-} from "@aws-sdk/client-ses";
+import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 
 const sesClientMock = mockClient(SESClient);
 const sesResponse = {
