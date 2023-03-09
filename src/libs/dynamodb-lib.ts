@@ -32,14 +32,11 @@ export async function putItem({
   };
 
   try {
-    if (item && item.PK && item.SK)
-      console.log(`Putting item with PK: ${item.PK} and SK: ${item.SK}:`);
-
     const command = new PutItemCommand(params);
     const result = await client.send(command);
     if (result)
       console.log(
-        `Record processed for item: ${item.PK}:`,
+        `Record processed for result: `,
         JSON.stringify(result, null, 2)
       );
 

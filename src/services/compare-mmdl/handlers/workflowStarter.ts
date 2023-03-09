@@ -32,10 +32,9 @@ exports.handler = async function (event: {
 
   /* Checking if the mmdl was signed within the last 250 days. */
   if (
-    // sigInfo.mmdlSigned &&
+    sigInfo.mmdlSigned // &&
     // sigInfo.secSinceMmdlSigned &&
     // sigInfo.secSinceMmdlSigned < 21686400
-    sigInfo.status === 1 // submitted
   ) {
     /* Creating an object that will be passed to the StartExecutionCommand. */
     const params = {

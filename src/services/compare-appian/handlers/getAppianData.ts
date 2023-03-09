@@ -14,12 +14,10 @@ exports.handler = async function (
     throw "process.env.appianTableName needs to be defined.";
   }
   try {
+    const key = { PK: data.PK, SK: data.SK };
     const appianRecord = await getItem({
       tableName: process.env.appianTableName,
-      key: {
-        PK: data.PK,
-        SK: data.SK,
-      },
+      key,
     });
 
     if (!appianRecord) {
