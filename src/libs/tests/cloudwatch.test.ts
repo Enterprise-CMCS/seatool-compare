@@ -23,7 +23,7 @@ describe("sendMetricData", () => {
     cloudWatchClientLogMock.reset();
   });
 
-  it("should return the replaced dashboard template when called with valid inputs", async () => {
+  it("should return successful metric response", async () => {
     const metricResponse = {
       $metadata: {
         httpStatusCode: 200,
@@ -42,7 +42,7 @@ describe("sendMetricData", () => {
     expect(result).toEqual(metricResponse);
   });
 
-  it("should return the replaced dashboard body", async () => {
+  it("should return a successful put of an error log", async () => {
     const responseObj = {
       nextSequenceToken: "string",
       rejectedLogEventsInfo: {
