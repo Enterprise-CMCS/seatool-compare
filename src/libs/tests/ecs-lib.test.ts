@@ -1,31 +1,39 @@
-import { getSecretsValue, doesSecretExist } from "../secrets-manager-lib";
+import { findIpForEcsService } from "../ecs-lib";
 import { it, describe, expect } from "vitest";
-import {
-  SecretsManagerClient,
-  GetSecretValueCommand,
-  ListSecretsCommand,
-} from "@aws-sdk/client-secrets-manager";
 import { mockClient } from "aws-sdk-client-mock";
 
-const secretClientMock = mockClient(SecretsManagerClient);
+import {
+  ECSClient,
+  DescribeTasksCommand,
+  ListTasksCommand,
+} from "@aws-sdk/client-ecs";
 
-describe("secrets manager lib", () => {
-  it("should successfully return secret value", async () => {
-    const secret = { Name: "Secret", SecretString: JSON.stringify("test") };
-    secretClientMock.on(GetSecretValueCommand).resolves(secret);
+const ecsClientMock = mockClient(ECSClient);
 
-    const response = await getSecretsValue("test-region", "email");
+describe("ecs lib tests", () => {
+  it("should successfully return an ip for an ecs service", async () => {
+    const listStacksCommandResponse = { taskArns: ["test"] };
+    const describeTasksCommandResponse = {
+      tasks: [
+        {
+          taskArn: "test",
+          attachments: [
+            {
+              name: "test",
+              value: "test",
+              details: [{ name: "privateIPv4Address", value: "700" }],
+            },
+          ],
+        },
+      ],
+    };
+    ecsClientMock.on(ListTasksCommand).resolves(listStacksCommandResponse);
+    ecsClientMock
+      .on(DescribeTasksCommand)
+      .resolves(describeTasksCommandResponse);
 
-    expect(response).toEqual("test");
-  });
+    const response = await findIpForEcsService("test-cluster");
 
-  it("should successfully return if secret exist", async () => {
-    secretClientMock
-      .on(ListSecretsCommand)
-      .resolves({ SecretList: [{ Name: "email" }] });
-
-    const response = await doesSecretExist("test-region", "email");
-
-    expect(response).toEqual(true);
+    expect(response).toEqual("700");
   });
 });

@@ -40,7 +40,7 @@ export async function findIpForEcsService(cluster: string | undefined) {
       const ip = _.filter(
         task.attachments[0].details,
         (x: { name: string }) => x.name === "privateIPv4Address"
-      )[0].value;
+      )[0]?.value;
       return ip;
     }
   }
