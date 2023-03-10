@@ -1,7 +1,5 @@
 import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
-import { getItem, trackError } from "../../../libs";
-import { getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
-import * as Types from "../../../types";
+import { trackError } from "../../../libs";
 
 /* This is the Lambda function that is triggered by the DynamoDB stream. It is responsible for starting
 the Step Function execution. */
@@ -15,50 +13,83 @@ exports.handler = async function (event: {
 
   const key = { PK, SK };
 
-  if (!process.env.mmdlTableName) {
-    throw "process.env.mmdlTableName needs to be defined.";
-  }
+  /* Creating an object that will be passed to the StartExecutionCommand. */
+  const params = {
+    input: JSON.stringify(key),
+    name: PK,
+    stateMachineArn: process.env.stateMachineArn,
+  };
 
-  /* Retrieving the record from the DynamoDB table. */
-  const mmdlRecord = await getItem({
-    tableName: process.env.mmdlTableName,
-    key,
-  });
+  /* Creating a new instance of the StartExecutionCommand class. */
+  const command = new StartExecutionCommand(params);
 
-  /* A function that returns an object with the following properties:
-  - mmdlSigned: boolean
-  - secSinceMmdlSigned?: number */
-  const sigInfo = getMmdlSigInfo(mmdlRecord as Types.MmdlRecord);
-
-  /* Checking if the mmdl was signed within the last 250 days. */
-  if (
-    sigInfo.mmdlSigned // &&
-    // sigInfo.secSinceMmdlSigned &&
-    // sigInfo.secSinceMmdlSigned < 21686400
-  ) {
-    /* Creating an object that will be passed to the StartExecutionCommand. */
-    const params = {
-      input: JSON.stringify(key),
-      name: PK,
-      stateMachineArn: process.env.stateMachineArn,
-    };
-
-    /* Creating a new instance of the StartExecutionCommand class. */
-    const command = new StartExecutionCommand(params);
-
-    try {
-      /* Sending the command to the Step Function service. */
-      const result = await client.send(command);
-      console.log(
-        "Result from starting step function command",
-        JSON.stringify(result, null, 2)
-      );
-    } catch (e) {
-      await trackError(e);
-    } finally {
-      console.log("finally");
-    }
-  } else {
-    console.log(`Record ${PK} not submitted, ignoring`);
+  try {
+    /* Sending the command to the Step Function service. */
+    const result = await client.send(command);
+    console.log(
+      "Result from starting step function command",
+      JSON.stringify(result, null, 2)
+    );
+  } catch (e) {
+    await trackError(e);
+  } finally {
+    console.log("finally");
   }
 };
+
+// const mmdl = {
+//   PK: "TX-17340-ABP",
+//   SK: "TX-17340-ABP",
+//   isStatusSubmitted: true,
+//   mmdlSigDate: "02/21/2023",
+//   mmdlSigned: true,
+//   programType: "MAC",
+//   secSinceMmdlSigned: 1459557,
+//   statuses: [
+//     {
+//       APLCTN_LAST_LIFE_CYC_STUS_CD: 0,
+//       APLCTN_LIFE_CYC_STUS_CD: 1,
+//       APLCTN_LIFE_CYC_STUS_TYPE_CD: 1,
+//       APLCTN_WRKFLW_STUS_ID: 25131,
+//       APLCTN_WRKFLW_STUS_TS: 1676989429000,
+//       PLAN_WVR_RVSN_ID: 31649,
+//       PLAN_WVR_RVSN_VRSN_ID: 16007,
+//       PLAN_WVR_SRC_TYPE_CD: "USER",
+//       PLAN_WVR_SRC_TYPE_ID: 6182,
+//       REPLICA_ID: 16213,
+//       REPLICA_TIMESTAMP: 1676989429000,
+//     },
+//     {
+//       APLCTN_LAST_LIFE_CYC_STUS_CD: null,
+//       APLCTN_LIFE_CYC_STUS_CD: 0,
+//       APLCTN_LIFE_CYC_STUS_TYPE_CD: 1,
+//       APLCTN_WRKFLW_STUS_ID: 25127,
+//       APLCTN_WRKFLW_STUS_TS: 1676987050000,
+//       PLAN_WVR_RVSN_ID: 31649,
+//       PLAN_WVR_RVSN_VRSN_ID: 16007,
+//       PLAN_WVR_SRC_TYPE_CD: "USER",
+//       PLAN_WVR_SRC_TYPE_ID: 14040,
+//       REPLICA_ID: 16209,
+//       REPLICA_TIMESTAMP: 1676987050000,
+//     },
+//     {
+//       APLCTN_LAST_LIFE_CYC_STUS_CD: null,
+//       APLCTN_LIFE_CYC_STUS_CD: 0,
+//       APLCTN_LIFE_CYC_STUS_TYPE_CD: 1,
+//       APLCTN_WRKFLW_STUS_ID: 25127,
+//       APLCTN_WRKFLW_STUS_TS: 1676987050000,
+//       PLAN_WVR_RVSN_ID: 31649,
+//       PLAN_WVR_RVSN_VRSN_ID: 16007,
+//       PLAN_WVR_SRC_TYPE_CD: "USER",
+//       PLAN_WVR_SRC_TYPE_ID: 14040,
+//       REPLICA_ID: 16209,
+//       REPLICA_TIMESTAMP: 1676987050000,
+//     },
+//   ],
+//   TN: "TX-23-1112",
+// };
+
+// const seatool = {
+//   PK: "TX-23-1112",
+//   SK: "TX-23-1112",
+// };

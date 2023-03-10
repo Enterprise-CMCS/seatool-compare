@@ -25,7 +25,6 @@ nav_order: 6
   - `seatoolSigDate: string` (ex: 'DD/MM/YYYY') - Date seatool record was signed.
   - `match: boolean` - denoting whether a seatool match was identified.
   - `programType: string` (ex. 'MAC' 'CHP' 'HHS') - the type of program record.
-  - `secSinceMmdlSigned: number` - seconds since mmdl was signed.
   - `mmdlRecord: MmdlRecord` - as it exists from the mmdl table.
   - `seatoolRecord: SeaToolRecord` - as it exists from the seatool table.
 

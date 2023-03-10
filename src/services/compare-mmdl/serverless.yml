@@ -33,7 +33,6 @@ provider:
           Resource:
             - ${param:mmdlTableArn}
             - ${param:seatoolTableArn}
-            - ${param:statusTableArn}
         - Effect: Allow
           Action:
             - sns:Publish
@@ -110,47 +109,28 @@ custom:
 functions:
   workflowStarter:
     handler: handlers/workflowStarter.handler
-    events:
-      - stream:
-          arn: ${param:mmdlTableStreamArn}
-          startingPosition: LATEST
-          maximumRetryAttempts: 0
+    # events:
+    #   - stream:
+    #       arn: ${param:mmdlTableStreamArn}
+    #       startingPosition: LATEST
+    #       maximumRetryAttempts: 0
     environment:
       stateMachineArn: !Ref MMDLAlertingStateMachine
       region: ${self:provider.region}
-      mmdlTableName: ${param:mmdlTableName}
       errorsTopicArn: ${param:errorsTopicArn}
     maximumRetryAttempts: 0
   sendReport:
     handler: handlers/sendReport.handler
     environment:
       region: ${self:provider.region}
-      statusTable: ${param:statusTableName}
-  compare:
-    handler: handlers/compare.handler
-    environment:
-      region: ${self:provider.region}
-      errorsTopicArn: ${param:errorsTopicArn}
+      mmdlTableName: ${param:mmdlTableName}
+      seatoolTableName: ${param:seatoolTableName}
   seatoolRecordExist:
     handler: handlers/seatoolRecordExist.handler
     environment:
       region: ${self:provider.region}
       seatoolTableName: ${param:seatoolTableName}
       errorsTopicArn: ${param:errorsTopicArn}
-  initStatus:
-    handler: handlers/initStatus.handler
-    environment:
-      region: ${self:provider.region}
-      statusTableName: ${param:statusTableName}
-      errorsTopicArn: ${param:errorsTopicArn}
-      namespace: ${self:service}-${sls:stage}
-  updateStatus:
-    handler: handlers/updateStatus.handler
-    environment:
-      region: ${self:provider.region}
-      statusTableName: ${param:statusTableName}
-      errorsTopicArn: ${param:errorsTopicArn}
-      namespace: ${self:service}-${sls:stage}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
     environment:
@@ -205,15 +185,8 @@ stepFunctions:
           - !GetAtt StateMachineLogGroup.Arn
       definition:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for MMDL."
-        StartAt: InitializeTask
+        StartAt: InitialWait
         States:
-          InitializeTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-initStatus"
-            Parameters:
-              Payload.$: $
-              Context.$: $$
-            Next: InitialWait
           InitialWait:
             Type: Wait
             Seconds: ${param:initialWaitSec}
@@ -232,8 +205,8 @@ stepFunctions:
                 Next: DoesSeatoolRecordExistTask
               - Variable: $.isStatusSubmitted
                 BooleanEquals: false
-                Next: UpdateStatusTask
-            Default: UpdateStatusTask
+                Next: RecordAgeChoice
+            Default: RecordAgeChoice
           DoesSeatoolRecordExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-seatoolRecordExist"
@@ -245,7 +218,7 @@ stepFunctions:
             Choices:
               - Variable: $.seatoolExist
                 BooleanEquals: true
-                Next: UpdateStatusTask # for now we are skipping the compare task
+                Next: RecordAgeChoice # for now we are skipping the compare task
                 # Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
@@ -262,13 +235,13 @@ stepFunctions:
                   - Variable: $.mmdlSigned
                     BooleanEquals: true
                 Next: SendNotExistTask
-            Default: UpdateStatusTask
+            Default: RecordAgeChoice
           SendNotExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
             Parameters:
               Payload.$: $
-            Next: UpdateStatusTask
+            Next: RecordAgeChoice
           RecordAgeChoice:
             Type: Choice
             Choices:
@@ -290,34 +263,6 @@ stepFunctions:
                     BooleanEquals: true
                 Next: SuccessState
             Default: FailState
-          # CompareTask:
-          #   Type: Task
-          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
-          #   Parameters:
-          #     Payload.$: $
-          #   Next: RecordsMatchChoice
-          # RecordsMatchChoice:
-          #   Type: Choice
-          #   Choices:
-          #     - Variable: $.match
-          #       BooleanEquals: true
-          #       Next: UpdateStatusTask
-          #     - Variable: $.match
-          #       BooleanEquals: false
-          #       Next: SendNotMatchTask
-          #   Default: SendNotMatchTask
-          # SendNotMatchTask:
-          #   Type: Task
-          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
-          #   Parameters:
-          #     Payload.$: $
-          #   Next: UpdateStatusTask
-          UpdateStatusTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-updateStatus"
-            Parameters:
-              Payload.$: $
-            Next: RecordAgeChoice
           SuccessState:
             Type: Succeed
           FailState:

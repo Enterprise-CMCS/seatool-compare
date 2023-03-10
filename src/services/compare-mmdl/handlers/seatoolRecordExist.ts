@@ -7,7 +7,7 @@ exports.handler = async function (
   callback: Function
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
-  const data: Types.MmdlSeatoolCompareData = {
+  const data: Types.MmdlReportData = {
     ...event.Payload,
     seatoolExist: false,
   };
@@ -27,7 +27,6 @@ exports.handler = async function (
 
     if (item) {
       data.seatoolExist = true;
-      data.seatoolRecord = item;
     } else {
       console.log(
         `No Seatool record found for mmdl record id: ${data.PK}, Tranmittal Number: ${data.TN}`

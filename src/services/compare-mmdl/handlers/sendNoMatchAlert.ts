@@ -40,9 +40,9 @@ exports.handler = async function (
 
   const secretId = `${project}/${stage}/mmdl-alerts`;
 
-  const data: Types.MmdlSeatoolCompareData = {
+  const data: Types.MmdlReportData = {
     ...event.Payload,
-  } as Types.MmdlSeatoolCompareData;
+  } as Types.MmdlReportData;
   const isCHP = data.programType == "CHP";
   const secretExists = await Libs.doesSecretExist(region, secretId);
   const secSinceMmdlSigned = data.secSinceMmdlSigned || 0;

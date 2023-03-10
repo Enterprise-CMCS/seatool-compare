@@ -6,7 +6,6 @@ function formatReportData(data: Types.MmdlReportData[]) {
     return {
       "Transmittal Number": i.TN,
       ID: i.PK,
-      "Iterations ": i.iterations,
       "Program Type": i.programType,
       "Clock Start Date": i.mmdlSigDate,
       "Seatool Record Exist": i.seatoolExist || false,
@@ -45,8 +44,12 @@ exports.handler = async function (event: { recipient: string }) {
     throw 'You must manually provide a recipient email in the event to send a report. ex. {"recipient": "user@example.com"}';
   }
 
-  if (!process.env.statusTable) {
-    throw "process.env.statusTable needs to be defined.";
+  if (!process.env.mmdlTableName) {
+    throw "process.env.mmdlTableName needs to be defined.";
+  }
+
+  if (!process.env.seatoolTableName) {
+    throw "process.env.seatoolTableName needs to be defined.";
   }
 
   try {

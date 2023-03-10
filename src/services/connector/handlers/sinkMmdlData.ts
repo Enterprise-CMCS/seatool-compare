@@ -1,5 +1,6 @@
 import * as dynamodb from "../../../libs/dynamodb-lib";
 import * as Types from "../../../types";
+import { getMmdlProgType, getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
 
 async function myHandler(
   event: { value: string; key: string },
@@ -72,6 +73,17 @@ async function myHandler(
       ...recordValueObject.FORM_FIELDS,
       statuses: recordValueObject.APPLICATION_WORKFLOW_STATUSES,
     };
+
+    const { programType } = getMmdlProgType(item);
+    const sigInfo = getMmdlSigInfo(item);
+
+    const isStatusSubmitted = sigInfo.status === 1;
+
+    item.programType = programType;
+    item.secSinceMmdlSigned = sigInfo.secSinceMmdlSigned;
+    item.mmdlSigned = sigInfo.mmdlSigned;
+    item.mmdlSigDate = sigInfo.mmdlSigDate;
+    item.isStatusSubmitted = isStatusSubmitted;
 
     await dynamodb.putItem({
       tableName: process.env.tableName,

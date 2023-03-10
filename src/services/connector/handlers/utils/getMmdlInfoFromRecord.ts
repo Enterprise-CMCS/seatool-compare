@@ -19,16 +19,6 @@ export function getMmdlSigInfo(
   if (has(mmdlRecord, ["stMedDirSgnDt", "FIELD_VALUE"])) {
     const dateSigned = mmdlRecord.stMedDirSgnDt?.FIELD_VALUE;
 
-    /* Calculating the difference between the current date and the date MMDL was signed. */
-    const today = new Date().getTime();
-    const signedOn = new Date(dateSigned).getTime();
-
-    const diffInSec = (today - signedOn) / 1000; // from ms to sec we div by 1000
-
-    if (diffInSec < 0) {
-      throw `Signed date is future date for MMDL record: ${mmdlRecord.PK}`;
-    }
-
     const statuses = mmdlRecord.statuses.sort(
       (a, b) => b.APLCTN_LIFE_CYC_STUS_CD - a.APLCTN_LIFE_CYC_STUS_CD
     );
@@ -37,12 +27,13 @@ export function getMmdlSigInfo(
     const status = statuses[0].APLCTN_LIFE_CYC_STUS_CD ?? 99;
     const lastStatus = statuses[1].APLCTN_LAST_LIFE_CYC_STUS_CD ?? 99;
 
-    /* Returning the difference between the current date and the date MMDL was signed. */
-    result.secSinceMmdlSigned = Math.floor(diffInSec);
+    const isStatusSubmitted = status === 1;
+
     result.mmdlSigned = true;
     result.mmdlSigDate = dateSigned;
     result.status = status;
     result.lastStatus = lastStatus;
+    result.isStatusSubmitted = isStatusSubmitted;
   }
   return result;
 }
