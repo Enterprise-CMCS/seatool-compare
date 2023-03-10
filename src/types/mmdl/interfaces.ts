@@ -8,6 +8,7 @@ export interface MmdlRecord extends MmdlSigInfo {
   SK: string; // State-WaiverID-ProgramCode
   TN: string; // Transmittal Number
   programType?: string;
+  clockStartDate?: number;
 }
 
 export interface MmdlStreamRecord {
@@ -102,6 +103,7 @@ export interface MmdlReportData {
   status?: number;
   secSinceMmdlSigned?: number;
   mmdlSigned?: boolean;
+  clockStartDate?: number; // epoch time
 }
 
 interface Recipients {

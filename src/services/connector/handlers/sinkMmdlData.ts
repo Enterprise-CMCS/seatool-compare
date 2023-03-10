@@ -52,11 +52,20 @@ async function myHandler(
 
     const transmittalNumberKey = possibleTransmittalNumberKeys[0];
 
-    let transmittalNumber;
+    let transmittalNumber, clockStartDate;
 
     if (recordValueObject.FORM_FIELDS[transmittalNumberKey].FIELD_VALUE) {
       transmittalNumber =
         recordValueObject.FORM_FIELDS[transmittalNumberKey].FIELD_VALUE;
+    }
+
+    if (
+      recordValueObject.FORM_FIELDS[transmittalNumberKey]
+        .WAVIER_REVISION_CLOCK_START_DATE
+    ) {
+      clockStartDate =
+        recordValueObject.FORM_FIELDS[transmittalNumberKey]
+          .WAVIER_REVISION_CLOCK_START_DATE;
     }
 
     if (!transmittalNumber) {
@@ -72,6 +81,7 @@ async function myHandler(
       TN: transmittalNumber.trim().toUpperCase(),
       ...recordValueObject.FORM_FIELDS,
       statuses: recordValueObject.APPLICATION_WORKFLOW_STATUSES,
+      clockStartDate,
     };
 
     const { programType } = getMmdlProgType(item);
@@ -80,7 +90,6 @@ async function myHandler(
     const isStatusSubmitted = sigInfo.status === 1;
 
     item.programType = programType;
-    item.secSinceMmdlSigned = sigInfo.secSinceMmdlSigned;
     item.mmdlSigned = sigInfo.mmdlSigned;
     item.mmdlSigDate = sigInfo.mmdlSigDate;
     item.isStatusSubmitted = isStatusSubmitted;

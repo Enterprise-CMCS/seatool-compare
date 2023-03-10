@@ -37,11 +37,13 @@ resources:
           StreamViewType: NEW_AND_OLD_IMAGES
         AttributeDefinitions:
           - AttributeName: PK
-            AttributeType: S
+            AttributeType: "S"
           - AttributeName: SK
-            AttributeType: S
+            AttributeType: "S"
           - AttributeName: mmdlSigDate
-            AttributeType: S
+            AttributeType: "S"
+          - AttributeName: clockStartDate
+            AttributeType: "N"
         KeySchema:
           - AttributeName: PK
             KeyType: HASH
@@ -52,6 +54,12 @@ resources:
           - IndexName: mmdlSigDate-index
             KeySchema:
               - AttributeName: mmdlSigDate
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: clockStartDate-index
+            KeySchema:
+              - AttributeName: clockStartDate
                 KeyType: HASH
             Projection:
               ProjectionType: ALL
