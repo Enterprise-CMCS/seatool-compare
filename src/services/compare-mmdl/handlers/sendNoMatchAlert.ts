@@ -54,7 +54,11 @@ exports.handler = async function (
     throw "transmittal number required to get email content";
   }
 
-  const emailContent = getEmailContent({ id: data.TN, isUrgent });
+  const emailContent = getEmailContent({
+    id: data.TN,
+    isUrgent,
+    programType: data.programType,
+  });
   const emailBody = getEmailBody(emailContent);
   const subjectText = `${data.TN} - ACTION REQUIRED - No matching record in SEA Tool`;
 
