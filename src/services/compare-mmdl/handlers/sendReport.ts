@@ -2,16 +2,26 @@ import * as Libs from "../../../libs";
 import { getItem } from "../../../libs";
 import * as Types from "../../../types";
 
+const convertMsToDate = (milliseconds?: number) => {
+  if (!milliseconds) return "N/A";
+  let date = new Date(milliseconds);
+  let dateStr =
+    date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
+
+  return dateStr;
+};
+
 function formatReportData(data: Types.MmdlReportData[]) {
   return data.map((i) => {
     return {
       "Transmittal Number": i.TN,
       ID: i.PK,
       "Program Type": i.programType,
-      "Clock Start Date": i.clockStartDate,
+      "Clock Start Date": convertMsToDate(i.clockStartDate),
       "Seatool Record Exist": i.seatoolExist || false,
       "Submitted Status": i.isStatusSubmitted,
       Status: i.status,
+      "signed Date": i.mmdlSigDate,
     };
   });
 }

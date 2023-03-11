@@ -93,6 +93,7 @@ async function myHandler(
     item.mmdlSigned = sigInfo.mmdlSigned;
     item.mmdlSigDate = sigInfo.mmdlSigDate;
     item.isStatusSubmitted = isStatusSubmitted;
+    item.status = sigInfo.status;
 
     await dynamodb.putItem({
       tableName: process.env.tableName,
