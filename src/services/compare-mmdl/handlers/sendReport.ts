@@ -20,24 +20,28 @@ function formatReportData(data: Types.MmdlReportData[]) {
       "Clock Start Date": convertMsToDate(i.clockStartDate),
       "Seatool Record Exist": i.seatoolExist || false,
       "Submitted Status": i.isStatusSubmitted,
-      Status: i.status,
       "signed Date": i.mmdlSigDate,
     };
   });
 }
 
-function getMailOptionsWithAttachment(
-  recipientEmail: string,
-  attachment: string
-) {
+function getMailOptionsWithAttachment({
+  recipient,
+  attachment,
+  days,
+}: {
+  recipient: string;
+  attachment: string;
+  days: number;
+}) {
   const todaysDate = new Date().toISOString().split("T")[0];
   const mailOptions = {
     from: "noreply@cms.hhs.gov",
     subject: `MMDL SEA Tool Status - ${todaysDate}`,
     html:
-      `<p>Attached is a csv indicating the current status of MMDL and SEA Tool records.</p>` +
+      `<p>Attached is a status report of MMDL and SEA Tool records for the previous ${days} days.</p>` +
       `<p>This report can be opened in your favorite spreadsheet viewing application.</p>`,
-    to: recipientEmail,
+    to: recipient,
     attachments: [
       {
         filename: `MMDL SEA Tool Status - ${todaysDate}.csv`,
@@ -86,7 +90,11 @@ exports.handler = async function (event: { recipient: string; days: number }) {
 
     const reportDataJson = formatReportData(results as Types.MmdlReportData[]);
     const csv = Libs.getCsvFromJson(reportDataJson);
-    const mailOptions = getMailOptionsWithAttachment(recipient, csv);
+    const mailOptions = getMailOptionsWithAttachment({
+      recipient,
+      attachment: csv,
+      days,
+    });
 
     await Libs.sendAttachment(mailOptions);
   } catch (e) {
