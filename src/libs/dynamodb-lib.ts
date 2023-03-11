@@ -6,6 +6,7 @@ import {
   GetItemCommandInput,
   DeleteItemCommand,
   DeleteItemCommandInput,
+  ScanCommandInput,
 } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { sendMetricData } from "./cloudwatch-lib";
@@ -97,14 +98,20 @@ const ddbDocClient = DynamoDBDocumentClient.from(client, {
   marshallOptions,
 });
 
-export const scanTable = async (tableName: string) => {
-  const params = {
-    TableName: tableName,
-  };
+export const scanTable = async (params: ScanCommandInput) => {
   try {
-    const raw = await ddbDocClient.send(new ScanCommand(params));
-    const data = raw.Items?.map(unmarshall as any);
-    return data;
+    const scanResults: any[] = [];
+    let items: any;
+
+    do {
+      items = await ddbDocClient.send(new ScanCommand(params));
+      const Items = items.Items?.map(unmarshall as any);
+      if (Items) {
+        Items.forEach((item: any) => scanResults.push(item));
+      }
+      params.ExclusiveStartKey = items.LastEvaluatedKey;
+    } while (typeof items.LastEvaluatedKey !== "undefined");
+    return scanResults;
   } catch (err) {
     console.log("Error", err);
     return;

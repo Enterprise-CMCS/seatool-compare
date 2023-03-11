@@ -74,6 +74,7 @@ provider:
         - Effect: Allow
           Action:
             - kms:GenerateDataKey
+            - kms:Decrypt
           Resource:
             - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
         - Effect: "Allow"

@@ -1,4 +1,5 @@
 import * as Libs from "../../../libs";
+import { getItem } from "../../../libs";
 import * as Types from "../../../types";
 
 function formatReportData(data: Types.MmdlReportData[]) {
@@ -7,8 +8,10 @@ function formatReportData(data: Types.MmdlReportData[]) {
       "Transmittal Number": i.TN,
       ID: i.PK,
       "Program Type": i.programType,
-      "Clock Start Date": i.mmdlSigDate,
+      "Clock Start Date": i.clockStartDate,
       "Seatool Record Exist": i.seatoolExist || false,
+      "Submitted Status": i.isStatusSubmitted,
+      Status: i.status,
     };
   });
 }
@@ -35,28 +38,59 @@ function getMailOptionsWithAttachment(
   return mailOptions;
 }
 
-exports.handler = async function (event: { recipient: string }) {
+exports.handler = async function (event: { recipient: string; days: number }) {
   console.log("Received event:", JSON.stringify(event, null, 2));
 
-  const recipientEmail = event.recipient;
+  const { recipient, days } = event;
 
-  if (!recipientEmail) {
-    throw 'You must manually provide a recipient email in the event to send a report. ex. {"recipient": "user@example.com"}';
+  if (!recipient || !days) {
+    throw 'You must manually provide a recipient email and days in the event. ex. {"recipient": "user@example.com", "days": 250}';
   }
 
-  if (!process.env.mmdlTableName) {
-    throw "process.env.mmdlTableName needs to be defined.";
-  }
-
-  if (!process.env.seatoolTableName) {
-    throw "process.env.seatoolTableName needs to be defined.";
+  if (!process.env.mmdlTableName || !process.env.seatoolTableName) {
+    throw "process.env.mmdlTableName and process.env.seatoolTableName needs to be defined.";
   }
 
   try {
-    const data = await Libs.scanTable(process.env.statusTable);
-    const reportDataJson = formatReportData(data as Types.MmdlReportData[]);
+    const epochTime = new Date().getTime() - days * 86400000;
+
+    const mmdlRecords = (await Libs.scanTable({
+      TableName: process.env.mmdlTableName,
+    })) as Types.MmdlReportData[];
+
+    const relevantMmdlRecords = mmdlRecords.filter((record) => {
+      return (
+        record && record.clockStartDate && record.clockStartDate >= epochTime
+      );
+    });
+
+    if (!relevantMmdlRecords) {
+      throw "No relevant mmdl records to show. Sheck your days value.";
+    }
+
+    const results = await Promise.all(
+      relevantMmdlRecords.map(async (record) => {
+        const seatoolItem = await getItem({
+          tableName: process.env.seatoolTableName || "",
+          key: {
+            PK: record.TN,
+            SK: record.TN,
+          },
+        });
+
+        if (seatoolItem) {
+          return {
+            ...record,
+            seatoolExist: true,
+          };
+        }
+        return record;
+      })
+    );
+
+    const reportDataJson = formatReportData(results as Types.MmdlReportData[]);
     const csv = Libs.getCsvFromJson(reportDataJson);
-    const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
+    const mailOptions = getMailOptionsWithAttachment(recipient, csv);
 
     await Libs.sendAttachment(mailOptions);
   } catch (e) {

@@ -73,6 +73,7 @@ provider:
         - Effect: Allow
           Action:
             - kms:GenerateDataKey
+            - kms:Decrypt
           Resource:
             - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
 params:
@@ -121,10 +122,12 @@ functions:
     maximumRetryAttempts: 0
   sendReport:
     handler: handlers/sendReport.handler
+    timeout: 120
     environment:
       region: ${self:provider.region}
       mmdlTableName: ${param:mmdlTableName}
       seatoolTableName: ${param:seatoolTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
   seatoolRecordExist:
     handler: handlers/seatoolRecordExist.handler
     environment:

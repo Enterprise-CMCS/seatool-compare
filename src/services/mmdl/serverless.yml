@@ -40,29 +40,12 @@ resources:
             AttributeType: "S"
           - AttributeName: SK
             AttributeType: "S"
-          - AttributeName: mmdlSigDate
-            AttributeType: "S"
-          - AttributeName: clockStartDate
-            AttributeType: "N"
         KeySchema:
           - AttributeName: PK
             KeyType: HASH
           - AttributeName: SK
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        GlobalSecondaryIndexes:
-          - IndexName: mmdlSigDate-index
-            KeySchema:
-              - AttributeName: mmdlSigDate
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-          - IndexName: clockStartDate-index
-            KeySchema:
-              - AttributeName: clockStartDate
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
   Outputs:
     TableName:
       Value: !Ref Table
