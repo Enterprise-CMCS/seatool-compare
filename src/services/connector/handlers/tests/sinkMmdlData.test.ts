@@ -64,6 +64,7 @@ describe("mmdl sink service tests", () => {
           WAIVER_TYPE_CODE: "WRID",
           WAVIER_REVISION_CLOCK_START_DATE: 1548892800000,
         },
+        status: 99,
         statuses: undefined,
         clockStartDate: 12345678,
         programType: "ABP",
