@@ -20,7 +20,7 @@ function formatReportData(data: Types.MmdlReportData[]) {
       "Clock Start Date": convertMsToDate(i.clockStartDate),
       "Seatool Record Exist": i.seatoolExist || false,
       "Submitted Status": i.isStatusSubmitted,
-      "signed Date": i.mmdlSigDate,
+      "MMDL Signed Date": i.mmdlSigDate,
     };
   });
 }
