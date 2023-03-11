@@ -65,12 +65,13 @@ exports.handler = async function (event: { recipient: string }) {
   };
 
   try {
-    const data = (await Libs.scanTable(params)) as Types.AppianReportData[];
-    const reportDataJson = formatReportData(data);
-    const csv = Libs.getCsvFromJson(reportDataJson);
-    const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
-
-    await Libs.sendAttachment(mailOptions);
+    const data = await Libs.scanTable<Types.AppianReportData>(params);
+    if (data) {
+      const reportDataJson = formatReportData(data);
+      const csv = Libs.getCsvFromJson(reportDataJson);
+      const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
+      await Libs.sendAttachment(mailOptions);
+    }
   } catch (e) {
     await Libs.trackError(e);
   }

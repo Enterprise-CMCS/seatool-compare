@@ -52,40 +52,26 @@ exports.handler = async function (event: { recipient: string; days: number }) {
   }
 
   try {
-    const epochTime = new Date().getTime() - days * 86400000;
+    const epochTime = new Date().getTime() - days * 86400000; // one day in miliseconds
 
-    const mmdlRecords = (await Libs.scanTable({
+    const mmdlRecords = await Libs.scanTable<Types.MmdlReportData>({
       TableName: process.env.mmdlTableName,
-    })) as Types.MmdlReportData[];
-
-    const relevantMmdlRecords = mmdlRecords.filter((record) => {
-      return (
-        record && record.clockStartDate && record.clockStartDate >= epochTime
-      );
     });
+
+    const relevantMmdlRecords = (mmdlRecords as Types.MmdlReportData[]).filter(
+      (record) => {
+        return (
+          record && record.clockStartDate && record.clockStartDate >= epochTime
+        );
+      }
+    );
 
     if (!relevantMmdlRecords) {
       throw "No relevant mmdl records to show. Sheck your days value.";
     }
 
     const results = await Promise.all(
-      relevantMmdlRecords.map(async (record) => {
-        const seatoolItem = await getItem({
-          tableName: process.env.seatoolTableName || "",
-          key: {
-            PK: record.TN,
-            SK: record.TN,
-          },
-        });
-
-        if (seatoolItem) {
-          return {
-            ...record,
-            seatoolExist: true,
-          };
-        }
-        return record;
-      })
+      relevantMmdlRecords.map(await addSeatoolExists)
     );
 
     const reportDataJson = formatReportData(results as Types.MmdlReportData[]);
@@ -97,3 +83,21 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     await Libs.trackError(e);
   }
 };
+
+async function addSeatoolExists(record: Types.MmdlReportData) {
+  const seatoolItem = await getItem({
+    tableName: process.env.seatoolTableName || "",
+    key: {
+      PK: record.TN,
+      SK: record.TN,
+    },
+  });
+
+  if (seatoolItem) {
+    return {
+      ...record,
+      seatoolExist: true,
+    };
+  }
+  return record;
+}
