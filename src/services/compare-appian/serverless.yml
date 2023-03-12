@@ -117,11 +117,11 @@ custom:
 functions:
   workflowStarter:
     handler: handlers/workflowStarter.handler
-    events:
-      - stream:
-          arn: ${param:appianTableStreamArn}
-          startingPosition: LATEST
-          maximumRetryAttempts: 0
+    # events:
+    #   - stream:
+    #       arn: ${param:appianTableStreamArn}
+    #       startingPosition: LATEST
+    #       maximumRetryAttempts: 0
     environment:
       stateMachineArn: !Ref AppianAlertingStateMachine
       region: ${self:provider.region}
