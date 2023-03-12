@@ -12,8 +12,6 @@ exports.handler = async function (event: {
   const SK = event.Records[0].dynamodb.Keys.SK.S;
   const key = { PK, SK };
 
-  console.log("workflowsStatus: ", process.env.workflowsStatus);
-
   if (process.env.workflowsStatus !== "ON") {
     console.log(
       'Workflows status is currently not "ON". not starting workflow'

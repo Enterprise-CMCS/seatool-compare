@@ -88,21 +88,25 @@ params:
     tempWaitSec: 172800 # 2 days
     sinceSubmissionChoiceSec: 345600 # 4 days
     recordAgeChoiceSec: 17366000 # 201 days
+    workflowsStatus: ON
   val:
     initialWaitSec: 86400
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
+    workflowsStatus: OFF
   production:
     initialWaitSec: 86400
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
+    workflowsStatus: OFF
   default:
     initialWaitSec: 2
     tempWaitSec: 43200 # 12 hours
     sinceSubmissionChoiceSec: 3
     recordAgeChoiceSec: 17366000 # 201 days
+    workflowsStatus: OFF
 
 custom:
   project: ${env:PROJECT}
@@ -112,7 +116,6 @@ custom:
       - val
       - production
   secretId: ${self:custom.project}/${sls:stage}/alerts
-  workflowsStatus: ${ssm:/aws/reference/secretsmanager/compare/${sls:stage}/workflows/${self:service}, "ON"}
 
 functions:
   workflowStarter:
@@ -127,7 +130,7 @@ functions:
       region: ${self:provider.region}
       appianTableName: ${param:appianTableName}
       errorsTopicArn: ${param:errorsTopicArn}
-      workflowsStatus: ${self:custom.workflowsStatus}
+      workflowsStatus: ${param:workflowsStatus}
     maximumRetryAttempts: 0
   sendReport:
     handler: handlers/sendReport.handler
