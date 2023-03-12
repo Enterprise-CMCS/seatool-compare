@@ -26,7 +26,8 @@ describe("appian sink service tests", () => {
     expect(dynamodb.putItem).toHaveBeenCalledWith({
       tableName: "appian-table",
       item: {
-        id: "21782",
+        PK: "21782",
+        SK: "21782",
         payload: {
           PCKG_ID: 21782,
         },

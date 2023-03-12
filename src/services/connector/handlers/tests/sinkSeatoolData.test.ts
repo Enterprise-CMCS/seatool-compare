@@ -27,7 +27,8 @@ describe("SEATool sink service tests", () => {
     expect(dynamodb.putItem).toHaveBeenCalledWith({
       tableName: "seatool-table",
       item: {
-        id: "NC-11-020",
+        PK: "NC-11-020",
+        SK: "NC-11-020",
         STATE_PLAN: {
           ID_NUMBER: "NC-11-020",
           SUBMISSION_DATE: 1311638400000,
@@ -53,7 +54,8 @@ describe("SEATool sink service tests", () => {
     expect(dynamodb.deleteItem).toHaveBeenCalledWith({
       tableName: "seatool-table",
       key: {
-        id: "TX-23-4440",
+        PK: "TX-23-4440",
+        SK: "TX-23-4440",
       },
     });
   });
