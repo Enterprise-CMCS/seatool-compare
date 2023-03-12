@@ -112,7 +112,7 @@ custom:
       - val
       - production
   secretId: ${self:custom.project}/${sls:stage}/alerts
-  workflowsStatus: ${ssm:/aws/reference/secretsmanager/compare/${sls:stage}/workflows/appian, "ON"}
+  workflowsStatus: ${ssm:/aws/reference/secretsmanager/compare/${sls:stage}/workflows/${self:service}, "ON"}
 
 functions:
   workflowStarter:
