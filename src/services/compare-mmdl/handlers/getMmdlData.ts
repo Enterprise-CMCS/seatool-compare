@@ -28,7 +28,6 @@ exports.handler = async function (
     if (mmdlRecord.clockStartDate) {
       const secSinceClockStart = getSecsSinceNow(mmdlRecord?.clockStartDate);
       data.secSinceClockStart = secSinceClockStart;
-      data.daysSinceClockStart = getDaysFromSecs(secSinceClockStart);
     }
 
     data.programType = mmdlRecord?.programType;
@@ -53,8 +52,4 @@ function getSecsSinceNow(date: string | number) {
   const diffInSec = (now - signedOn) / 1000; // from ms to sec we div by 1000
 
   return Math.floor(diffInSec);
-}
-
-function getDaysFromSecs(sec: number) {
-  return Math.floor(sec / 84000);
 }

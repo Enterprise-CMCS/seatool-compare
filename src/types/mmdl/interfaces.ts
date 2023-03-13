@@ -106,7 +106,6 @@ export interface MmdlReportData {
   mmdlSigned?: boolean;
   clockStartDate?: number; // epoch time
   secSinceClockStart?: number;
-  daysSinceClockStart?: number;
 }
 
 interface Recipients {
