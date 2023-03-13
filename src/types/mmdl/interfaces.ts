@@ -9,6 +9,7 @@ export interface MmdlRecord extends MmdlSigInfo {
   TN: string; // Transmittal Number
   programType?: string;
   clockStartDate?: number;
+  clockStarted?: boolean;
 }
 
 export interface MmdlStreamRecord {
@@ -104,6 +105,7 @@ export interface MmdlReportData {
   secSinceMmdlSigned?: number;
   mmdlSigned?: boolean;
   clockStartDate?: number; // epoch time
+  secSinceClockStart?: number;
 }
 
 interface Recipients {
