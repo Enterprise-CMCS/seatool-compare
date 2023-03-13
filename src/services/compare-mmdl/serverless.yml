@@ -96,7 +96,7 @@ params:
     recordAgeChoiceSec: 21686400
     workflowsStatus: OFF
   default:
-    initialWaitSec: 2
+    initialWaitSec: 300 # 5 mins
     tempWaitSec: 3600 # 1 hour
     signedSinceChoiceSec: 3
     recordAgeChoiceSec: 21686400 # 251 days
