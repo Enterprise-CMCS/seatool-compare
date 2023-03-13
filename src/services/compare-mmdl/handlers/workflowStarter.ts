@@ -24,8 +24,6 @@ exports.handler = async function (event: {
     return;
   }
 
-  // lets check for clockStarted
-
   /* Retrieving the record from the DynamoDB table. */
   const mmdlRecord = (await getItem({
     tableName: process.env.mmdlTableName,
@@ -37,7 +35,6 @@ exports.handler = async function (event: {
   }
 
   if (mmdlRecord.clockStarted) {
-    /* Creating an object that will be passed to the StartExecutionCommand. */
     const params = {
       input: JSON.stringify(key),
       name: `v1-${PK}`,
@@ -60,6 +57,6 @@ exports.handler = async function (event: {
       console.log("finally");
     }
   } else {
-    console.log("MMDL Record clock not started, ignoring for now.");
+    console.log("MMDL Record clock not started, ignoring.");
   }
 };
