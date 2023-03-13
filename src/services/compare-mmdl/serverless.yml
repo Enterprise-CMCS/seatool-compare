@@ -15,7 +15,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs18.x
   region: ${env:REGION_A}
   stackTags:
     PROJECT: ${self:custom.project}
@@ -33,7 +33,6 @@ provider:
           Resource:
             - ${param:mmdlTableArn}
             - ${param:seatoolTableArn}
-            - ${param:statusTableArn}
         - Effect: Allow
           Action:
             - sns:Publish
@@ -74,29 +73,34 @@ provider:
         - Effect: Allow
           Action:
             - kms:GenerateDataKey
+            - kms:Decrypt
           Resource:
             - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
 params:
   master:
     initialWaitSec: 172800 # 2 days
     tempWaitSec: 172800 # 2 days
-    signedSinceChoiceSec: 345600 # 4 days
+    timeSinceClockStartChoiceSec: 345600 # 4 days
     recordAgeChoiceSec: 21686400 # 251 days
+    workflowsStatus: ON
   val:
     initialWaitSec: 172800
     tempWaitSec: 172800
-    signedSinceChoiceSec: 345600
+    timeSinceClockStartChoiceSec: 345600
     recordAgeChoiceSec: 21686400
+    workflowsStatus: OFF
   production:
     initialWaitSec: 172800
     tempWaitSec: 172800
-    signedSinceChoiceSec: 345600
+    timeSinceClockStartChoiceSec: 345600
     recordAgeChoiceSec: 21686400
+    workflowsStatus: OFF
   default:
-    initialWaitSec: 2
-    tempWaitSec: 43200 # 12 hours
-    signedSinceChoiceSec: 3
-    recordAgeChoiceSec: 21686400 # 251 days
+    initialWaitSec: 300 # 5 mins
+    tempWaitSec: 3600 # 1 hour
+    timeSinceClockStartChoiceSec: 3
+    recordAgeChoiceSec: 604800 # 7 days
+    workflowsStatus: ON
 
 custom:
   project: ${env:PROJECT}
@@ -118,36 +122,23 @@ functions:
     environment:
       stateMachineArn: !Ref MMDLAlertingStateMachine
       region: ${self:provider.region}
-      mmdlTableName: ${param:mmdlTableName}
       errorsTopicArn: ${param:errorsTopicArn}
+      workflowsStatus: ${param:workflowsStatus}
+      mmdlTableName: ${param:mmdlTableName}
     maximumRetryAttempts: 0
   sendReport:
     handler: handlers/sendReport.handler
+    timeout: 120
     environment:
       region: ${self:provider.region}
-      statusTable: ${param:statusTableName}
-  compare:
-    handler: handlers/compare.handler
-    environment:
-      region: ${self:provider.region}
+      mmdlTableName: ${param:mmdlTableName}
+      seatoolTableName: ${param:seatoolTableName}
       errorsTopicArn: ${param:errorsTopicArn}
   seatoolRecordExist:
     handler: handlers/seatoolRecordExist.handler
     environment:
       region: ${self:provider.region}
       seatoolTableName: ${param:seatoolTableName}
-      errorsTopicArn: ${param:errorsTopicArn}
-  initStatus:
-    handler: handlers/initStatus.handler
-    environment:
-      region: ${self:provider.region}
-      statusTableName: ${param:statusTableName}
-      errorsTopicArn: ${param:errorsTopicArn}
-  updateStatus:
-    handler: handlers/updateStatus.handler
-    environment:
-      region: ${self:provider.region}
-      statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
@@ -194,7 +185,7 @@ resources:
 stepFunctions:
   stateMachines:
     compareAlertFunc:
-      name: ${self:service}-${sls:stage}-compare-alerting
+      name: ${self:service}-${sls:stage}-compare-alerting-mmdl
       id: MMDLAlertingStateMachine
       loggingConfig:
         level: ALL
@@ -203,15 +194,8 @@ stepFunctions:
           - !GetAtt StateMachineLogGroup.Arn
       definition:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for MMDL."
-        StartAt: InitializeTask
+        StartAt: InitialWait
         States:
-          InitializeTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-initStatus"
-            Parameters:
-              Payload.$: $
-              Context.$: $$
-            Next: InitialWait
           InitialWait:
             Type: Wait
             Seconds: ${param:initialWaitSec}
@@ -230,8 +214,8 @@ stepFunctions:
                 Next: DoesSeatoolRecordExistTask
               - Variable: $.isStatusSubmitted
                 BooleanEquals: false
-                Next: UpdateStatusTask
-            Default: UpdateStatusTask
+                Next: RecordAgeChoice
+            Default: RecordAgeChoice
           DoesSeatoolRecordExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-seatoolRecordExist"
@@ -243,41 +227,41 @@ stepFunctions:
             Choices:
               - Variable: $.seatoolExist
                 BooleanEquals: true
-                Next: UpdateStatusTask # for now we are skipping the compare task
+                Next: RecordAgeChoice # for now we are skipping the compare task
                 # Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
-                Next: SignedSinceChoice
-            Default: SignedSinceChoice
-          SignedSinceChoice:
+                Next: SecSinceClockStartChoice
+            Default: SecSinceClockStartChoice
+          SecSinceClockStartChoice:
             Type: Choice
             Choices:
               - And:
-                  - Variable: $.secSinceMmdlSigned
+                  - Variable: $.secSinceClockStart
                     IsPresent: true
-                  - Variable: $.secSinceMmdlSigned
-                    NumericGreaterThanEquals: ${param:signedSinceChoiceSec}
+                  - Variable: $.secSinceClockStart
+                    NumericGreaterThanEquals: ${param:timeSinceClockStartChoiceSec}
                   - Variable: $.mmdlSigned
                     BooleanEquals: true
                 Next: SendNotExistTask
-            Default: UpdateStatusTask
+            Default: RecordAgeChoice
           SendNotExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
             Parameters:
               Payload.$: $
-            Next: UpdateStatusTask
+            Next: RecordAgeChoice
           RecordAgeChoice:
             Type: Choice
             Choices:
-              - Variable: $.secSinceMmdlSigned
+              - Variable: $.secSinceClockStart
                 NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
                 Next: LastLoopAMatchChoice
             Default: TempWait
           TempWait:
             Type: Wait
             Seconds: ${param:tempWaitSec}
-            Next: InitialWait
+            Next: GetMmdlDataTask
           LastLoopAMatchChoice:
             Type: Choice
             Choices:
@@ -288,34 +272,6 @@ stepFunctions:
                     BooleanEquals: true
                 Next: SuccessState
             Default: FailState
-          # CompareTask:
-          #   Type: Task
-          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
-          #   Parameters:
-          #     Payload.$: $
-          #   Next: RecordsMatchChoice
-          # RecordsMatchChoice:
-          #   Type: Choice
-          #   Choices:
-          #     - Variable: $.match
-          #       BooleanEquals: true
-          #       Next: UpdateStatusTask
-          #     - Variable: $.match
-          #       BooleanEquals: false
-          #       Next: SendNotMatchTask
-          #   Default: SendNotMatchTask
-          # SendNotMatchTask:
-          #   Type: Task
-          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
-          #   Parameters:
-          #     Payload.$: $
-          #   Next: UpdateStatusTask
-          UpdateStatusTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-updateStatus"
-            Parameters:
-              Payload.$: $
-            Next: RecordAgeChoice
           SuccessState:
             Type: Succeed
           FailState:

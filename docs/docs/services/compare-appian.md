@@ -5,15 +5,15 @@ parent: Services
 nav_order: 5
 ---
 
-# appian-compare
+# compare-appian
 
 {: .no_toc }
 
 #### Summary
 
-The  appian-compare service is the most involved service. This makes sense, as it holds the real business logic and value for the project. This state machine is the object that has a definition of tasks to run, when to run them, and their relationships. This is essentially a workflow definition in code, following AWS StepFunction definition syntax.
+The  compare-appian service is the most involved service. This makes sense, as it holds the real business logic and value for the project. This state machine is the object that has a definition of tasks to run, when to run them, and their relationships. This is essentially a workflow definition in code, following AWS StepFunction definition syntax.
 
-The basic logic of the appian-compare service is as follows:
+The basic logic of the compare-appian service is as follows:
 
 the wokflowStarter lambda has an appian stream which receives all change events to the appian table. this function retrieves the appian item, uses the getAppianInfoFromRecord util to determine if the record has been submitted and if so, how long ago. If the record has not been submitted yet or if its older than 200 days, the function ignores the record. Otherwise it starts the compare state machine with the record id as input.
 
@@ -39,7 +39,7 @@ The record is then updated in the status-appian table to reflect the new data, a
 
 #### Alerting
 - The `sendNotExistTask` and `sendNoMatchTask` functions handle the email notifications. They use the `secret-manager-lib` to get the list of recipient and source emails from secrets manager, defines the email content and initiates email sending via the [AWS SES](https://aws.amazon.com/ses/) service.
-- the email recipients and source email should be stored in secrets manager under the secret name: `[project-name]/[stage-name]/appian-alerts` with the secret value formatted as follows:
+- the email recipients and source email should be stored in secrets manager under the secret name: `[project-name]/[stage-name]/alerts-appian` with the secret value formatted as follows:
 
 ```
 {

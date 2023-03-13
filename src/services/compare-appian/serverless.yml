@@ -16,7 +16,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs18.x
   region: ${env:REGION_A}
   stackTags:
     PROJECT: ${self:custom.project}
@@ -56,7 +56,7 @@ provider:
           Action:
             - secretsmanager:GetSecretValue
           Resource:
-            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/alerts*"
+            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/alerts-appian*"
         - Effect: Allow
           Action:
             - secretsmanager:ListSecrets
@@ -71,6 +71,16 @@ provider:
             - states:ListExecutions
             - states:StopExecution
           Resource: "*"
+        - Effect: Allow
+          Action:
+            - kms:GenerateDataKey
+            - kms:Decrypt
+          Resource:
+            - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
+        - Effect: "Allow"
+          Action:
+            - cloudwatch:PutMetricData
+          Resource: "*"
 
 params:
   master:
@@ -78,21 +88,25 @@ params:
     tempWaitSec: 172800 # 2 days
     sinceSubmissionChoiceSec: 345600 # 4 days
     recordAgeChoiceSec: 17366000 # 201 days
+    workflowsStatus: ON
   val:
     initialWaitSec: 86400
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
+    workflowsStatus: OFF
   production:
     initialWaitSec: 86400
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
+    workflowsStatus: OFF
   default:
     initialWaitSec: 2
     tempWaitSec: 43200 # 12 hours
     sinceSubmissionChoiceSec: 3
     recordAgeChoiceSec: 17366000 # 201 days
+    workflowsStatus: OFF
 
 custom:
   project: ${env:PROJECT}
@@ -102,7 +116,6 @@ custom:
       - val
       - production
   secretId: ${self:custom.project}/${sls:stage}/alerts
-  scripts:
 
 functions:
   workflowStarter:
@@ -117,6 +130,7 @@ functions:
       region: ${self:provider.region}
       appianTableName: ${param:appianTableName}
       errorsTopicArn: ${param:errorsTopicArn}
+      workflowsStatus: ${param:workflowsStatus}
     maximumRetryAttempts: 0
   sendReport:
     handler: handlers/sendReport.handler
@@ -140,12 +154,14 @@ functions:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
+      namespace: ${self:service}-${sls:stage}
   updateStatus:
     handler: handlers/updateStatus.handler
     environment:
       region: ${self:provider.region}
       statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
+      namespace: ${self:service}-${sls:stage}
   sendDoesNotExistAlert:
     handler: handlers/sendDoesNotExistAlert.handler
     environment:
@@ -198,7 +214,7 @@ resources:
 stepFunctions:
   stateMachines:
     compareAlertFunc:
-      name: ${self:service}-${sls:stage}-compare-appian-alerting
+      name: ${self:service}-${sls:stage}-compare-alerting-appian
       id: AppianAlertingStateMachine
       loggingConfig:
         level: ALL

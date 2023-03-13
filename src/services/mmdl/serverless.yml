@@ -11,7 +11,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs18.x
   region: ${env:REGION_A}
   stackTags:
     PROJECT: ${self:custom.project}
@@ -30,17 +30,21 @@ resources:
     Table:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:service}-${sls:stage}-mmdl
+        TableName: ${self:service}-${sls:stage}
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: true
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
+          - AttributeName: PK
+            AttributeType: "S"
+          - AttributeName: SK
+            AttributeType: "S"
         KeySchema:
-          - AttributeName: id
+          - AttributeName: PK
             KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
   Outputs:
     TableName:

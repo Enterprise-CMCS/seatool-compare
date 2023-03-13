@@ -1,11 +1,15 @@
-export interface MmdlRecord {
+export interface MmdlRecord extends MmdlSigInfo {
   mac179_transNbr?: { FIELD_PROGRAM_TYPE_CODE: string };
   chp179_transNbr?: { FIELD_PROGRAM_TYPE_CODE: string };
   hhs_transNbr?: { FIELD_PROGRAM_TYPE_CODE: string };
   stMedDirSgnDt?: { FIELD_VALUE: any };
   statuses: ApplicationWorkflowStatus[];
-  id: any;
-  transmittalNumber: string;
+  PK: string; // State-WaiverID-ProgramCode
+  SK: string; // State-WaiverID-ProgramCode
+  TN: string; // Transmittal Number
+  programType?: string;
+  clockStartDate?: number;
+  clockStarted?: boolean;
 }
 
 export interface MmdlStreamRecord {
@@ -71,19 +75,6 @@ interface ApplicationWorkflowStatus {
   REPLICA_ID: number;
 }
 
-export interface MmdlSeatoolCompareData {
-  mmdlSigned: boolean;
-  secSinceMmdlSigned?: number;
-  mmdlSigDate?: Date;
-  status?: number;
-  lastStatus?: number;
-  mmdlRecord: MmdlRecord;
-  id: string;
-  transmittalNumber: string;
-  programType?: string;
-  isStatusSubmitted?: boolean;
-}
-
 export interface MmdlRecordKeyObject {
   AGGREGATED_FORM_FIELDS_WAIVER_ID: number;
   STATE_CODE: string;
@@ -92,22 +83,29 @@ export interface MmdlRecordKeyObject {
 }
 
 export interface MmdlSigInfo {
+  isStatusSubmitted?: boolean;
   secSinceMmdlSigned?: number;
-  mmdlSigned: boolean;
-  mmdlSigDate?: Date;
+  mmdlSigned?: boolean;
+  mmdlSigDate?: string;
   status?: number;
   lastStatus?: number;
 }
 
 export interface MmdlReportData {
-  id: string;
-  iterations: number;
-  programType: string;
-  mmdlSigDate: string;
+  PK: string;
+  SK: string;
+  TN: string;
+  programType?: string;
+  mmdlSigDate?: string;
   seatoolExist: boolean;
   seatoolSigDate?: string;
-  match?: boolean;
   isStatusSubmitted?: boolean;
+  lastStatus?: number;
+  status?: number;
+  secSinceMmdlSigned?: number;
+  mmdlSigned?: boolean;
+  clockStartDate?: number; // epoch time
+  secSinceClockStart?: number;
 }
 
 interface Recipients {

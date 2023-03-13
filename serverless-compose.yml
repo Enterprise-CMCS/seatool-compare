@@ -7,8 +7,6 @@ services:
     path: src/services/mmdl
   seatool:
     path: src/services/seatool
-  status-mmdl:
-    path: src/services/status-mmdl
   status-appian:
     path: src/services/status-appian
   compare-mmdl:
@@ -20,8 +18,6 @@ services:
       mmdlTableStreamArn: ${mmdl.TableStreamArn}
       seatoolTableName: ${seatool.TableName}
       seatoolTableArn: ${seatool.TableArn}
-      statusTableName: ${status-mmdl.TableName}
-      statusTableArn: ${status-mmdl.TableArn}
       sesLogGroupArn: ${alerts.SesLogGroupArn}
       sesLogGroupName: ${alerts.SesLogGroupName}
       errorsTopicArn: ${alerts.ErrorsTopicArn}

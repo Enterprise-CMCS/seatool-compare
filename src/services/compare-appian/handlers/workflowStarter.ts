@@ -5,19 +5,36 @@ import { secondsBetweenDates } from "./utils/timeHelper";
 /* This is the Lambda function that is triggered by the DynamoDB stream. It is responsible for starting
 the Step Function execution. */
 exports.handler = async function (event: {
-  Records: { dynamodb: { Keys: { id: { S: any } } } }[];
+  Records: { dynamodb: { Keys: { PK: { S: string }; SK: { S: string } } } }[];
 }) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const client = new SFNClient({ region: process.env.region });
-  const id = event.Records[0].dynamodb.Keys.id.S;
+  const PK = event.Records[0].dynamodb.Keys.PK.S;
+  const SK = event.Records[0].dynamodb.Keys.SK.S;
+  const key = { PK, SK };
+
+  if (!process.env.appianTableName) {
+    throw "process.env.appianTableName needs to be defined.";
+  }
+
+  if (process.env.workflowsStatus !== "ON") {
+    console.log(
+      'Workflows status is currently not "ON". not starting workflow'
+    );
+    return;
+  }
 
   /* Retrieving the record from the DynamoDB table. */
   const appianRecord = await getItem({
     tableName: process.env.appianTableName,
-    id,
+    key,
   });
 
-  /* Checking if the appian record was signed within the last 200 days. */
+  if (!appianRecord) {
+    throw "No appian record found";
+  }
+
+  /* Checking if the appian record was submitted within the last 200 days. */
   const submissionDate = appianRecord.payload?.SBMSSN_DATE;
   const diffInSec = secondsBetweenDates(submissionDate);
 
@@ -28,10 +45,8 @@ exports.handler = async function (event: {
   ) {
     /* Creating an object that will be passed to the StartExecutionCommand. */
     const params = {
-      input: JSON.stringify({
-        id,
-      }),
-      name: id,
+      input: JSON.stringify(key),
+      name: PK,
       stateMachineArn: process.env.stateMachineArn,
     };
 
@@ -51,6 +66,6 @@ exports.handler = async function (event: {
       console.log("finally");
     }
   } else {
-    console.log(`Record ${id} not submitted within last 200 days. Ignoring...`);
+    console.log(`Record ${PK} not submitted within last 200 days. Ignoring...`);
   }
 };
