@@ -22,7 +22,7 @@ exports.handler = async function (
     })) as Types.MmdlRecord;
 
     if (mmdlRecord.mmdlSigDate) {
-      data.secSinceMmdlSigned = getSecsSinceToday(mmdlRecord?.mmdlSigDate);
+      data.secSinceMmdlSigned = getSecsSinceNow(mmdlRecord?.mmdlSigDate);
     }
 
     data.programType = mmdlRecord?.programType;
@@ -40,11 +40,11 @@ exports.handler = async function (
 };
 
 // 'DD/MM/YYYY'
-function getSecsSinceToday(date: string) {
-  const today = new Date().getTime();
+function getSecsSinceNow(date: string) {
+  const now = new Date().getTime();
   const signedOn = new Date(date).getTime();
 
-  const diffInSec = (today - signedOn) / 1000; // from ms to sec we div by 1000
+  const diffInSec = (now - signedOn) / 1000; // from ms to sec we div by 1000
 
   return Math.floor(diffInSec);
 }

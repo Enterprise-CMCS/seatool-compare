@@ -260,7 +260,7 @@ stepFunctions:
           TempWait:
             Type: Wait
             Seconds: ${param:tempWaitSec}
-            Next: InitialWait
+            Next: GetMmdlDataTask
           LastLoopAMatchChoice:
             Type: Choice
             Choices:
