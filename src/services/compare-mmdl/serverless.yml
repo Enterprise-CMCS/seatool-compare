@@ -80,26 +80,26 @@ params:
   master:
     initialWaitSec: 172800 # 2 days
     tempWaitSec: 172800 # 2 days
-    signedSinceChoiceSec: 345600 # 4 days
+    timeSinceClockStartChoiceSec: 345600 # 4 days
     recordAgeChoiceSec: 21686400 # 251 days
     workflowsStatus: ON
   val:
     initialWaitSec: 172800
     tempWaitSec: 172800
-    signedSinceChoiceSec: 345600
+    timeSinceClockStartChoiceSec: 345600
     recordAgeChoiceSec: 21686400
     workflowsStatus: OFF
   production:
     initialWaitSec: 172800
     tempWaitSec: 172800
-    signedSinceChoiceSec: 345600
+    timeSinceClockStartChoiceSec: 345600
     recordAgeChoiceSec: 21686400
     workflowsStatus: OFF
   default:
     initialWaitSec: 300 # 5 mins
     tempWaitSec: 3600 # 1 hour
-    signedSinceChoiceSec: 3
-    recordAgeChoiceSec: 21686400 # 251 days
+    timeSinceClockStartChoiceSec: 3
+    recordAgeChoiceSec: 604800 # 7 days
     workflowsStatus: ON
 
 custom:
@@ -231,16 +231,16 @@ stepFunctions:
                 # Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
-                Next: SignedSinceChoice
-            Default: SignedSinceChoice
-          SignedSinceChoice:
+                Next: SecSinceClockStartChoice
+            Default: SecSinceClockStartChoice
+          SecSinceClockStartChoice:
             Type: Choice
             Choices:
               - And:
-                  - Variable: $.secSinceMmdlSigned
+                  - Variable: $.secSinceClockStart
                     IsPresent: true
-                  - Variable: $.secSinceMmdlSigned
-                    NumericGreaterThanEquals: ${param:signedSinceChoiceSec}
+                  - Variable: $.secSinceClockStart
+                    NumericGreaterThanEquals: ${param:timeSinceClockStartChoiceSec}
                   - Variable: $.mmdlSigned
                     BooleanEquals: true
                 Next: SendNotExistTask
@@ -254,7 +254,7 @@ stepFunctions:
           RecordAgeChoice:
             Type: Choice
             Choices:
-              - Variable: $.secSinceMmdlSigned
+              - Variable: $.secSinceClockStart
                 NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
                 Next: LastLoopAMatchChoice
             Default: TempWait

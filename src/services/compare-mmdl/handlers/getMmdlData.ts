@@ -19,10 +19,16 @@ exports.handler = async function (
     const mmdlRecord = (await getItem({
       tableName: process.env.mmdlTableName,
       key,
-    })) as Types.MmdlRecord;
+    })) as Types.MmdlReportData;
 
     if (mmdlRecord.mmdlSigDate) {
       data.secSinceMmdlSigned = getSecsSinceNow(mmdlRecord?.mmdlSigDate);
+    }
+
+    if (mmdlRecord.clockStartDate) {
+      const secSinceClockStart = getSecsSinceNow(mmdlRecord?.clockStartDate);
+      data.secSinceClockStart = secSinceClockStart;
+      data.daysSinceClockStart = getDaysFromSecs(secSinceClockStart);
     }
 
     data.programType = mmdlRecord?.programType;
@@ -40,11 +46,15 @@ exports.handler = async function (
 };
 
 // 'DD/MM/YYYY'
-function getSecsSinceNow(date: string) {
+function getSecsSinceNow(date: string | number) {
   const now = new Date().getTime();
   const signedOn = new Date(date).getTime();
 
   const diffInSec = (now - signedOn) / 1000; // from ms to sec we div by 1000
 
   return Math.floor(diffInSec);
+}
+
+function getDaysFromSecs(sec: number) {
+  return Math.floor(sec / 84000);
 }
