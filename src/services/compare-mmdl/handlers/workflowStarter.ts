@@ -22,7 +22,7 @@ exports.handler = async function (event: {
   /* Creating an object that will be passed to the StartExecutionCommand. */
   const params = {
     input: JSON.stringify(key),
-    name: PK,
+    name: `v1-${PK}`,
     stateMachineArn: process.env.stateMachineArn,
   };
 
