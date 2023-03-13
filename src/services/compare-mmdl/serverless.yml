@@ -88,7 +88,7 @@ params:
     tempWaitSec: 172800
     timeSinceClockStartChoiceSec: 345600
     recordAgeChoiceSec: 21686400
-    workflowsStatus: ON
+    workflowsStatus: OFF
   production:
     initialWaitSec: 172800
     tempWaitSec: 172800
