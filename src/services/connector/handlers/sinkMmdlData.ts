@@ -52,7 +52,7 @@ async function myHandler(
 
     const transmittalNumberKey = possibleTransmittalNumberKeys[0];
 
-    let transmittalNumber, clockStartDate;
+    let transmittalNumber, clockStartDate, clockStarted;
 
     if (recordValueObject.FORM_FIELDS[transmittalNumberKey].FIELD_VALUE) {
       transmittalNumber =
@@ -66,6 +66,7 @@ async function myHandler(
       clockStartDate =
         recordValueObject.FORM_FIELDS[transmittalNumberKey]
           .WAVIER_REVISION_CLOCK_START_DATE;
+      clockStarted = true;
     }
 
     if (!transmittalNumber) {
@@ -82,6 +83,7 @@ async function myHandler(
       ...recordValueObject.FORM_FIELDS,
       statuses: recordValueObject.APPLICATION_WORKFLOW_STATUSES,
       clockStartDate,
+      clockStarted,
     };
 
     const { programType } = getMmdlProgType(item);
