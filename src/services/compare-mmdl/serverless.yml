@@ -124,6 +124,7 @@ functions:
       region: ${self:provider.region}
       errorsTopicArn: ${param:errorsTopicArn}
       workflowsStatus: ${param:workflowsStatus}
+      mmdlTableName: ${param:mmdlTableName}
     maximumRetryAttempts: 0
   sendReport:
     handler: handlers/sendReport.handler

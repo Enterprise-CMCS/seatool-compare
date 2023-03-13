@@ -14,7 +14,7 @@ exports.handler = async function (event: {
   const key = { PK, SK };
 
   if (!process.env.mmdlTableName) {
-    throw "process.env.appianTableName needs to be defined.";
+    throw "process.env.mmdlTableName needs to be defined.";
   }
 
   if (process.env.workflowsStatus !== "ON") {
