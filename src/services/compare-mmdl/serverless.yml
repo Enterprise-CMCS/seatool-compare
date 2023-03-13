@@ -82,21 +82,25 @@ params:
     tempWaitSec: 172800 # 2 days
     signedSinceChoiceSec: 345600 # 4 days
     recordAgeChoiceSec: 21686400 # 251 days
+    workflowsStatus: ON
   val:
     initialWaitSec: 172800
     tempWaitSec: 172800
     signedSinceChoiceSec: 345600
     recordAgeChoiceSec: 21686400
+    workflowsStatus: OFF
   production:
     initialWaitSec: 172800
     tempWaitSec: 172800
     signedSinceChoiceSec: 345600
     recordAgeChoiceSec: 21686400
+    workflowsStatus: OFF
   default:
     initialWaitSec: 2
     tempWaitSec: 43200 # 12 hours
     signedSinceChoiceSec: 3
     recordAgeChoiceSec: 21686400 # 251 days
+    workflowsStatus: OFF
 
 custom:
   project: ${env:PROJECT}
@@ -110,15 +114,16 @@ custom:
 functions:
   workflowStarter:
     handler: handlers/workflowStarter.handler
-    # events:
-    #   - stream:
-    #       arn: ${param:mmdlTableStreamArn}
-    #       startingPosition: LATEST
-    #       maximumRetryAttempts: 0
+    events:
+      - stream:
+          arn: ${param:mmdlTableStreamArn}
+          startingPosition: LATEST
+          maximumRetryAttempts: 0
     environment:
       stateMachineArn: !Ref MMDLAlertingStateMachine
       region: ${self:provider.region}
       errorsTopicArn: ${param:errorsTopicArn}
+      workflowsStatus: ${param:workflowsStatus}
     maximumRetryAttempts: 0
   sendReport:
     handler: handlers/sendReport.handler

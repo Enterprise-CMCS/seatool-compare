@@ -17,6 +17,13 @@ exports.handler = async function (event: {
     throw "process.env.appianTableName needs to be defined.";
   }
 
+  if (process.env.workflowsStatus !== "ON") {
+    console.log(
+      'Workflows status is currently not "ON". not starting workflow'
+    );
+    return;
+  }
+
   /* Retrieving the record from the DynamoDB table. */
   const appianRecord = await getItem({
     tableName: process.env.appianTableName,

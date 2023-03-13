@@ -10,13 +10,19 @@ exports.handler = async function (event: {
   const client = new SFNClient({ region: process.env.region });
   const PK = event.Records[0].dynamodb.Keys.PK.S;
   const SK = event.Records[0].dynamodb.Keys.SK.S;
-
   const key = { PK, SK };
+
+  if (process.env.workflowsStatus !== "ON") {
+    console.log(
+      'Workflows status is currently not "ON". not starting workflow'
+    );
+    return;
+  }
 
   /* Creating an object that will be passed to the StartExecutionCommand. */
   const params = {
     input: JSON.stringify(key),
-    name: PK,
+    name: `#${PK}`,
     stateMachineArn: process.env.stateMachineArn,
   };
 
