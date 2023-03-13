@@ -7,6 +7,7 @@ const seaToolSink = sink as { handler: Function };
 vi.mock("../../../../libs/dynamodb-lib", () => {
   return {
     putItem: vi.fn(),
+    deleteItem: vi.fn(),
   };
 });
 
@@ -26,11 +27,35 @@ describe("SEATool sink service tests", () => {
     expect(dynamodb.putItem).toHaveBeenCalledWith({
       tableName: "seatool-table",
       item: {
-        id: "NC-11-020",
+        PK: "NC-11-020",
+        SK: "NC-11-020",
         STATE_PLAN: {
           ID_NUMBER: "NC-11-020",
           SUBMISSION_DATE: 1311638400000,
         },
+      },
+    });
+  });
+
+  it("tests deleting an item", async () => {
+    const event = {
+      key: '"TX-23-4440"',
+      keySchemaName: null,
+      value: "",
+      valueSchemaName: null,
+      topic: "aws.ksqldb.seatool.agg.State_Plan",
+      partition: 0,
+      offset: 1114610,
+      timestamp: 1677086273242,
+      timestampTypeName: "CreateTime",
+    };
+    await seaToolSink.handler(event);
+
+    expect(dynamodb.deleteItem).toHaveBeenCalledWith({
+      tableName: "seatool-table",
+      key: {
+        PK: "TX-23-4440",
+        SK: "TX-23-4440",
       },
     });
   });

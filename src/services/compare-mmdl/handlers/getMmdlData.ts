@@ -1,5 +1,5 @@
 import { getItem, trackError } from "../../../libs";
-import { getMmdlProgType, getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
+
 import * as Types from "../../../types";
 
 exports.handler = async function (
@@ -8,25 +8,28 @@ exports.handler = async function (
   callback: Function
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
-  const data: Types.MmdlSeatoolCompareData = { ...event.Payload };
+  const data: Types.MmdlReportData = { ...event.Payload };
+
+  if (!process.env.mmdlTableName) {
+    throw "process.env.mmdlTableName needs to be defined.";
+  }
+
   try {
-    const mmdlRecord = await getItem({
+    const key = { PK: data.PK, SK: data.SK };
+    const mmdlRecord = (await getItem({
       tableName: process.env.mmdlTableName,
-      id: data.id,
-    });
-    data.mmdlRecord = mmdlRecord as Types.MmdlRecord;
-    data.transmittalNumber = mmdlRecord?.transmittalNumber;
+      key,
+    })) as Types.MmdlRecord;
 
-    const { programType } = getMmdlProgType(mmdlRecord as Types.MmdlRecord);
-    const sigInfo = getMmdlSigInfo(mmdlRecord as Types.MmdlRecord);
+    if (mmdlRecord.mmdlSigDate) {
+      data.secSinceMmdlSigned = getSecsSinceToday(mmdlRecord?.mmdlSigDate);
+    }
 
-    const isStatusSubmitted = sigInfo.status === 1;
-
-    data.programType = programType;
-    data.secSinceMmdlSigned = sigInfo.secSinceMmdlSigned;
-    data.mmdlSigned = sigInfo.mmdlSigned;
-    data.mmdlSigDate = sigInfo.mmdlSigDate;
-    data.isStatusSubmitted = isStatusSubmitted;
+    data.programType = mmdlRecord?.programType;
+    data.TN = mmdlRecord?.TN;
+    data.mmdlSigned = mmdlRecord?.mmdlSigned;
+    data.mmdlSigDate = mmdlRecord?.mmdlSigDate;
+    data.isStatusSubmitted = mmdlRecord?.isStatusSubmitted;
   } catch (e) {
     await trackError(e);
   } finally {
@@ -35,3 +38,13 @@ exports.handler = async function (
     callback(null, data);
   }
 };
+
+// 'DD/MM/YYYY'
+function getSecsSinceToday(date: string) {
+  const today = new Date().getTime();
+  const signedOn = new Date(date).getTime();
+
+  const diffInSec = (today - signedOn) / 1000; // from ms to sec we div by 1000
+
+  return Math.floor(diffInSec);
+}

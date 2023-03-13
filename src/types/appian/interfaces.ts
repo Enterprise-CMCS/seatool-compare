@@ -1,5 +1,6 @@
 export interface AppianRecord {
-  id: any;
+  PK: string;
+  SK: string;
 }
 
 export interface AppianStreamRecord {
@@ -63,7 +64,8 @@ export interface AppianFormField {
 
 export interface AppianSeatoolCompareData {
   appianRecord: AppianRecord;
-  id: string;
+  PK: string;
+  SK: string;
   SPA_ID: string;
   secSinceAppianSubmitted: number;
   isAppianSubmitted: boolean;
@@ -71,7 +73,8 @@ export interface AppianSeatoolCompareData {
 }
 
 export interface AppianReportData {
-  id: string;
+  PK: string;
+  SK: string;
   isAppianSubmitted: boolean;
   SPA_ID: string;
   iterations: number;

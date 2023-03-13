@@ -9,10 +9,17 @@ exports.handler = async function (
   const data = { ...event.Payload, seatoolExist: false };
 
   // appian.SPA_ID should have a 1-to-1 relationship with SEATool.id
+
+  if (!process.env.seatoolTableName) {
+    throw "process.env.seatoolTableName needs to be defined.";
+  }
+
   try {
     const item = await getItem({
       tableName: process.env.seatoolTableName,
-      id: data.SPA_ID,
+      key: {
+        id: data.SPA_ID,
+      },
     });
 
     if (item) {

@@ -12,11 +12,13 @@ async function myHandler(
   }
   try {
     const eventValue = JSON.parse(event.value) as Types.AppianStreamRecord;
+    const id = eventValue.payload.PCKG_ID.toString();
+    const key = { PK: id, SK: id };
 
     await dynamodb.putItem({
       tableName: process.env.tableName,
       item: {
-        id: eventValue.payload.PCKG_ID.toString(),
+        ...key,
         ...JSON.parse(event.value),
       },
     });

@@ -1,5 +1,6 @@
 import * as dynamodb from "../../../libs/dynamodb-lib";
 import * as Types from "../../../types";
+import { getMmdlProgType, getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
 
 async function myHandler(
   event: { value: string; key: string },
@@ -18,6 +19,7 @@ async function myHandler(
     const recordValueObject = JSON.parse(event.value) as Types.MmdlStreamRecord;
 
     const id = `${recordKeyObject.STATE_CODE}-${recordKeyObject.AGGREGATED_FORM_FIELDS_WAIVER_ID}-${recordKeyObject.PROGRAM_TYPE_CODE}`;
+    const key = { PK: id, SK: id };
 
     // Typically the PROGRAM_TYPE_CODE will match this _transNbr key
     //   MAC: "mac179_transNbr",
@@ -50,11 +52,20 @@ async function myHandler(
 
     const transmittalNumberKey = possibleTransmittalNumberKeys[0];
 
-    let transmittalNumber;
+    let transmittalNumber, clockStartDate;
 
     if (recordValueObject.FORM_FIELDS[transmittalNumberKey].FIELD_VALUE) {
       transmittalNumber =
         recordValueObject.FORM_FIELDS[transmittalNumberKey].FIELD_VALUE;
+    }
+
+    if (
+      recordValueObject.FORM_FIELDS[transmittalNumberKey]
+        .WAVIER_REVISION_CLOCK_START_DATE
+    ) {
+      clockStartDate =
+        recordValueObject.FORM_FIELDS[transmittalNumberKey]
+          .WAVIER_REVISION_CLOCK_START_DATE;
     }
 
     if (!transmittalNumber) {
@@ -66,11 +77,23 @@ async function myHandler(
     }
 
     const item: Types.MmdlRecord = {
-      id,
-      transmittalNumber: transmittalNumber.trim().toUpperCase(), // remove empty strings and upper case
+      ...key,
+      TN: transmittalNumber.trim().toUpperCase(),
       ...recordValueObject.FORM_FIELDS,
       statuses: recordValueObject.APPLICATION_WORKFLOW_STATUSES,
+      clockStartDate,
     };
+
+    const { programType } = getMmdlProgType(item);
+    const sigInfo = getMmdlSigInfo(item);
+
+    const isStatusSubmitted = sigInfo.status === 1;
+
+    item.programType = programType;
+    item.mmdlSigned = sigInfo.mmdlSigned;
+    item.mmdlSigDate = sigInfo.mmdlSigDate;
+    item.isStatusSubmitted = isStatusSubmitted;
+    item.status = sigInfo.status;
 
     await dynamodb.putItem({
       tableName: process.env.tableName,
