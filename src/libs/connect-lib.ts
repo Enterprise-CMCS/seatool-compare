@@ -36,6 +36,7 @@ export async function connectRestApiWithRetry(params: {
         return await connectRestApiWithRetry(params);
       }, 5000);
     }
+
     const options: http.RequestOptions = {
       hostname: params.hostname,
       port: params.port || 8083,
@@ -45,7 +46,6 @@ export async function connectRestApiWithRetry(params: {
         "Content-Type": "application/json",
       },
     };
-
     const req = http.request(options, (res) => {
       console.log(`STATUS: ${res.statusCode}`);
       res
