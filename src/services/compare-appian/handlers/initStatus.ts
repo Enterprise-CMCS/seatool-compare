@@ -1,13 +1,17 @@
 import { putItem, trackError } from "../../../libs";
 
 exports.handler = async function (
-  event: { Context: { Execution: { Input: { id: string } } } },
+  event: {
+    Context: { Execution: { Input: { PK: { S: string }; SK: { S: string } } } };
+  },
   _context: any,
   callback: Function
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
-  const id = event.Context.Execution.Input.id;
-  const data = { iterations: 0, id };
+  const PK = event.Context.Execution.Input.PK.S;
+  const SK = event.Context.Execution.Input.SK.S;
+  const key = { PK, SK };
+  const data = { iterations: 0, ...key };
 
   if (!process.env.statusTableName) {
     throw "process.env.statusTableName needs to be defined.";
