@@ -152,6 +152,7 @@ functions:
       stage: ${sls:stage}
       sesLogGroupName: ${param:sesLogGroupName}
       errorsTopicArn: ${param:errorsTopicArn}
+      seatoolLink: ${param:seatoolLink}
   getMmdlData:
     handler: handlers/getMmdlData.handler
     environment:
