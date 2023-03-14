@@ -1,5 +1,5 @@
 import { putItem, getItem, deleteItem, scanTable } from "../dynamodb-lib";
-import { it, describe, expect, beforeEach, vi } from "vitest";
+import { it, describe, expect, beforeEach } from "vitest";
 import { mockClient } from "aws-sdk-client-mock";
 import {
   DynamoDBClient,
