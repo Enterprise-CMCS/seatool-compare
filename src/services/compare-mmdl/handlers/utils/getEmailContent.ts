@@ -1,11 +1,11 @@
 export const getEmailContent = ({
   id,
   isUrgent,
-  programType,
+  seatoolLink,
 }: {
   id: string;
   isUrgent: boolean;
-  programType?: string;
+  seatoolLink: string;
 }) => {
   const htmlData = `
         <html lang='en'>
@@ -18,9 +18,7 @@ export const getEmailContent = ({
                 <center>
                 <h2>This is ${
                   isUrgent ? "an urgent" : "a"
-                } reminder that there's no matching record in <a href="https://sea.cms.gov/" style="text-decoration:none" target="_blank">SEA Tool</a> for ${id}${
-    programType ? ` - Program Type: ${programType}` : ""
-  }.</h2>
+                } reminder that there's no matching record in <a href="${seatoolLink}" style="text-decoration:none" target="_blank">SEA Tool</a>.</h2>
                 <br>
                 <p>Either a record wasn't created in SEA Tool, or the SPA ID in MMDL and SEA Tool don't match.</p>
                 ${
