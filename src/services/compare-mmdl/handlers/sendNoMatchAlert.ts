@@ -40,9 +40,9 @@ exports.handler = async function (
 
   const secretId = `${project}/${stage}/mmdl-alerts`;
 
-  const data: Types.MmdlSeatoolCompareData = {
+  const data: Types.MmdlReportData = {
     ...event.Payload,
-  } as Types.MmdlSeatoolCompareData;
+  } as Types.MmdlReportData;
   const isCHP = data.programType == "CHP";
   const secretExists = await Libs.doesSecretExist(region, secretId);
   const secSinceMmdlSigned = data.secSinceMmdlSigned || 0;
@@ -54,7 +54,11 @@ exports.handler = async function (
     throw "transmittal number required to get email content";
   }
 
-  const emailContent = getEmailContent({ id: data.TN, isUrgent });
+  const emailContent = getEmailContent({
+    id: data.TN,
+    isUrgent,
+    programType: data.programType,
+  });
   const emailBody = getEmailBody(emailContent);
   const subjectText = `${data.TN} - ACTION REQUIRED - No matching record in SEA Tool`;
 
@@ -74,7 +78,7 @@ exports.handler = async function (
 
       await Libs.putLogsEvent({
         type: "NOTFOUND-MMDL",
-        message: `Alert for id: ${data.id} with transmittal number: ${data.TN} - TEST `,
+        message: `Alert for id: ${data.PK} with transmittal number: ${data.TN} - TEST `,
       });
     } else {
       // if secrests does exist
@@ -106,7 +110,7 @@ exports.handler = async function (
 
       await Libs.putLogsEvent({
         type: "NOTFOUND-MMDL",
-        message: `Alert for id: ${data.id} with transmittal number: ${
+        message: `Alert for id: ${data.PK} with transmittal number: ${
           data.TN
         } - to ${[...ToAddresses, ...CcAddresses].join(", ")}`,
       });

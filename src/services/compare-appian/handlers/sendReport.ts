@@ -60,13 +60,18 @@ exports.handler = async function (event: { recipient: string }) {
     throw "process.env.statusTable needs to be defined.";
   }
 
-  try {
-    const data = await Libs.scanTable(process.env.statusTable);
-    const reportDataJson = formatReportData(data);
-    const csv = Libs.getCsvFromJson(reportDataJson);
-    const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
+  const params = {
+    TableName: process.env.statusTable,
+  };
 
-    await Libs.sendAttachment(mailOptions);
+  try {
+    const data = await Libs.scanTable<Types.AppianReportData>(params);
+    if (data) {
+      const reportDataJson = formatReportData(data);
+      const csv = Libs.getCsvFromJson(reportDataJson);
+      const mailOptions = getMailOptionsWithAttachment(recipientEmail, csv);
+      await Libs.sendAttachment(mailOptions);
+    }
   } catch (e) {
     await Libs.trackError(e);
   }
