@@ -58,6 +58,7 @@ exports.handler = async function (
     id: data.TN,
     isUrgent,
     seatoolLink: process.env.seatoolLink || "https://sea.cms.gov/",
+    isCHP,
   });
   const emailBody = getEmailBody(emailContent);
   const subjectText = `${data.TN} - ACTION REQUIRED - No matching record in SEA Tool`;

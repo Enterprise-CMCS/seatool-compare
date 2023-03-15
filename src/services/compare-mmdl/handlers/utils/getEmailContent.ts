@@ -2,10 +2,12 @@ export const getEmailContent = ({
   id,
   isUrgent,
   seatoolLink,
+  isCHP,
 }: {
   id: string;
   isUrgent: boolean;
   seatoolLink: string;
+  isCHP: boolean;
 }) => {
   const htmlData = `
         <html lang='en'>
@@ -23,7 +25,9 @@ export const getEmailContent = ({
                 <p>Either a record wasn't created in SEA Tool, or the SPA ID in MMDL and SEA Tool don't match.</p>
                 ${
                   isUrgent
-                    ? "<em>Failure to address this could lead to critical delays in the review process and a deemed approved SPA or waiver action.</em>"
+                    ? `<em>Failure to address this could lead to critical delays in the review process and a deemed approved SPA$${
+                        isCHP ? `.` : ` or waiver action.`
+                      }</em>`
                     : ""
                 }
                 <br>
