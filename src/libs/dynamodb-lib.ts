@@ -6,6 +6,8 @@ import {
   GetItemCommandInput,
   DeleteItemCommand,
   DeleteItemCommandInput,
+  ScanCommandInput,
+  ScanCommandOutput,
 } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { sendMetricData } from "./cloudwatch-lib";
@@ -22,7 +24,7 @@ export async function putItem({
   item,
 }: {
   tableName: string;
-  item: { [key: string]: any };
+  item: { [key: string]: NativeAttributeValue };
 }) {
   const params = {
     TableName: tableName,
@@ -32,13 +34,11 @@ export async function putItem({
   };
 
   try {
-    if (item && item.id) console.log(`Putting item with id: ${item.id}:`);
-
     const command = new PutItemCommand(params);
     const result = await client.send(command);
-    if (item && item.id)
+    if (result)
       console.log(
-        `Record processed for item: ${item.id}:`,
+        `Record processed for result: `,
         JSON.stringify(result, null, 2)
       );
 
@@ -99,14 +99,21 @@ const ddbDocClient = DynamoDBDocumentClient.from(client, {
   marshallOptions,
 });
 
-export const scanTable = async (tableName: string) => {
-  const params = {
-    TableName: tableName,
-  };
+export const scanTable = async <T>(params: ScanCommandInput) => {
   try {
-    const raw = await ddbDocClient.send(new ScanCommand(params));
-    const data = raw.Items?.map(unmarshall as any);
-    return data;
+    const scanResults: T[] = [];
+    let items: ScanCommandOutput;
+
+    do {
+      items = await ddbDocClient.send(new ScanCommand(params));
+      const Items = items.Items?.map(unmarshall as any);
+      if (Items) {
+        Items.forEach((item) => scanResults.push(item as any));
+      }
+      params.ExclusiveStartKey = items.LastEvaluatedKey;
+    } while (typeof items.LastEvaluatedKey !== "undefined");
+
+    return scanResults;
   } catch (err) {
     console.log("Error", err);
     return;

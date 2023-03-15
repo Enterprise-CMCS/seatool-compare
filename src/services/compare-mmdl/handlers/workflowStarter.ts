@@ -1,44 +1,43 @@
 import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
 import { getItem, trackError } from "../../../libs";
-import { getMmdlSigInfo } from "./utils/getMmdlInfoFromRecord";
 import * as Types from "../../../types";
 
 /* This is the Lambda function that is triggered by the DynamoDB stream. It is responsible for starting
 the Step Function execution. */
 exports.handler = async function (event: {
-  Records: { dynamodb: { Keys: { id: { S: any } } } }[];
+  Records: { dynamodb: { Keys: { SK: { S: string }; PK: { S: string } } } }[];
 }) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const client = new SFNClient({ region: process.env.region });
-  const id = event.Records[0].dynamodb.Keys.id.S;
+  const PK = event.Records[0].dynamodb.Keys.PK.S;
+  const SK = event.Records[0].dynamodb.Keys.SK.S;
+  const key = { PK, SK };
 
   if (!process.env.mmdlTableName) {
     throw "process.env.mmdlTableName needs to be defined.";
   }
 
+  if (process.env.workflowsStatus !== "ON") {
+    console.log(
+      'Workflows status is currently not "ON". not starting workflow'
+    );
+    return;
+  }
+
   /* Retrieving the record from the DynamoDB table. */
-  const mmdlRecord = await getItem({
+  const mmdlRecord = (await getItem({
     tableName: process.env.mmdlTableName,
-    key: { id },
-  });
+    key,
+  })) as Types.MmdlRecord;
 
-  /* A function that returns an object with the following properties:
-  - mmdlSigned: boolean
-  - secSinceMmdlSigned?: number */
-  const sigInfo = getMmdlSigInfo(mmdlRecord as Types.MmdlRecord);
+  if (!mmdlRecord) {
+    throw "No mmdl record found";
+  }
 
-  /* Checking if the mmdl was signed within the last 250 days. */
-  if (
-    sigInfo.mmdlSigned &&
-    sigInfo.secSinceMmdlSigned &&
-    sigInfo.secSinceMmdlSigned < 21686400
-  ) {
-    /* Creating an object that will be passed to the StartExecutionCommand. */
+  if (mmdlRecord.clockStarted) {
     const params = {
-      input: JSON.stringify({
-        id,
-      }),
-      name: id,
+      input: JSON.stringify(key),
+      name: `v1-${PK}`,
       stateMachineArn: process.env.stateMachineArn,
     };
 
@@ -58,6 +57,6 @@ exports.handler = async function (event: {
       console.log("finally");
     }
   } else {
-    console.log(`Record ${id} not signed within last 250 days. Ignoring...`);
+    console.log("MMDL Record clock not started, ignoring.");
   }
 };
