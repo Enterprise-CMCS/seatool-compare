@@ -106,7 +106,7 @@ params:
     tempWaitSec: 43200 # 12 hours
     sinceSubmissionChoiceSec: 3
     recordAgeChoiceSec: 17366000 # 201 days
-    workflowsStatus: OFF
+    workflowsStatus: ON
 
 custom:
   project: ${env:PROJECT}

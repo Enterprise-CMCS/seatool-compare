@@ -67,6 +67,7 @@ describe("mmdl sink service tests", () => {
         status: 99,
         statuses: undefined,
         clockStartDate: 12345678,
+        clockStarted: true,
         programType: "ABP",
         mmdlSigned: true,
         mmdlSigDate: "01/31/2019",

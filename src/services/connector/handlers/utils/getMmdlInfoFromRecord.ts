@@ -18,25 +18,26 @@ export function getMmdlSigInfo(
   if (!!mmdlRecord?.stMedDirSgnDt?.FIELD_VALUE) {
     const dateSigned = mmdlRecord.stMedDirSgnDt?.FIELD_VALUE;
 
-    let statuses: any[] = [];
-    if (mmdlRecord.statuses) {
-      statuses = mmdlRecord.statuses.sort(
-        (a, b) => b.APLCTN_LIFE_CYC_STUS_CD - a.APLCTN_LIFE_CYC_STUS_CD
-      );
-    }
-
-    // we add a default here so there is allways a number value
-    const status = statuses[0]?.APLCTN_LIFE_CYC_STUS_CD ?? 99;
-    const lastStatus = statuses[1]?.APLCTN_LAST_LIFE_CYC_STUS_CD ?? 99;
-
-    const isStatusSubmitted = status === 1;
-
     result.mmdlSigned = true;
     result.mmdlSigDate = dateSigned;
-    result.status = status;
-    result.lastStatus = lastStatus;
-    result.isStatusSubmitted = isStatusSubmitted;
   }
+
+  let statuses: any[] = [];
+  if (mmdlRecord.statuses) {
+    statuses = mmdlRecord.statuses.sort(
+      (a, b) => b.APLCTN_LIFE_CYC_STUS_CD - a.APLCTN_LIFE_CYC_STUS_CD
+    );
+  }
+
+  // we add a default here so there is allways a number value
+  const status = statuses[0]?.APLCTN_LIFE_CYC_STUS_CD ?? 99;
+  const lastStatus = statuses[1]?.APLCTN_LAST_LIFE_CYC_STUS_CD ?? 99;
+
+  const isStatusSubmitted = status === 1;
+  result.status = status;
+  result.lastStatus = lastStatus;
+  result.isStatusSubmitted = isStatusSubmitted;
+
   return result;
 }
 
