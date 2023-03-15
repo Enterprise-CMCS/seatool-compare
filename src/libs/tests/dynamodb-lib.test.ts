@@ -11,7 +11,7 @@ import {
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 const dynamoClientMock = mockClient(DynamoDBClient);
-
+const dynamoDBScanClientMock = mockClient(DynamoDBDocumentClient);
 describe("dynamoDB tests", () => {
   beforeEach(() => {
     process.env.region = "test-region";
@@ -60,8 +60,6 @@ describe("dynamoDB tests", () => {
   });
 
   it("should successfully scan a table", async () => {
-    const dynamoDBScanClientMock = mockClient(DynamoDBDocumentClient);
-
     const scanItemResponse = {
       $metadata: {
         httpStatusCode: 200,
@@ -73,7 +71,7 @@ describe("dynamoDB tests", () => {
     };
     dynamoDBScanClientMock.on(ScanCommand).resolves(scanItemResponse);
 
-    const response = await scanTable("test-tables");
+    const response = await scanTable({ TableName: "test-tables" });
     const item = response?.[0] as { id: string };
     const id = item.id;
     expect(id).toEqual("2000");

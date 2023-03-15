@@ -10,7 +10,7 @@ function formatDateString(dateMs: number) {
 function formatReportData(data: Types.AppianReportData[]) {
   return data.map((i) => {
     return {
-      PCKG_ID: i.id,
+      PCKG_ID: i.PK,
       "SPA ID": i.SPA_ID,
       "Iterations ": i.iterations,
       "Submission Date": i.appianSubmittedDate
