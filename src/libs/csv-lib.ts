@@ -9,5 +9,6 @@ export function getCsvFromJson(json: any) {
     return csv;
   } catch (err) {
     console.error(err);
+    return err;
   }
 }

@@ -43,25 +43,21 @@ describe("sendMetricData", () => {
   });
 
   it("should return a successful put of an error log", async () => {
-    const responseObj = {
-      nextSequenceToken: "string",
-      rejectedLogEventsInfo: {
-        expiredLogEventEndIndex: 1,
-        tooNewLogEventStartIndex: 2,
-        tooOldLogEventEndIndex: 3,
+    const metricResponse = {
+      $metadata: {
+        httpStatusCode: 200,
+        requestId: "d8680883-37ca-49e4-8619-e43d1e3a391b",
+        attempts: 1,
+        totalRetryDelay: 0,
       },
     };
-    cloudWatchClientLogMock.on(PutLogEventsCommand).resolves(responseObj);
-    console.log = vi.fn();
+    cloudWatchClientLogMock.on(PutLogEventsCommand).resolves(metricResponse);
 
-    await putLogsEvent({
+    const result = await putLogsEvent({
       type: "NOMATCH-APPIAN",
       message: "Error",
     });
 
-    expect(console.log).toHaveBeenCalledWith(
-      "Response from sending log event:",
-      JSON.stringify(responseObj, null, 2)
-    );
+    expect(result?.$metadata.httpStatusCode).toEqual(200);
   });
 });
