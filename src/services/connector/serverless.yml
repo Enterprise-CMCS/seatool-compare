@@ -48,6 +48,7 @@ provider:
         - Effect: "Allow"
           Action:
             - dynamodb:PutItem
+            - dynamodb:DeleteItem
           Resource:
             - ${param:seatoolTableArn}
             - ${param:mmdlTableArn}
