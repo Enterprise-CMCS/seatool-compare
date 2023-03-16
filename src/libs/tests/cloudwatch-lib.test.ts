@@ -42,6 +42,17 @@ describe("sendMetricData", () => {
     expect(result).toEqual(metricResponse);
   });
 
+  it("should unsuccessfuly put metric response", async () => {
+    cloudWatchClientMock.on(PutMetricDataCommand).rejects("error");
+
+    const result = await sendMetricData({
+      Namespace: "test",
+      MetricData: [{ MetricName: "name" }],
+    });
+
+    expect(result).toBeUndefined();
+  });
+
   it("should return a successful put of an error log", async () => {
     const metricResponse = {
       $metadata: {
@@ -59,5 +70,16 @@ describe("sendMetricData", () => {
     });
 
     expect(result?.$metadata.httpStatusCode).toEqual(200);
+  });
+
+  it("should unsuccessfully put of an error log", async () => {
+    cloudWatchClientLogMock.on(PutLogEventsCommand).rejects("error");
+
+    const result = await putLogsEvent({
+      type: "NOMATCH-APPIAN",
+      message: "Error",
+    });
+
+    expect(result).toBeUndefined();
   });
 });

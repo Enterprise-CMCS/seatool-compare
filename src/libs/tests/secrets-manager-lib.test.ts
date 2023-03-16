@@ -19,6 +19,14 @@ describe("secrets manager lib", () => {
     expect(response).toEqual("test");
   });
 
+  it("should return undefined when there is an error getting a response", async () => {
+    secretClientMock.on(GetSecretValueCommand).rejects("error");
+
+    const response = await getSecretsValue("test-region", "email");
+
+    expect(response).toBeUndefined();
+  });
+
   it("should successfully return if secret exist", async () => {
     secretClientMock
       .on(ListSecretsCommand)

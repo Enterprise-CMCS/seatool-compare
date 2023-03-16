@@ -63,5 +63,6 @@ export async function putLogsEvent({
     return response;
   } catch (e) {
     console.log("Error from sending log event", e);
+    return;
   }
 }

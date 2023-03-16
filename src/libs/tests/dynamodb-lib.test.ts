@@ -7,6 +7,7 @@ import {
   GetItemCommand,
   ScanCommand,
   DeleteItemCommand,
+  DeleteItemCommandOutput,
 } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
@@ -38,6 +39,19 @@ describe("dynamoDB tests", () => {
     expect(response?.$metadata.httpStatusCode).toEqual(200);
   });
 
+  it("should unsuccessfully put an item", async () => {
+    const putItemParam = { id: "2000" };
+
+    dynamoClientMock.on(PutItemCommand).rejects;
+
+    const response = await putItem({
+      tableName: "test-table",
+      item: putItemParam,
+    });
+
+    expect(response).toBeUndefined();
+  });
+
   it("should successfully get an item", async () => {
     const getItemParam = { id: "2000" };
     const getItemResponse = {
@@ -59,6 +73,19 @@ describe("dynamoDB tests", () => {
     expect(response?.id).toEqual("2000");
   });
 
+  it("should unsuccessfully get an item", async () => {
+    const getItemParam = { id: "2000" };
+
+    dynamoClientMock.on(GetItemCommand).rejects("error");
+
+    const response = await getItem({
+      tableName: "test-table",
+      key: getItemParam,
+    });
+
+    expect(response).toBeNull();
+  });
+
   it("should successfully scan a table", async () => {
     const scanItemResponse = {
       $metadata: {
@@ -77,6 +104,13 @@ describe("dynamoDB tests", () => {
     expect(id).toEqual("2000");
   });
 
+  it("should unsuccessfully scan a table", async () => {
+    dynamoDBScanClientMock.on(ScanCommand).rejects("error");
+
+    const response = await scanTable({ TableName: "test-tables" });
+    expect(response).toBeUndefined();
+  });
+
   it("should successfully delete a table item", async () => {
     const deleteItemParam = { id: "2000" };
     const deleteItemResponse = {
@@ -88,12 +122,19 @@ describe("dynamoDB tests", () => {
       },
     };
     dynamoClientMock.on(DeleteItemCommand).resolves(deleteItemResponse);
+    const results = (await deleteItem({
+      tableName: "test-table",
+      key: deleteItemParam,
+    })) as DeleteItemCommandOutput;
+    expect(results?.$metadata.httpStatusCode).toEqual(200);
+  });
 
-    expect(() =>
-      deleteItem({
-        tableName: "test-table",
-        key: deleteItemParam,
-      })
-    ).not.toThrow();
+  it("should unsuccessfully delete a table item", async () => {
+    dynamoClientMock.on(DeleteItemCommand).rejects("error");
+    const results = (await deleteItem({
+      tableName: "test-table",
+      key: { id: "2000" },
+    })) as { message: string };
+    expect(results.message).toBe("error");
   });
 });

@@ -29,6 +29,18 @@ describe("sns lib", () => {
     expect(response).toEqual(sesResponse);
   });
 
+  it("should not successfully return a response object when sending an alert", async () => {
+    sesClientMock.on(SendEmailCommand).rejects("mocked rejection");
+
+    const response = await sendAlert({
+      Source: "",
+      Destination: {},
+      Message: { Body: {}, Subject: { Data: "" } },
+    });
+
+    expect(response).toBeUndefined();
+  });
+
   it("should successfully return a response object when an attachment successfully sends", async () => {
     vi.mock("nodemailer", () => ({
       createTransport: vi.fn().mockReturnValue({

@@ -36,4 +36,13 @@ describe("ecs lib tests", () => {
 
     expect(response).toEqual("700");
   });
+
+  it("should throw when task arns are undefined", async () => {
+    const listStacksCommandResponse = { taskArns: undefined };
+    ecsClientMock.on(ListTasksCommand).resolves(listStacksCommandResponse);
+
+    const response = await findIpForEcsService("test-cluster");
+
+    expect(response.message).toEqual("taskArns undefined");
+  });
 });

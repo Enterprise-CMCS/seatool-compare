@@ -6,7 +6,7 @@ import { mockClient } from "aws-sdk-client-mock";
 const snsClientMock = mockClient(SNSClient);
 
 describe("sns lib", () => {
-  it("should successfully return the error object when calling trackError", async () => {
+  it("should return the error object when calling trackError", async () => {
     const snsResponse = {
       $metadata: {
         httpStatusCode: 500,
