@@ -83,28 +83,28 @@ params:
     timeSinceClockStartChoiceSec: 345600 # 4 days
     recordAgeChoiceSec: 21686400 # 251 days
     workflowsStatus: ON
-    seatoolLink: https://seadev.cms.gov/
+    seatoolSubdomain: seadev
   val:
     initialWaitSec: 172800
     tempWaitSec: 172800
     timeSinceClockStartChoiceSec: 345600
     recordAgeChoiceSec: 21686400
     workflowsStatus: ON
-    seatoolLink: https://seaval.cms.gov/
+    seatoolSubdomain: seaval
   production:
     initialWaitSec: 172800
     tempWaitSec: 172800
     timeSinceClockStartChoiceSec: 345600
     recordAgeChoiceSec: 21686400
     workflowsStatus: OFF
-    seatoolLink: https://sea.cms.gov/
+    seatoolSubdomain: sea
   default:
     initialWaitSec: 300 # 5 mins
     tempWaitSec: 3600 # 1 hour
     timeSinceClockStartChoiceSec: 3
     recordAgeChoiceSec: 604800 # 7 days
     workflowsStatus: ON
-    seatoolLink: https://seadev.cms.gov/
+    seatoolSubdomain: seadev
 
 custom:
   project: ${env:PROJECT}

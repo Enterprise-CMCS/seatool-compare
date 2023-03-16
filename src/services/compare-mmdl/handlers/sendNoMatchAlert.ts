@@ -57,7 +57,7 @@ exports.handler = async function (
   const emailContent = getEmailContent({
     id: data.TN,
     isUrgent,
-    seatoolLink: process.env.seatoolLink || "https://sea.cms.gov/",
+    seatoolSubdomain: process.env.seatoolSubdomain,
     isCHP,
   });
   const emailBody = getEmailBody(emailContent);
