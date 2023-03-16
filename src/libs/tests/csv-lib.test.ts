@@ -10,7 +10,6 @@ describe("getCsvFromJson", () => {
     const test = getCsvFromJson(
       '"source": "u003Ca href="http: //twtr.jp" rel="nofollow"u003EKeitai Webu003C/au003E"'
     );
-    console.table(test);
     expect(test.message).toEqual(
       `Data should not be empty or the "fields" option should be included`
     );

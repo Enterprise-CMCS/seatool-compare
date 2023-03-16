@@ -1,4 +1,4 @@
-import { it, describe, expect, beforeEach, afterEach, vi } from "vitest";
+import { it, describe, expect, beforeEach, afterEach } from "vitest";
 import { sendMetricData, putLogsEvent } from "../cloudwatch-lib";
 import {
   PutMetricDataCommand,
