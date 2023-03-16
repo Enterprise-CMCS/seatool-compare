@@ -46,7 +46,7 @@ export async function findIpForEcsService(cluster: string | undefined) {
       }
     }
   } catch (e: any) {
-    console.error(e.meesage);
+    console.error(e.message);
     return e;
   }
 }
