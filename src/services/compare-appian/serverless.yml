@@ -162,14 +162,6 @@ functions:
       statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
       namespace: ${self:service}-${sls:stage}
-  sendDoesNotExistAlert:
-    handler: handlers/sendDoesNotExistAlert.handler
-    environment:
-      region: ${self:provider.region}
-      project: ${self:custom.project}
-      stage: ${sls:stage}
-      sesLogGroupName: ${param:sesLogGroupName}
-      errorsTopicArn: ${param:errorsTopicArn}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
     environment:
@@ -272,7 +264,7 @@ stepFunctions:
             Default: UpdateStatusTask
           SendNotExistTask:
             Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendDoesNotExistAlert"
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
             Parameters:
               Payload.$: $
             Next: UpdateStatusTask

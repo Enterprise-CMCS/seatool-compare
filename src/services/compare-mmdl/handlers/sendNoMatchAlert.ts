@@ -6,23 +6,35 @@ import { getEmailContent } from "./utils/getEmailContent";
 /*
   secret should be formatted like this: validate your JSON!!
   secret name: compare/[stage]/mmdl-alerts
+
   {
-    "sourceEmail":"someAuthorizedSender@example.com",
-    "CHP": {
-      "ToAddresses": ["probablySomeGovernmentEmail@example.com"],
-      "CcAddresses":[
-        {"email":"emailOne@example.com","alertIfGreaterThanSeconds":345600},
-        {"email":"emailTwo@example.com","alertIfGreaterThanSeconds":518400},
-      ]
-    },
-    "nonCHP":{
-      "ToAddresses":["probablySomeGovernmentEmail@example.com"],
-      "CcAddresses":[
-        {"email":"emailOne@example.com","alertIfGreaterThanSeconds":345600},
-        {"email":"emailTwo@example.com","alertIfGreaterThanSeconds":518400},
-      ]
-    }
+  	"sourceEmail": "someAuthorizedSender@example.com",
+  	"CHP": {
+  		"ToAddresses": ["probablySomeGovernmentEmail@example.com"],
+  		"CcAddresses": [{
+  				"email": "emailOne@example.com",
+  				"alertIfGreaterThanSeconds": 345600
+  			},
+  			{
+  				"email": "emailTwo@example.com",
+  				"alertIfGreaterThanSeconds": 518400
+  			}
+  		]
+  	},
+  	"nonCHP": {
+  		"ToAddresses": ["probablySomeGovernmentEmail@example.com"],
+  		"CcAddresses": [{
+  				"email": "emailOne@example.com",
+  				"alertIfGreaterThanSeconds": 345600
+  			},
+  			{
+  				"email": "emailTwo@example.com",
+  				"alertIfGreaterThanSeconds": 518400
+  			}
+  		]
+  	}
   }
+
 */
 
 exports.handler = async function (
