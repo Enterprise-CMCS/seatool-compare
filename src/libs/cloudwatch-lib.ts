@@ -60,7 +60,9 @@ export async function putLogsEvent({
       "Response from sending log event:",
       JSON.stringify(response, null, 2)
     );
+    return response;
   } catch (e) {
     console.log("Error from sending log event", e);
+    return;
   }
 }

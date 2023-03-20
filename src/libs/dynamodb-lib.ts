@@ -81,12 +81,19 @@ export async function getItem({
     TableName: tableName,
     Key: marshall(key),
   };
-  const item = (await client.send(new GetItemCommand(getItemCommandInput)))
-    .Item;
-  if (!item) return null;
 
-  /* Converting the DynamoDB record to a JavaScript object. */
-  return unmarshall(item);
+  try {
+    const item = (await client.send(new GetItemCommand(getItemCommandInput)))
+      ?.Item;
+
+    if (!item) return null;
+
+    /* Converting the DynamoDB record to a JavaScript object. */
+    return unmarshall(item);
+  } catch (e) {
+    console.table(e);
+    return null;
+  }
 }
 
 const marshallOptions = {
@@ -137,8 +144,12 @@ export async function deleteItem({
 
     console.log("DELETING ITEM:", deleteItemCommandInput);
 
-    await client.send(new DeleteItemCommand(deleteItemCommandInput));
+    const results = await client.send(
+      new DeleteItemCommand(deleteItemCommandInput)
+    );
+    return results;
   } catch (error) {
     console.log("ERROR Deleting Item: ", error);
+    return error;
   }
 }
