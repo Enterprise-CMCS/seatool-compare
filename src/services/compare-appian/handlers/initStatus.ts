@@ -8,11 +8,11 @@ exports.handler = async function (
   callback: Function
 ) {
   console.log("Received event:", JSON.stringify(event, null, 2));
-  const PK = event.Context.Execution.Input.PK.S;
-  const SK = event.Context.Execution.Input.SK.S;
+  const PK = event.Context.Execution.Input.PK;
+  const SK = event.Context.Execution.Input.SK;
   const key = { PK, SK };
   const data = { iterations: 0, ...key };
-
+  console.log(data);
   if (!process.env.statusTableName) {
     throw "process.env.statusTableName needs to be defined.";
   }
