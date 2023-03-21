@@ -12,8 +12,7 @@ exports.handler = async function (event: {
   const PK = event.Records[0].dynamodb.Keys.PK.S;
   const SK = event.Records[0].dynamodb.Keys.SK.S;
   const key = { PK, SK };
-  console.log(key);
-  console.log("input string:", JSON.stringify(key));
+
   if (!process.env.appianTableName) {
     throw "process.env.appianTableName needs to be defined.";
   }

@@ -12,7 +12,7 @@ exports.handler = async function (
   const SK = event.Context.Execution.Input.SK;
   const key = { PK, SK };
   const data = { iterations: 0, ...key };
-  console.log(data);
+
   if (!process.env.statusTableName) {
     throw "process.env.statusTableName needs to be defined.";
   }
