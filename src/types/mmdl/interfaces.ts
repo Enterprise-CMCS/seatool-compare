@@ -88,7 +88,6 @@ export interface MmdlSigInfo {
   mmdlSigned?: boolean;
   mmdlSigDate?: string;
   status?: number;
-  lastStatus?: number;
 }
 
 export interface MmdlReportData {
@@ -100,7 +99,6 @@ export interface MmdlReportData {
   seatoolExist: boolean;
   seatoolSigDate?: string;
   isStatusSubmitted?: boolean;
-  lastStatus?: number;
   status?: number;
   secSinceMmdlSigned?: number;
   mmdlSigned?: boolean;

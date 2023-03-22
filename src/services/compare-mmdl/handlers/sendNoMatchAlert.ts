@@ -2,6 +2,7 @@ import * as Libs from "../../../libs";
 import * as Types from "../../../types";
 import { getEmailBody } from "../../../libs";
 import { getEmailContent } from "./utils/getEmailContent";
+import { getIsIgnoredState } from "./utils/getIsIgnoredState";
 
 /*
   secret should be formatted like this: validate your JSON!!
@@ -58,6 +59,7 @@ exports.handler = async function (
   const isCHP = data.programType == "CHP";
   const secretExists = await Libs.doesSecretExist(region, secretId);
   const secSinceMmdlSigned = data.secSinceMmdlSigned || 0;
+  const isIgnoredState = getIsIgnoredState(data);
 
   // has this been signed more than five days ago - if so its urgent
   const isUrgent = secSinceMmdlSigned >= 432000; // five days
@@ -119,13 +121,18 @@ exports.handler = async function (
         ToAddresses,
       });
 
-      await Libs.sendAlert(emailParams);
+      if (!isIgnoredState) {
+        await Libs.sendAlert(emailParams);
+      }
 
       await Libs.putLogsEvent({
         type: "NOTFOUND-MMDL",
-        message: `Alert for id: ${data.PK} with transmittal number: ${
-          data.TN
-        } - to ${[...ToAddresses, ...CcAddresses].join(", ")}`,
+        message: `${isIgnoredState ? "TEST STATE - " : ""}Alert for id: ${
+          data.PK
+        } with transmittal number: ${data.TN} - to ${[
+          ...ToAddresses,
+          ...CcAddresses,
+        ].join(", ")}.`,
       });
     }
   } catch (e) {

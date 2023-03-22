@@ -84,6 +84,7 @@ params:
     recordAgeChoiceSec: 21686400 # 251 days
     workflowsStatus: ON
     seatoolSubdomain: seadev
+    ignoredStates:
   val:
     initialWaitSec: 172800
     tempWaitSec: 172800
@@ -91,6 +92,7 @@ params:
     recordAgeChoiceSec: 21686400
     workflowsStatus: ON
     seatoolSubdomain: seaval
+    ignoredStates:
   production:
     initialWaitSec: 172800
     tempWaitSec: 172800
@@ -98,6 +100,7 @@ params:
     recordAgeChoiceSec: 21686400
     workflowsStatus: OFF
     seatoolSubdomain: sea
+    ignoredStates: ZZ,ZT
   default:
     initialWaitSec: 300 # 5 mins
     tempWaitSec: 3600 # 1 hour
@@ -105,6 +108,7 @@ params:
     recordAgeChoiceSec: 604800 # 7 days
     workflowsStatus: ON
     seatoolSubdomain: seadev
+    ignoredStates: ZZ,ZT
 
 custom:
   project: ${env:PROJECT}
@@ -138,6 +142,7 @@ functions:
       mmdlTableName: ${param:mmdlTableName}
       seatoolTableName: ${param:seatoolTableName}
       errorsTopicArn: ${param:errorsTopicArn}
+      ignoredStates: ${param:ignoredStates}
   seatoolRecordExist:
     handler: handlers/seatoolRecordExist.handler
     environment:
@@ -153,6 +158,7 @@ functions:
       sesLogGroupName: ${param:sesLogGroupName}
       errorsTopicArn: ${param:errorsTopicArn}
       seatoolSubdomain: ${param:seatoolSubdomain}
+      ignoredStates: ${param:ignoredStates}
   getMmdlData:
     handler: handlers/getMmdlData.handler
     environment:
