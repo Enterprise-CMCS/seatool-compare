@@ -25,17 +25,15 @@ export function getMmdlSigInfo(
   let statuses: any[] = [];
   if (mmdlRecord.statuses) {
     statuses = mmdlRecord.statuses.sort(
-      (a, b) => b.APLCTN_LIFE_CYC_STUS_CD - a.APLCTN_LIFE_CYC_STUS_CD
+      (a, b) => b.REPLICA_TIMESTAMP - a.REPLICA_TIMESTAMP
     );
   }
 
   // we add a default here so there is allways a number value
   const status = statuses[0]?.APLCTN_LIFE_CYC_STUS_CD ?? 99;
-  const lastStatus = statuses[1]?.APLCTN_LAST_LIFE_CYC_STUS_CD ?? 99;
 
   const isStatusSubmitted = status === 1;
   result.status = status;
-  result.lastStatus = lastStatus;
   result.isStatusSubmitted = isStatusSubmitted;
 
   return result;
