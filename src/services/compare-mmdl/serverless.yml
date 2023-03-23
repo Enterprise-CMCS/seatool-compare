@@ -84,7 +84,7 @@ params:
     recordAgeChoiceSec: 21686400 # 251 days
     workflowsStatus: ON
     seatoolSubdomain: seadev
-    ignoredStates:
+    ignoredStates: N/A
   val:
     initialWaitSec: 172800
     tempWaitSec: 172800
@@ -92,7 +92,7 @@ params:
     recordAgeChoiceSec: 21686400
     workflowsStatus: ON
     seatoolSubdomain: seaval
-    ignoredStates:
+    ignoredStates: N/A
   production:
     initialWaitSec: 172800
     tempWaitSec: 172800
@@ -108,7 +108,7 @@ params:
     recordAgeChoiceSec: 604800 # 7 days
     workflowsStatus: ON
     seatoolSubdomain: seadev
-    ignoredStates:
+    ignoredStates: N/A
 
 custom:
   project: ${env:PROJECT}
