@@ -3,7 +3,6 @@ import * as compare from "../compare";
 import * as libs from "../../../../libs";
 
 const appianCompare = compare as { handler: Function };
-
 const callback = vi.fn();
 
 const event = {
@@ -20,7 +19,8 @@ const event = {
 
 describe("compare", () => {
   beforeEach(() => {
-    vi.spyOn(console, "log");
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(libs, "trackError");
   });
 
@@ -60,6 +60,10 @@ describe("compare", () => {
 
       await appianCompare.handler(malformedEvent, null, callback);
       expect(libs.trackError).toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalledWith(
+        "ERROR:",
+        JSON.stringify("Required SEA Tool data missing", null, 2)
+      );
     });
 
     it("should return data with match set to false if data doesn't include appianSubmittedDate", async () => {
