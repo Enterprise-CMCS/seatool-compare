@@ -1,6 +1,7 @@
 import * as Libs from "../../../libs";
 import { getItem } from "../../../libs";
 import * as Types from "../../../types";
+import { getIsIgnoredState } from "./utils/getIsIgnoredState";
 
 const convertMsToDate = (milliseconds?: number) => {
   if (!milliseconds) return "N/A";
@@ -13,6 +14,7 @@ const convertMsToDate = (milliseconds?: number) => {
 
 function formatReportData(data: Types.MmdlReportData[]) {
   return data.map((i) => {
+    const isIgnoredState = getIsIgnoredState(i);
     return {
       "Transmittal Number": i.TN,
       ID: i.PK,
@@ -21,6 +23,7 @@ function formatReportData(data: Types.MmdlReportData[]) {
       "Seatool Record Exist": i.seatoolExist || false,
       "Submitted Status": i.isStatusSubmitted,
       "MMDL Signed Date": i.mmdlSigDate,
+      "Alerts Ignored": isIgnoredState || false,
     };
   });
 }
