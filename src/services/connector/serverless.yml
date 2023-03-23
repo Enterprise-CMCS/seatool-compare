@@ -622,9 +622,9 @@ resources:
         Threshold: "75"
         ComparisonOperator: "GreaterThanOrEqualToThreshold"
         AlarmActions:
-          - ${param:ecsFailureTopicArn}
+          - ${param:alarmsTopicArn}
         OKActions:
-          - ${param:ecsFailureTopicArn}
+          - ${param:alarmsTopicArn}
     ConnectorECSMemoryAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
@@ -641,9 +641,9 @@ resources:
         Threshold: "75"
         ComparisonOperator: "GreaterThanOrEqualToThreshold"
         AlarmActions:
-          - ${param:ecsFailureTopicArn}
+          - ${param:alarmsTopicArn}
         OKActions:
-          - ${param:ecsFailureTopicArn}
+          - ${param:alarmsTopicArn}
     LambdaConfigureConnectorsSecurityGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
