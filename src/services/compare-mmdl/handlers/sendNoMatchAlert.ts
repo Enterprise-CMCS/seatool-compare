@@ -127,7 +127,7 @@ exports.handler = async function (
 
       await Libs.putLogsEvent({
         type: "NOTFOUND-MMDL",
-        message: `${isIgnoredState ? "TEST STATE - " : ""}Alert for id: ${
+        message: `${isIgnoredState ? "IGNORED STATE - " : ""}Alert for id: ${
           data.PK
         } with transmittal number: ${data.TN} - to ${[
           ...ToAddresses,

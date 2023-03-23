@@ -12,7 +12,7 @@ export const getIsIgnoredState = (data: Types.MmdlReportData) => {
   const isIgnoredState =
     testStatesList.indexOf(data.TN.slice(0, 2).toUpperCase()) > -1;
   if (isIgnoredState) {
-    console.log("TEST STATE - NO ALERTS WILL BE SENT");
+    console.log("IGNORED STATE - NO ALERTS WILL BE SENT");
     return true;
   } else {
     return false;
