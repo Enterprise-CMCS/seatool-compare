@@ -13,7 +13,10 @@ exports.handler = async function (
     if (has(data, ["seatoolRecord", "STATE_PLAN", "SUBMISSION_DATE"])) {
       data.seatoolSubmissionDate =
         data.seatoolRecord.STATE_PLAN.SUBMISSION_DATE;
+    } else {
+      throw "Required SEA Tool data missing";
     }
+
     if (
       data.appianSubmittedDate &&
       data.seatoolSubmissionDate &&
