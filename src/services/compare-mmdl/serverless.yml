@@ -108,7 +108,7 @@ params:
     recordAgeChoiceSec: 604800 # 7 days
     workflowsStatus: ON
     seatoolSubdomain: seadev
-    ignoredStates: ZZ,ZT
+    ignoredStates:
 
 custom:
   project: ${env:PROJECT}
