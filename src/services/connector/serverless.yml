@@ -619,7 +619,7 @@ resources:
           - Name: ServiceName
             Value: !GetAtt KafkaConnectService.Name
         Statistic: Average
-        Period: 600
+        Period: 60
         EvaluationPeriods: 2
         Threshold: 75
         ComparisonOperator: GreaterThanOrEqualToThreshold
