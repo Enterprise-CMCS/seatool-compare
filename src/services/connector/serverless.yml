@@ -614,8 +614,17 @@ resources:
         Namespace: AWS/ECS
         MetricName: "CPUUtilization"
         Dimensions:
+          - Name: ClusterName
+            Value: !Ref KafkaConnectCluster
           - Name: ServiceName
-            Value: !Ref KafkaConnectService
+            Value:
+              !Select [
+                2,
+                !Split [
+                  "/",
+                  !Select [5, !Split [":", !Ref KafkaConnectService]],
+                ],
+              ]
         Statistic: "Average"
         Period: "300"
         EvaluationPeriods: "2"
@@ -625,7 +634,7 @@ resources:
           - ${param:alarmsTopicArn}
         OKActions:
           - ${param:alarmsTopicArn}
-    ConnectorECSMemoryAlarm:
+    KafkaConnectServiceECSMemoryAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
         AlarmName: ${self:service}-${sls:stage}-KafkaConnectService-MemoryUtilization
@@ -633,8 +642,17 @@ resources:
         Namespace: AWS/ECS
         MetricName: "MemoryUtilization"
         Dimensions:
+          - Name: ClusterName
+            Value: !Ref KafkaConnectCluster
           - Name: ServiceName
-            Value: !Ref KafkaConnectService
+            Value:
+              !Select [
+                2,
+                !Split [
+                  "/",
+                  !Select [5, !Split [":", !Ref KafkaConnectService]],
+                ],
+              ]
         Statistic: "Average"
         Period: "300"
         EvaluationPeriods: "2"
