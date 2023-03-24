@@ -85,6 +85,7 @@ params:
     workflowsStatus: ON
     seatoolSubdomain: seadev
     ignoredStates: N/A
+    skipWait: false
   val:
     initialWaitSec: 172800
     tempWaitSec: 172800
@@ -93,6 +94,7 @@ params:
     workflowsStatus: ON
     seatoolSubdomain: seaval
     ignoredStates: N/A
+    skipWait: false
   production:
     initialWaitSec: 172800
     tempWaitSec: 172800
@@ -101,6 +103,7 @@ params:
     workflowsStatus: OFF
     seatoolSubdomain: sea
     ignoredStates: ZZ,ZT
+    skipWait: false
   default:
     initialWaitSec: 300 # 5 mins
     tempWaitSec: 3600 # 1 hour
@@ -109,6 +112,7 @@ params:
     workflowsStatus: ON
     seatoolSubdomain: seadev
     ignoredStates: N/A
+    skipWait: true
 
 custom:
   project: ${env:PROJECT}
@@ -167,6 +171,11 @@ functions:
       stage: ${sls:stage}
       mmdlTableName: ${param:mmdlTableName}
       errorsTopicArn: ${param:errorsTopicArn}
+  getStartAtTimeStamp:
+    handler: handlers/getStartAtTimeStamp.handler
+    environment:
+      errorsTopicArn: ${param:errorsTopicArn}
+      skipWait: ${param:skipWait}
   stopExecutions:
     handler: handlers/stopExecutions.handler
     environment:
@@ -205,11 +214,17 @@ stepFunctions:
           - !GetAtt StateMachineLogGroup.Arn
       definition:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for MMDL."
-        StartAt: InitialWait
+        StartAt: GetStartAtTimeStampTask
         States:
+          GetStartAtTimeStampTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getStartAtTimeStamp"
+            Parameters:
+              Payload.$: $
+            Next: InitialWait
           InitialWait:
             Type: Wait
-            Seconds: ${param:initialWaitSec}
+            TimestampPath: $.startAtTimeStamp
             Next: GetMmdlDataTask
           GetMmdlDataTask:
             Type: Task
