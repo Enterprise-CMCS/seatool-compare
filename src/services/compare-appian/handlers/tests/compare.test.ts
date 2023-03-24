@@ -66,7 +66,7 @@ describe("compare", () => {
       );
     });
 
-    it("should return data with match set to false if data doesn't include appianSubmittedDate", async () => {
+    it("should send data to callback with match set to false if data doesn't include appianSubmittedDate", async () => {
       const noAppianDate = {
         Payload: {
           seatoolRecord: {
@@ -83,7 +83,7 @@ describe("compare", () => {
       expect(callback.mock.calls[0][1]["match"]).toBe(false);
     });
 
-    it("should return data with match set to false if appianSubmittedDate and SEA Tool submisison date don't match", async () => {
+    it("should send data to callback with match set to false if appianSubmittedDate and SEA Tool submisison date don't match", async () => {
       const mismatchedEvent = {
         Payload: {
           appianSubmittedDate: 1311638400000,
