@@ -9,17 +9,21 @@ import {
 } from "vitest";
 import * as libs from "../../../../libs";
 import * as getAppianData from "../getAppianData";
+import * as timeHelper from "../utils/timeHelper";
 
 const handler = getAppianData as { handler: Function };
 const callback = vi.fn();
 
+const mockSeconds = 9876543210;
+const mockSubmittedDate = 1311638400000;
+
 const event = {
   Payload: {
-    appianSubmittedDate: 1311638400000,
+    appianSubmittedDate: mockSubmittedDate,
     seatoolRecord: {
       STATE_PLAN: {
         ID_NUMBER: "NC-11-020",
-        SUBMISSION_DATE: 1311638400000,
+        SUBMISSION_DATE: mockSubmittedDate,
       },
     },
   },
@@ -29,14 +33,14 @@ const exampleAppianRecord = {
   PK: "test-pk",
   SK: "test-sk",
   payload: {
-    SBMSSN_DATE: 1311638400000,
+    SBMSSN_DATE: mockSubmittedDate,
     SPA_ID: "TEST-SPA-ID",
   },
 };
 
 describe("getAppianData", () => {
   describe("when process.env.appianTableName is not defined", () => {
-    it("should throw an error if process.env.appianTableName is not defined", async () => {
+    it("throws an error if process.env.appianTableName is not defined", async () => {
       await expect(() =>
         handler.handler(event, null, callback)
       ).rejects.toThrowError(
@@ -67,13 +71,13 @@ describe("getAppianData", () => {
         );
       });
 
-      it("should not throw an error when passed properly-formatted data", async () => {
+      it("does not throw an error when passed properly-formatted data", async () => {
         await handler.handler(event, null, callback);
         expect(libs.getItem).toHaveBeenCalledOnce();
         expect(libs.trackError).not.toHaveBeenCalled();
       });
 
-      it("should log the received event in the expected format", async () => {
+      it("logs the received event in the expected format", async () => {
         await handler.handler(event, null, callback);
 
         expect(console.log).toHaveBeenCalledWith(
@@ -82,7 +86,7 @@ describe("getAppianData", () => {
         );
       });
 
-      it("should include appianRecord in the data sent to callback", async () => {
+      it("includes appianRecord in the callback data", async () => {
         await handler.handler(event, null, callback);
         expect(callback.mock.calls[0][1].hasOwnProperty("appianRecord")).toBe(
           true
@@ -92,10 +96,65 @@ describe("getAppianData", () => {
         );
       });
 
-      it("should include SPA_ID in the data sent to the callback", async () => {
+      it("includes SPA_ID in the callback data", async () => {
         await handler.handler(event, null, callback);
         expect(callback.mock.calls[0][1].hasOwnProperty("SPA_ID")).toBe(true);
         expect(callback.mock.calls[0][1]["SPA_ID"]).toBe("TEST-SPA-ID");
+      });
+
+      it("includes seconds since Appian record submission", async () => {
+        vi.spyOn(timeHelper, "secondsBetweenDates").mockImplementation(
+          () => mockSeconds
+        );
+
+        await handler.handler(event, null, callback);
+        expect(
+          callback.mock.calls[0][1].hasOwnProperty("secSinceAppianSubmitted")
+        ).toBe(true);
+        expect(callback.mock.calls[0][1]["secSinceAppianSubmitted"]).toBe(
+          mockSeconds
+        );
+      });
+
+      it("sets isAppianSubmitted to true when expected", async () => {
+        const submittedAppianRecord = {
+          PK: "test-pk",
+          SK: "test-sk",
+          payload: {
+            SBMSSN_DATE: 1311638400000,
+            SBMSSN_TYPE: "oFfIcIaL", // this should be case insensitive
+            SPA_ID: "TEST-SPA-ID",
+            SPA_PCKG_ID: "test-o",
+          },
+        };
+
+        vi.spyOn(libs, "getItem").mockImplementation(
+          async () => submittedAppianRecord
+        );
+
+        await handler.handler(event, null, callback);
+        expect(
+          callback.mock.calls[0][1].hasOwnProperty("isAppianSubmitted")
+        ).toBe(true);
+        expect(callback.mock.calls[0][1]["isAppianSubmitted"]).toBe(true);
+      });
+
+      it("sets isAppianSubmitted to false when expected", async () => {
+        await handler.handler(event, null, callback);
+        expect(
+          callback.mock.calls[0][1].hasOwnProperty("isAppianSubmitted")
+        ).toBe(true);
+        expect(callback.mock.calls[0][1]["isAppianSubmitted"]).toBe(false);
+      });
+
+      it("includes appianSubmittedDate in the callback data", async () => {
+        await handler.handler(event, null, callback);
+        expect(
+          callback.mock.calls[0][1].hasOwnProperty("appianSubmittedDate")
+        ).toBe(true);
+        expect(callback.mock.calls[0][1]["appianSubmittedDate"]).toBe(
+          mockSubmittedDate
+        );
       });
     });
 
@@ -108,7 +167,7 @@ describe("getAppianData", () => {
         vi.clearAllMocks();
       });
 
-      it("should throw an error when no Appian record is found", async () => {
+      it("throws an error when no Appian record is found", async () => {
         await handler.handler(event, null, callback);
         expect(libs.getItem).toHaveBeenCalledOnce();
         expect(libs.trackError).toHaveBeenCalled();
