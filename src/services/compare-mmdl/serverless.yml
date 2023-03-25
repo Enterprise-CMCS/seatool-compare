@@ -79,7 +79,7 @@ provider:
 params:
   master:
     tempWaitSec: 172800 # 2 days
-    timeSinceClockStartChoiceSec: 345600 # 4 days
+    timeSinceClockStartChoiceSec: 259200 # 3 days
     recordAgeChoiceSec: 21686400 # 251 days
     workflowsStatus: ON
     seatoolSubdomain: seadev
@@ -87,7 +87,7 @@ params:
     skipWait: false
   val:
     tempWaitSec: 172800
-    timeSinceClockStartChoiceSec: 345600
+    timeSinceClockStartChoiceSec: 259200
     recordAgeChoiceSec: 21686400
     workflowsStatus: ON
     seatoolSubdomain: seaval
@@ -95,7 +95,7 @@ params:
     skipWait: false
   production:
     tempWaitSec: 172800
-    timeSinceClockStartChoiceSec: 345600
+    timeSinceClockStartChoiceSec: 259200
     recordAgeChoiceSec: 21686400
     workflowsStatus: OFF
     seatoolSubdomain: sea

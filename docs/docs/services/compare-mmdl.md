@@ -19,8 +19,8 @@ the wokflowStarter lambda has an mmdl stream which receives all change events to
 
 
 
-The state machine is kicked off with the getStartAtTimeStamp function which generates a time to start the state machine based on stage parameter. In higher environments this function will produce a timestamp of 8am EST three days following the day it was started.
-ex. a record submitted at 4pm ET on a tue will result in the state machine initializing at 8am EST on that friday. For default branches this time will be ten minutes from when submitted to allow for a more immediate feedback loop when testing.
+The state machine is kicked off with the getStartAtTimeStamp function which generates a time to start the state machine based on stage parameter. In higher environments this function will produce a timestamp of 8am EST two days following the day it was started.
+ex. a record submitted at 4pm ET on a Tue will result in the state machine initializing at 8am EST on that Thu. For default branches this time will be ten minutes from when submitted to allow for a more immediate feedback loop when testing.
 
 After the initialWait the mmdl record is retrieved from the mmdl dynamo table, we check to see if a seatool record exists for the same id, if one exists we compare the records to see if they were both signed on the same date, if not an email is sent to the recipients defined by the values returned from secrets manager indicating that no match has been found.
 

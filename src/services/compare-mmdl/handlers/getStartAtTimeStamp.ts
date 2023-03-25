@@ -7,15 +7,15 @@ const getTenMinutesFromNow = () => {
   return tenMinutesFromNow;
 };
 
-// 8am EST three days from now
+// 8am EST two days from now
 const getTimeToStart = () => {
   const date = new Date();
 
   // Set the UTC Hours to 12 (8AM EST)
   date.setUTCHours(12, 0, 0, 0);
 
-  // Add 3 days to the date
-  date.setDate(date.getDate() + 3);
+  // Add 2 days to the date
+  date.setDate(date.getDate() + 2);
 
   const timeToStart = date.toISOString();
   return timeToStart;
