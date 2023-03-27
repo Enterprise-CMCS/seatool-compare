@@ -170,6 +170,7 @@ functions:
   getStartAtTimeStamp:
     handler: handlers/getStartAtTimeStamp.handler
     environment:
+      region: ${self:provider.region}
       errorsTopicArn: ${param:errorsTopicArn}
       skipWait: ${param:skipWait}
   stopExecutions:
