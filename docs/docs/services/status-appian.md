@@ -16,7 +16,8 @@ nav_order: 6
 
 #### Fields
 - There several possible fields for these records:
-  - `id: string` ID - id of the mmdl record they reference. 
+  - `PK: string`  The partition key which is the PCKG_ID id of the appian record they reference. 
+  - `SK: string`  The sort key id which is the PCKG_ID of the appian record they reference. 
   - `SPA_ID: string` SPA_ID - id of the SPA_ID record they reference, should match SEATool.id. 
   - `iterations: number` - number of times the record has gone through the workflow.
   - `isAppianSubmitted: boolean` - submitted state of appian data.
