@@ -1,0 +1,735 @@
+service: ${self:custom.project}-connector
+
+frameworkVersion: "3"
+
+package:
+  individually: true
+
+plugins:
+  - serverless-plugin-scripts
+  - serverless-stack-termination-protection
+  - serverless-step-functions
+  - "@stratiformdigital/serverless-iam-helper"
+  - "@stratiformdigital/serverless-online"
+  - "@stratiformdigital/serverless-s3-security-helper"
+  - serverless-esbuild
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${env:REGION_A}
+  stackTags:
+    PROJECT: ${self:custom.project}
+    SERVICE: ${self:service}
+  iam:
+    role:
+      path: /delegatedadmin/developer/
+      permissionsBoundary: arn:aws:iam::${aws:accountId}:policy/cms-cloud-admin/developer-boundary-policy
+      statements:
+        - Effect: "Allow"
+          Action:
+            - ec2:CreateNetworkInterface
+            - ec2:DeleteNetworkInterface
+            - ec2:DetachNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DescribeSecurityGroups
+            - ec2:DescribeSubnets
+            - ec2:DescribeVpcs
+          Resource: "*"
+        - Effect: "Allow"
+          Action:
+            - ecs:ListTasks
+            - ecs:DescribeTasks
+          Resource: "*"
+        - Effect: "Allow"
+          Action:
+            - cloudwatch:PutMetricData
+          Resource: "*"
+        - Effect: "Allow"
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:DeleteItem
+          Resource:
+            - ${param:seatoolTableArn}
+            - ${param:mmdlTableArn}
+            - ${param:appianTableArn}
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource:
+            - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/*"
+        - Effect: Allow
+          Action:
+            - secretsmanager:ListSecrets
+          Resource:
+            - "*"
+
+custom:
+  project: ${env:PROJECT}
+  serverlessTerminationProtection:
+    stages: # Apply CloudFormation termination protection for these stages
+      - master
+      - val
+      - production
+  vpc: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/vpc, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/vpc}
+  brokerString: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/brokerString, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/brokerString}
+  connectImage: ${ssm:/aws/reference/secretsmanager/ecr/images/${self:custom.project}/${self:service}, "confluentinc/cp-kafka-connect:6.0.9"}
+  scripts:
+    hooks:
+      deploy:finalize: |
+        configureConnector() {
+          echo "Configuring Connector $1"
+          execution=`aws stepfunctions start-sync-execution --cli-read-timeout 300 --state-machine-arn arn:aws:states:${self:provider.region}:${aws:accountId}:stateMachine:${self:service}-${sls:stage}-configure-connector --region ${self:provider.region} --input "{\"cluster\" : \"${self:service}-${sls:stage}-connect\", \"connectorConfigSecret\": \"${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/$1\"}"`
+          if ! echo $execution | grep -q "\"status\": \"SUCCEEDED\""; then
+            echo "ERROR:  The connector was not successfully configured.  Please check CloudWatch logs." && exit 1
+          fi
+        }
+        set +x
+        configureConnector ${self:service}-${sls:stage}.lambda.appianData
+        configureConnector ${self:service}-${sls:stage}.lambda.seatoolData
+        configureConnector ${self:service}-${sls:stage}.lambda.mmdlData
+    commands:
+      connect: |
+        runningTasks=(`aws --region ${self:provider.region} ecs list-tasks --cluster ${self:service}-${sls:stage}-connect --desired-status RUNNING | jq -r ".taskArns[]"`)
+        echo "\nThe following command(s) may be used to exec onto running fargate tasks.  Note, if there are no commands shown, there are no runnings tasks:"
+        for task in "${runningTasks[@]}"
+        do
+          echo """
+          To conect to the connector, run:
+          aws --region ${self:provider.region} ecs execute-command --cluster ${self:service}-${sls:stage}-connect --task ${task##*/} --container connect --interactive --command "/bin/sh"
+          """
+        done
+
+params:
+  master:
+    topicNamespace: ""
+  val:
+    topicNamespace: ""
+  production:
+    topicNamespace: ""
+  default:
+    topicNamespace: --${self:custom.project}--${sls:stage}--
+
+functions:
+  findTaskIp:
+    handler: handlers/connect.findTaskIp
+    maximumRetryAttempts: 0
+    timeout: 30
+  checkIfConnectIsReady:
+    handler: handlers/connect.checkIfConnectIsReady
+    maximumRetryAttempts: 0
+    timeout: 180
+    vpc:
+      securityGroupIds:
+        - Ref: LambdaConfigureConnectorsSecurityGroup
+      subnetIds: >-
+        ${self:custom.vpc.privateSubnets}
+  createConnector:
+    handler: handlers/connect.createConnector
+    maximumRetryAttempts: 0
+    timeout: 180
+    vpc:
+      securityGroupIds:
+        - Ref: LambdaConfigureConnectorsSecurityGroup
+      subnetIds: >-
+        ${self:custom.vpc.privateSubnets}
+  sinkAppianData:
+    handler: handlers/sinkAppianData.handler
+    environment:
+      brokerString: ${self:custom.brokerString}
+      stage: ${sls.stage}
+      region: ${self:provider.region}
+      tableName: ${param:appianTableName}
+      namespace: ${self:service}-${sls:stage}
+  sinkSeatoolData:
+    handler: handlers/sinkSeatoolData.handler
+    environment:
+      brokerString: ${self:custom.brokerString}
+      stage: ${sls.stage}
+      region: ${self:provider.region}
+      tableName: ${param:seatoolTableName}
+      namespace: ${self:service}-${sls:stage}
+  sinkMmdlData:
+    handler: handlers/sinkMmdlData.handler
+    environment:
+      brokerString: ${self:custom.brokerString}
+      stage: ${sls.stage}
+      region: ${self:provider.region}
+      tableName: ${param:mmdlTableName}
+      namespace: ${self:service}-${sls:stage}
+  testConnectors:
+    handler: handlers/testConnectors.handler
+    environment:
+      cluster: !Ref KafkaConnectCluster
+      service: !Ref KafkaConnectService
+      namespace: ${self:service}-${sls:stage}
+      connectorConfigPrefix: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig
+    timeout: 300
+    events:
+      - schedule: cron(0/1 * ? * * *)
+    vpc:
+      securityGroupIds:
+        - Ref: LambdaConfigureConnectorsSecurityGroup
+      subnetIds: >-
+        ${self:custom.vpc.privateSubnets}
+
+stepFunctions:
+  stateMachines:
+    configure-connector:
+      name: ${self:service}-${sls:stage}-configure-connector
+      id: ConfigureConnectorStateMachine
+      type: EXPRESS
+      loggingConfig:
+        level: ALL
+        includeExecutionData: true
+        destinations:
+          - !GetAtt StateMachineLogGroup.Arn
+      definition:
+        Comment: "A state machine to configure Kafka Connectors."
+        StartAt: FindTaskIp
+        States:
+          FindTaskIp:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-findTaskIp"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: CheckConnect
+          CheckConnect:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-checkIfConnectIsReady"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: IsConnectReady
+          IsConnectReady:
+            Type: Choice
+            Choices:
+              - Variable: $.ready
+                BooleanEquals: true
+                Next: CreateConnector
+              - Variable: $.ready
+                BooleanEquals: false
+                Next: Wait5Seconds
+            Default: Wait5Seconds
+          Wait5Seconds:
+            Type: Wait
+            Seconds: 5
+            Next: CheckConnect
+          CreateConnector:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-createConnector"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: IsCreationSuccessful
+          IsCreationSuccessful:
+            Type: Choice
+            Choices:
+              - Variable: $.success
+                BooleanEquals: true
+                Next: SuccessState
+              - Variable: $.success
+                BooleanEquals: false
+                Next: Wait5Seconds
+            Default: Wait5Seconds
+          SuccessState:
+            Type: Succeed
+
+resources:
+  Resources:
+    KafkaConnectWorkerLogGroup:
+      Type: "AWS::Logs::LogGroup"
+      Properties:
+        LogGroupName: /aws/fargate/${self:service}-${sls:stage}-kafka-connect
+    ConnectorLogsErrorCount:
+      Type: AWS::Logs::MetricFilter
+      Properties:
+        LogGroupName:
+          Ref: "KafkaConnectWorkerLogGroup"
+        FilterName: ConnectorLogsErrorCount
+        FilterPattern: "ERROR"
+        MetricTransformations:
+          - MetricValue: "1"
+            DefaultValue: "0"
+            MetricNamespace: ${self:service}-${sls:stage}/Connector/ERRORS
+            MetricName: "ConnectorLogsErrorCount"
+            Unit: Count
+    ConnectorLogsErrorCountAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        DatapointsToAlarm: 1
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        AlarmName: ${self:service}-${sls:stage}-ConnectorLogsErrorCount
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        EvaluationPeriods: 2
+        Period: 300
+        Threshold: 1
+        MetricName: ConnectorLogsErrorCount
+        Namespace: ${self:service}-${sls:stage}/Connector/ERRORS
+        Statistic: Sum
+    ConnectorLogsWarnCount:
+      Type: AWS::Logs::MetricFilter
+      Properties:
+        LogGroupName:
+          Ref: "KafkaConnectWorkerLogGroup"
+        FilterName: ConnectorLogsWarnCount
+        FilterPattern: "WARN"
+        MetricTransformations:
+          - MetricValue: "1"
+            DefaultValue: "0"
+            MetricNamespace: ${self:service}-${sls:stage}/Connector/WARNS
+            MetricName: "ConnectorLogsWarnCount"
+            Unit: Count
+    ConnectorLogsWarnCountAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        DatapointsToAlarm: 1
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        AlarmName: ${self:service}-${sls:stage}-ConnectorLogsWarnCount
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        EvaluationPeriods: 2
+        Period: 300
+        Threshold: 1
+        MetricName: ConnectorLogsWarnCount
+        Namespace: ${self:service}-${sls:stage}/Connector/WARNS
+        Statistic: Sum
+    KafkaConnectWorkerSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Security Group for the Fargate Connect Workers.
+        VpcId: ${self:custom.vpc.id}
+    KafkaConnectWorkerSecurityGroupEgress:
+      Type: AWS::EC2::SecurityGroupEgress
+      Properties:
+        GroupId: !Ref KafkaConnectWorkerSecurityGroup
+        IpProtocol: -1
+        CidrIp: 0.0.0.0/0
+    KafkaConnectWorkerSecurityGroupIngressLambda:
+      Type: AWS::EC2::SecurityGroupIngress
+      Properties:
+        GroupId: !Ref KafkaConnectWorkerSecurityGroup
+        IpProtocol: tcp
+        FromPort: 8083
+        ToPort: 8083
+        SourceSecurityGroupId: !Ref LambdaConfigureConnectorsSecurityGroup
+    KafkaConnectWorkerSecurityGroupIngressCluster:
+      Type: AWS::EC2::SecurityGroupIngress
+      Properties:
+        GroupId: !Ref KafkaConnectWorkerSecurityGroup
+        IpProtocol: tcp
+        FromPort: 8083
+        ToPort: 8083
+        SourceSecurityGroupId: !Ref KafkaConnectWorkerSecurityGroup
+    KafkaConnectWorkerRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Service:
+                  - "ecs.amazonaws.com"
+                  - "ecs-tasks.amazonaws.com"
+              Action: "sts:AssumeRole"
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        Policies:
+          - PolicyName: "LambdaRolePolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - ssmmessages:CreateControlChannel
+                    - ssmmessages:CreateDataChannel
+                    - ssmmessages:OpenControlChannel
+                    - ssmmessages:OpenDataChannel
+                  Resource: "*"
+                - Effect: Allow
+                  Action:
+                    - lambda:InvokeFunction
+                  Resource:
+                    - !GetAtt SinkAppianDataLambdaFunction.Arn
+                    - !GetAtt SinkSeatoolDataLambdaFunction.Arn
+                    - !GetAtt SinkMmdlDataLambdaFunction.Arn
+                - Effect: Allow
+                  Action:
+                    - ecr:BatchGetImage
+                  Resource: !Sub "arn:aws:ecr:${self:provider.region}:${AWS::AccountId}:repository/*"
+    KafkaConnectWorkerTaskDefinition:
+      Type: "AWS::ECS::TaskDefinition"
+      Properties:
+        ContainerDefinitions:
+          - Name: connect
+            Image: ${self:custom.connectImage}
+            Memory: 4096
+            Cpu: 2048
+            Command:
+              - bash
+              - "-c"
+              - |
+                export CONNECT_REST_HOST_NAME=`curl $ECS_CONTAINER_METADATA_URI_V4 | sed -e 's/.*IPv4Addresses":\["\(.*\)"\],"AttachmentIndex.*/\1/'` &&
+                export CONNECT_REST_ADVERTISED_HOST_NAME=$CONNECT_REST_HOST_NAME &&
+                echo "export SELF=$CONNECT_REST_HOST_NAME" >> ~/.bashrc &&
+                curl -k -SL -o /etc/kafka-connect/jars/kafka-connect-lambda-1.2.2.jar "https://github.com/Nordstrom/kafka-connect-lambda/releases/download/v1.2.2/kafka-connect-lambda-1.2.2.jar" &&
+                chmod +x /etc/kafka-connect/jaras/kafka-connect-lambda-1.2.2.jar
+                /etc/confluent/docker/run
+            Environment:
+              - Name: CONNECT_BOOTSTRAP_SERVERS
+                Value: >-
+                  ${self:custom.brokerString}
+              - Name: CONNECT_GROUP_ID
+                Value: ${param:topicNamespace}mgmt.connect.${self:service}-${sls:stage}
+              - Name: CONNECT_CONFIG_STORAGE_TOPIC
+                Value: ${param:topicNamespace}mgmt.connect.${self:service}-${sls:stage}.config
+              - Name: CONNECT_OFFSET_STORAGE_TOPIC
+                Value: ${param:topicNamespace}mgmt.connect.${self:service}-${sls:stage}.offsets
+              - Name: CONNECT_STATUS_STORAGE_TOPIC
+                Value: ${param:topicNamespace}mgmt.connect.${self:service}-${sls:stage}.status
+              - Name: CONNECT_OFFSET_STORAGE_PARTITIONS
+                Value: 5
+              - Name: CONNECT_STATUS_STORAGE_PARTITIONS
+                Value: 1
+              - Name: CONNECT_KEY_CONVERTER
+                Value: org.apache.kafka.connect.json.JsonConverter
+              - Name: CONNECT_VALUE_CONVERTER
+                Value: org.apache.kafka.connect.json.JsonConverter
+              - Name: CONNECT_INTERNAL_KEY_CONVERTER
+                Value: org.apache.kafka.connect.json.JsonConverter
+              - Name: CONNECT_INTERNAL_VALUE_CONVERTER
+                Value: org.apache.kafka.connect.json.JsonConverter
+              - Name: CONNECT_PLUGIN_PATH
+                Value: /usr/share/java,/usr/local/share/kafka/plugins
+              - Name: CONNECT_SECURITY_PROTOCOL
+                Value: SSL
+              # Producer/Consumer configs below
+              # Thank you to https://github.com/confluentinc/kafka-connect-jdbc/issues/161
+              - Name: CONNECT_PRODUCER_BOOTSTRAP_SERVERS
+                Value: >-
+                  ${self:custom.brokerString}
+              - Name: CONNECT_PRODUCER_SECURITY_PROTOCOL
+                Value: SSL
+              - Name: CONNECT_CONSUMER_BOOTSTRAP_SERVERS
+                Value: >-
+                  ${self:custom.brokerString}
+              - Name: CONNECT_CONSUMER_SECURITY_PROTOCOL
+                Value: SSL
+            LogConfiguration:
+              LogDriver: awslogs
+              Options:
+                awslogs-region: !Ref AWS::Region
+                awslogs-group: !Ref KafkaConnectWorkerLogGroup
+                awslogs-stream-prefix: fargate
+        Family: ${self:service}-${sls:stage}-kafka-connect-worker
+        NetworkMode: awsvpc
+        ExecutionRoleArn: !GetAtt KafkaConnectWorkerRole.Arn
+        TaskRoleArn: !GetAtt KafkaConnectWorkerRole.Arn
+        RequiresCompatibilities:
+          - FARGATE
+        Memory: 4GB
+        Cpu: 2048
+    KafkaConnectCluster:
+      Type: "AWS::ECS::Cluster"
+      Properties:
+        ClusterName: ${self:service}-${sls:stage}-connect
+
+    KafkaConnectService:
+      Type: "AWS::ECS::Service"
+      Properties:
+        Cluster: !Ref KafkaConnectCluster
+        DeploymentConfiguration:
+          DeploymentCircuitBreaker:
+            Enable: true
+            Rollback: false
+          MaximumPercent: 100
+          MinimumHealthyPercent: 0
+        EnableExecuteCommand: true
+        LaunchType: FARGATE
+        ServiceName: kafka-connect
+        DesiredCount: 1
+        TaskDefinition: !Ref KafkaConnectWorkerTaskDefinition
+        NetworkConfiguration:
+          AwsvpcConfiguration:
+            AssignPublicIp: DISABLED
+            SecurityGroups:
+              - !Ref KafkaConnectWorkerSecurityGroup
+            Subnets: >-
+              ${self:custom.vpc.dataSubnets}
+    ECSFailureEventRule:
+      Type: AWS::Events::Rule
+      Properties:
+        Description: "SEA Tool Compare Cluster Task Failure Event Rule"
+        EventPattern:
+          account:
+            - !Ref AWS::AccountId
+          source:
+            - "aws.ecs"
+          detail-type:
+            - "ECS Task State Change"
+          detail:
+            lastStatus:
+              - "STOPPED"
+            stoppedReason:
+              - "Essential container in task exited"
+              - "Task failed container health checks"
+            clusterArn:
+              - !GetAtt KafkaConnectCluster.Arn
+        Targets:
+          - Arn: ${param:alarmsTopicArn}
+            Id: "SeaToolCompareEcsTaskFailure"
+            InputTransformer:
+              InputPathsMap:
+                "clusterArn": "$.detail.clusterArn"
+                "status": "$.detail.lastStatus"
+                "account": "$.account"
+                "stoppedReason": "$.detail.stoppedReason"
+              InputTemplate: |
+                "A Cluster Task Failure Event has occured in seatool-compare. Account: <account> Cluster ARN: <clusterArn> Status: <status> Reason: <stoppedReason>"
+    AppianTaskAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 2
+        EvaluationPeriods: 5
+        MetricName: ${self:service}-${sls:stage}.lambda.appianData_task
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    AppianConnectorAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 2
+        EvaluationPeriods: 5
+        MetricName: ${self:service}-${sls:stage}.lambda.appianData
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    SeatoolTaskAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 2
+        EvaluationPeriods: 5
+        MetricName: ${self:service}-${sls:stage}.lambda.seatoolData_task
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    SeatoolConnectorAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 2
+        EvaluationPeriods: 5
+        MetricName: ${self:service}-${sls:stage}.lambda.seatoolData
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    MmdlTaskAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 2
+        EvaluationPeriods: 5
+        MetricName: ${self:service}-${sls:stage}.lambda.mmdlData_task
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    MmdlConnectorAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 2
+        EvaluationPeriods: 5
+        MetricName: ${self:service}-${sls:stage}.lambda.mmdlData
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    SeatoolDynamoUpdateAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 1
+        EvaluationPeriods: 5
+        MetricName: ${param:seatoolTableName}_dynamo_updates
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    MmdlDynamoUpdateAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 1
+        EvaluationPeriods: 5
+        MetricName: ${param:mmdlTableName}_dynamo_updates
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    AppianDynamoUpdateAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        DatapointsToAlarm: 1
+        EvaluationPeriods: 5
+        MetricName: ${param:appianTableName}_dynamo_updates
+        Namespace: ${self:service}-${sls:stage}
+        Period: 60
+        Statistic: Sum
+        Threshold: 1
+    KafkaConnectServiceECSCpuAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: ${self:service}-${sls:stage}-KafkaConnectService-CPUUtilization
+        AlarmDescription: "Trigger an alarm when the CPU utilization reaches 75%"
+        Namespace: AWS/ECS
+        MetricName: CPUUtilization
+        Dimensions:
+          - Name: ClusterName
+            Value: !Ref KafkaConnectCluster
+          - Name: ServiceName
+            Value: !GetAtt KafkaConnectService.Name
+        Statistic: Average
+        Period: 60
+        EvaluationPeriods: 2
+        Threshold: 75
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        OKActions:
+          - ${param:alarmsTopicArn}
+    KafkaConnectServiceECSMemoryAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: ${self:service}-${sls:stage}-KafkaConnectService-MemoryUtilization
+        AlarmDescription: "Trigger an alarm when the Memory utilization reaches 75%"
+        Namespace: AWS/ECS
+        MetricName: MemoryUtilization
+        Dimensions:
+          - Name: ClusterName
+            Value: !Ref KafkaConnectCluster
+          - Name: ServiceName
+            Value: !GetAtt KafkaConnectService.Name
+        Statistic: Average
+        Period: 60
+        EvaluationPeriods: 2
+        Threshold: 75
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        AlarmActions:
+          - ${param:alarmsTopicArn}
+        OKActions:
+          - ${param:alarmsTopicArn}
+    LambdaConfigureConnectorsSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Security Group for configuring the connector.
+        VpcId: ${self:custom.vpc.id}
+    LambdaConfigureConnectorsSecurityGroupEgress:
+      Type: AWS::EC2::SecurityGroupEgress
+      Properties:
+        GroupId: !Ref LambdaConfigureConnectorsSecurityGroup
+        IpProtocol: -1
+        CidrIp: 0.0.0.0/0
+    ConnectorConfigMmdlSink:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        Description: GENERATED BY DEPLOYMENT.  DO NOT MODIFY.  Connector configuration for the MMDL Compare Sink Connector.
+        Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}.lambda.mmdlData
+        SecretString: !Sub |
+          {
+            "name": "${self:service}-${sls:stage}.lambda.mmdlData",
+            "config": {
+              "tasks.max": "1",
+              "connector.class": "com.nordstrom.kafka.connect.lambda.LambdaSinkConnector",
+              "topics": "aws.ksqldb.mmdl.agg.K_mmdl_agg_MMDL_WAIVER_TBL",
+              "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+              "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+              "aws.region": "${self:provider.region}",
+              "aws.lambda.function.arn": "${SinkMmdlDataLambdaFunction.Arn}",
+              "aws.lambda.batch.enabled": "false",
+              "aws.credentials.provider.class":
+                " com.amazonaws.auth.DefaultAWSCredentialsProviderChain"
+            }
+          }
+    ConnectorConfigSeatoolSink:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        Description: GENERATED BY DEPLOYMENT.  DO NOT MODIFY.  Connector configuration for the Seatool Compare Sink Connector.
+        Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}.lambda.seatoolData
+        SecretString: !Sub |
+          {
+            "name": "${self:service}-${sls:stage}.lambda.seatoolData",
+            "config": {
+              "tasks.max": "1",
+              "connector.class": "com.nordstrom.kafka.connect.lambda.LambdaSinkConnector",
+              "topics": "aws.ksqldb.seatool.agg.State_Plan",
+              "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+              "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+              "aws.region": "${self:provider.region}",
+              "aws.lambda.function.arn": "${SinkSeatoolDataLambdaFunction.Arn}",
+              "aws.lambda.batch.enabled": "false",
+              "aws.credentials.provider.class":
+                " com.amazonaws.auth.DefaultAWSCredentialsProviderChain"
+            }
+          }
+    ConnectorConfigAppianSink:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        Description: GENERATED BY DEPLOYMENT.  DO NOT MODIFY.  Connector configuration for the Seatool Compare Sink Connector.
+        Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}.lambda.appianData
+        SecretString: !Sub |
+          {
+            "name": "${self:service}-${sls:stage}.lambda.appianData",
+            "config": {
+              "tasks.max": "1",
+              "connector.class": "com.nordstrom.kafka.connect.lambda.LambdaSinkConnector",
+              "topics": "aws.appian.cmcs.MCP_SPA_PCKG",
+              "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+              "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+              "aws.region": "${self:provider.region}",
+              "aws.lambda.function.arn": "${SinkAppianDataLambdaFunction.Arn}",
+              "aws.lambda.batch.enabled": "false",
+              "aws.credentials.provider.class":
+                " com.amazonaws.auth.DefaultAWSCredentialsProviderChain"
+            }
+          }
+    StateMachineLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/vendedlogs/states/${self:service}-${sls:stage}-configure-connector
+
+  Outputs:
+    KafkaConnectWorkerSecurityGroupId:
+      Description: |
+        The ID of the security group attached to the Kafka Connect cluster tasks.
+        This can be used by other resources to attach additional ingress rules.
+      Value: !Ref KafkaConnectWorkerSecurityGroup

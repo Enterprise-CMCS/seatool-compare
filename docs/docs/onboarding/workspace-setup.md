@@ -19,7 +19,7 @@ Before you begin development, it's important to configure your workstation prope
 ---
 
 ## Development Tool list
-This is a static list of tools that should be pre-installed to support all development workflows. Please understand that the installation of most of these tools is automated, which will be discussed in the next section.  This serves as a general overview of what will be installed.
+This is a static list of tools that should be pre-installed to support all Developer Guide. Please understand that the installation of most of these tools is automated, which will be discussed in the next section.  This serves as a general overview of what will be installed.
 
 | Tool                                                                              | Version   | Required |
 | --------------------------------------------------------------------------------- | --------- | -------- |
@@ -70,7 +70,7 @@ Now that you have all prerequisites installed, it's time to get the code base. T
 - Configure your GitHub user with an SSH key, and add it to your ssh-agent. [Help can be found here](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent). Using https and personal access tokens, instead of SSH and a key, is possible but discouraged.
 - Clone the repository
   ```
-  git clone git@github.com:cmsgov/seatool-compare.git
+  git clone git@github.com:{{ site.repo.org }}/{{ site.repo.name }}.git
   ```
 
 ## Configure AWS CLI
@@ -83,6 +83,6 @@ This step requires that your request for AWS access has been completed. If it ha
 
 ## Now what?
 
-Nice job! If you've successfully stepped through this document, you should be entirely ready to start active development on the seatool-compare project.
+Nice job! If you've successfully stepped through this document, you should be entirely ready to start active development on the {{ site.repo.name }} project.
 
 If you've had errors along the way, that's OK! We're here to help. If you've successfully joined our Slack channel, feel free to post there.  Else, please send an email to mdial@collabralink.com explaining the issue. We will get back to you ASAP.

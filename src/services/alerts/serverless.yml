@@ -11,7 +11,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs14.x
+  runtime: nodejs18.x
   region: ${env:REGION_A}
   stackTags:
     PROJECT: ${self:custom.project}
@@ -19,6 +19,7 @@ provider:
 
 custom:
   project: ${env:PROJECT}
+  sesLogGroupName: /aws/ses/${self:service}-${sls:stage}-sent-alerts
   serverlessTerminationProtection:
     stages: # Apply CloudFormation termination protection for these stages
       - master
@@ -27,10 +28,20 @@ custom:
 
 resources:
   Resources:
-    ECSTaskFailureTopic:
+    SentAlertsGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        RetentionInDays: 365
+        LogGroupName: ${self:custom.sesLogGroupName}
+    AlarmsTopic:
       Type: "AWS::SNS::Topic"
       Properties:
-        TopicName: ECSTaskFailure-${self:service}-${sls:stage}
+        TopicName: Alarms-${self:service}-${sls:stage}
+        KmsMasterKeyId: !Ref KmsKeyForSns
+    ErrorsTopic:
+      Type: "AWS::SNS::Topic"
+      Properties:
+        TopicName: Errors-${self:service}-${sls:stage}
         KmsMasterKeyId: !Ref KmsKeyForSns
 
     KmsKeyForSns:
@@ -54,6 +65,23 @@ resources:
                 - "kms:GenerateDataKey"
                 - "kms:Decrypt"
               Resource: "*"
+            - Sid: Allow CloudWatch events to use the key
+              Effect: Allow
+              Principal:
+                Service: events.amazonaws.com
+              Action:
+                - "kms:Decrypt"
+                - "kms:GenerateDataKey"
+              Resource: "*"
+            - Sid: Allow CloudWatch for CMK
+              Effect: Allow
+              Principal:
+                Service:
+                  - cloudwatch.amazonaws.com
+              Action:
+                - "kms:Decrypt"
+                - "kms:GenerateDataKey*"
+              Resource: "*"
 
     EventBridgeToToSnsPolicy:
       Type: AWS::SNS::TopicPolicy
@@ -62,13 +90,24 @@ resources:
           Statement:
             - Effect: Allow
               Principal:
-                Service: events.amazonaws.com
+                Service:
+                  - events.amazonaws.com
+                  - cloudwatch.amazonaws.com
               Action: sns:Publish
-              Resource: !Ref ECSTaskFailureTopic
+              Resource: !Ref AlarmsTopic
         Topics:
-          - !Ref ECSTaskFailureTopic
+          - !Ref AlarmsTopic
 
   Outputs:
-    ECSFailureTopicArn:
+    AlarmsTopicArn:
       Description: ECS Failure SNS topic ARN
-      Value: !Ref ECSTaskFailureTopic
+      Value: !Ref AlarmsTopic
+    ErrorsTopicArn:
+      Description: Errors topic ARN
+      Value: !Ref ErrorsTopic
+    SesLogGroupArn:
+      Description: Arn of the ses log group
+      Value: !GetAtt SentAlertsGroup.Arn
+    SesLogGroupName:
+      Description: Name of the ses log group
+      Value: ${self:custom.sesLogGroupName}

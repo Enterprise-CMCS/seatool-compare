@@ -2,14 +2,14 @@
 layout: default
 title: Home
 nav_order: 1
-description: "The seatool-compare project is a serverless monorepo template.  It sets up projects the way we like them, and exists to get ideas from zero to deployed as fast as possible."
+description: "The seatool-compare project is a serverless monorepo template."
 permalink: /
 ---
 
 # seatool-compare
 {: .fs-9 }
 
-The seatool-compare project is a microservice compares legacy data and seatool data and sends notifications when certain conditions are met.
+The {{ site.repo.name }} project is a microservice compares legacy data and seatool data and sends notifications when certain conditions are met.
 {: .fs-6 .fw-300 }
 
 [Join us on Slack](https://cmsgov.slack.com/archives/C045M44HA0Y){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [View it on GitHub](https://github.com/cmsgov/seatool-compare){: .btn .fs-5 .mb-4 .mb-md-0 }
@@ -18,7 +18,7 @@ The seatool-compare project is a microservice compares legacy data and seatool d
 
 ## Welcome!
 
-The seatool-compare project is a microservice compares legacy data and seatool data and sends notifications when certain conditions are met.
+The {{ site.repo.name }} project is a microservice compares legacy data and seatool data and sends notifications when certain conditions are met.
 
 This project is under active development by the MACPRO Platform team.  Read on for more details, and feel free to join us on [Slack](https://cmsgov.slack.com/archives/C045M44HA0Y).
 
@@ -30,7 +30,7 @@ Thanks, and we're glad you're here!
 
 ## About the project
 
-The seatool-compare project is a work of the MACPRO Platform Team for the [Centers for Medicare & Medicaid Services (CMS)](https://www.cms.gov/).
+The {{ site.repo.name }} project is a work of the MACPRO Platform Team for the [Centers for Medicare & Medicaid Services (CMS)](https://www.cms.gov/).
 
 
 #### Thank you to the contributors of seatool-compare!

@@ -10,3 +10,6 @@ yarn-error.log
 .yarn_install
 tsconfig.tsbuildinfo
 build_run
+.esbuild
+run.js
+runner.js

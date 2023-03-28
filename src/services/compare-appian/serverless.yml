@@ -1,0 +1,323 @@
+service: ${self:custom.project}-compare-appian
+
+frameworkVersion: "3"
+
+package:
+  individually: true
+
+plugins:
+  - serverless-stack-termination-protection
+  - "@stratiformdigital/serverless-s3-security-helper"
+  - "@stratiformdigital/serverless-online"
+  - "@stratiformdigital/serverless-iam-helper"
+  - serverless-step-functions
+  - serverless-plugin-scripts
+  - serverless-esbuild
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${env:REGION_A}
+  stackTags:
+    PROJECT: ${self:custom.project}
+    SERVICE: ${self:service}
+  iam:
+    role:
+      path: /delegatedadmin/developer/
+      permissionsBoundary: arn:aws:iam::${aws:accountId}:policy/cms-cloud-admin/developer-boundary-policy
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:Scan
+          Resource:
+            - ${param:appianTableArn}
+            - ${param:seatoolTableArn}
+            - ${param:statusTableArn}
+        - Effect: Allow
+          Action:
+            - sns:Publish
+          Resource:
+            - ${param:errorsTopicArn}
+        - Effect: Allow
+          Action:
+            - states:StartExecution
+          Resource:
+            - !Ref AppianAlertingStateMachine
+            - !Sub "arn:aws:states:${self:provider.region}:${AWS::AccountId}:execution:${AppianAlertingStateMachine.Name}:*"
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+            - ses:SendRawEmail
+          Resource:
+            - !Sub "arn:aws:ses:${self:provider.region}:${AWS::AccountId}:identity/*"
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource:
+            - !Sub "arn:aws:secretsmanager:${self:provider.region}:${AWS::AccountId}:secret:${self:custom.project}/${sls:stage}/alerts-appian*"
+        - Effect: Allow
+          Action:
+            - secretsmanager:ListSecrets
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - logs:PutLogEvents
+          Resource:
+            - ${param:sesLogGroupArn}
+        - Effect: Allow
+          Action:
+            - states:ListExecutions
+            - states:StopExecution
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - kms:GenerateDataKey
+            - kms:Decrypt
+          Resource:
+            - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
+        - Effect: "Allow"
+          Action:
+            - cloudwatch:PutMetricData
+          Resource: "*"
+
+params:
+  master:
+    initialWaitSec: 86400 # 1 days
+    tempWaitSec: 172800 # 2 days
+    sinceSubmissionChoiceSec: 345600 # 4 days
+    recordAgeChoiceSec: 17366000 # 201 days
+    workflowsStatus: ON
+  val:
+    initialWaitSec: 86400
+    tempWaitSec: 172800
+    sinceSubmissionChoiceSec: 345600
+    recordAgeChoiceSec: 17366000
+    workflowsStatus: OFF
+  production:
+    initialWaitSec: 86400
+    tempWaitSec: 172800
+    sinceSubmissionChoiceSec: 345600
+    recordAgeChoiceSec: 17366000
+    workflowsStatus: OFF
+  default:
+    initialWaitSec: 2
+    tempWaitSec: 43200 # 12 hours
+    sinceSubmissionChoiceSec: 3
+    recordAgeChoiceSec: 17366000 # 201 days
+    workflowsStatus: ON
+
+custom:
+  project: ${env:PROJECT}
+  serverlessTerminationProtection:
+    stages: # Apply CloudFormation termination protection for these stages
+      - master
+      - val
+      - production
+  secretId: ${self:custom.project}/${sls:stage}/alerts
+
+functions:
+  workflowStarter:
+    handler: handlers/workflowStarter.handler
+    events:
+      - stream:
+          arn: ${param:appianTableStreamArn}
+          startingPosition: LATEST
+          maximumRetryAttempts: 0
+    environment:
+      stateMachineArn: !Ref AppianAlertingStateMachine
+      region: ${self:provider.region}
+      appianTableName: ${param:appianTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
+      workflowsStatus: ${param:workflowsStatus}
+    maximumRetryAttempts: 0
+  sendReport:
+    handler: handlers/sendReport.handler
+    environment:
+      region: ${self:provider.region}
+      statusTable: ${param:statusTableName}
+  compare:
+    handler: handlers/compare.handler
+    environment:
+      region: ${self:provider.region}
+      errorsTopicArn: ${param:errorsTopicArn}
+  seatoolRecordExist:
+    handler: handlers/seatoolRecordExist.handler
+    environment:
+      region: ${self:provider.region}
+      seatoolTableName: ${param:seatoolTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
+  initStatus:
+    handler: handlers/initStatus.handler
+    environment:
+      region: ${self:provider.region}
+      statusTableName: ${param:statusTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
+      namespace: ${self:service}-${sls:stage}
+  updateStatus:
+    handler: handlers/updateStatus.handler
+    environment:
+      region: ${self:provider.region}
+      statusTableName: ${param:statusTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
+      namespace: ${self:service}-${sls:stage}
+  sendNoMatchAlert:
+    handler: handlers/sendNoMatchAlert.handler
+    environment:
+      region: ${self:provider.region}
+      project: ${self:custom.project}
+      stage: ${sls:stage}
+      sesLogGroupName: ${param:sesLogGroupName}
+      errorsTopicArn: ${param:errorsTopicArn}
+  getAppianData:
+    handler: handlers/getAppianData.handler
+    environment:
+      region: ${self:provider.region}
+      project: ${self:custom.project}
+      stage: ${sls:stage}
+      appianTableName: ${param:appianTableName}
+  stopExecutions:
+    handler: handlers/stopExecutions.handler
+    environment:
+      region: ${self:provider.region}
+      stateMachineArn: !Ref AppianAlertingStateMachine
+resources:
+  Resources:
+    NoMatchStream:
+      Type: AWS::Logs::LogStream
+      Properties:
+        LogGroupName: ${param:sesLogGroupName}
+        LogStreamName: NOMATCH-APPIAN
+    NotFoundStream:
+      Type: AWS::Logs::LogStream
+      Properties:
+        LogGroupName: ${param:sesLogGroupName}
+        LogStreamName: NOTFOUND-APPIAN
+    StateMachineLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/vendedlogs/states/${self:service}-${sls:stage}-alert
+    StopExecutions:
+      Type: Custom::StopExecutions
+      Properties:
+        ServiceToken: !GetAtt StopExecutionsLambdaFunction.Arn
+
+stepFunctions:
+  stateMachines:
+    compareAlertFunc:
+      name: ${self:service}-${sls:stage}-compare-alerting-appian
+      id: AppianAlertingStateMachine
+      loggingConfig:
+        level: ALL
+        includeExecutionData: true
+        destinations:
+          - !GetAtt StateMachineLogGroup.Arn
+      definition:
+        Comment: "A State Machine to orchestrate a CMS alerting workflow for Appian."
+        StartAt: InitializeTask
+        States:
+          InitializeTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-initStatus"
+            Parameters:
+              Payload.$: $
+              Context.$: $$
+            Next: InitialWait
+          InitialWait:
+            Type: Wait
+            Seconds: ${param:initialWaitSec}
+            Next: GetAppianDataTask
+          GetAppianDataTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getAppianData"
+            Parameters:
+              Payload.$: $
+            Next: DoesSeatoolRecordExistTask
+          DoesSeatoolRecordExistTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-seatoolRecordExist"
+            Parameters:
+              Payload.$: $
+            Next: HandleSeatoolRecordExistChoice
+          HandleSeatoolRecordExistChoice:
+            Type: Choice
+            Choices:
+              - Variable: $.seatoolExist
+                BooleanEquals: true
+                Next: CompareTask
+              - Variable: $.seatoolExist
+                BooleanEquals: false
+                Next: SinceSubmissionChoice
+            Default: SinceSubmissionChoice
+          SinceSubmissionChoice:
+            Type: Choice
+            Choices:
+              - And:
+                  - Variable: $.secSinceAppianSubmitted
+                    IsPresent: true
+                  - Variable: $.secSinceAppianSubmitted
+                    NumericGreaterThanEquals: ${param:sinceSubmissionChoiceSec}
+                  - Variable: $.isAppianSubmitted
+                    BooleanEquals: true
+                Next: SendNotExistTask
+            Default: UpdateStatusTask
+          SendNotExistTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
+            Parameters:
+              Payload.$: $
+            Next: UpdateStatusTask
+          RecordAgeChoice:
+            Type: Choice
+            Choices:
+              - Variable: $.secSinceAppianSubmitted
+                NumericGreaterThanEquals: ${param:recordAgeChoiceSec}
+                Next: LastLoopAMatchChoice
+            Default: TempWait
+          TempWait:
+            Type: Wait
+            Seconds: ${param:tempWaitSec}
+            Next: InitialWait
+          LastLoopAMatchChoice:
+            Type: Choice
+            Choices:
+              - And:
+                  - Variable: $.match
+                    IsPresent: true
+                  - Variable: $.match
+                    BooleanEquals: true
+                Next: SuccessState
+            Default: FailState
+          CompareTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
+            Parameters:
+              Payload.$: $
+            Next: RecordsMatchChoice
+          RecordsMatchChoice:
+            Type: Choice
+            Choices:
+              - Variable: $.match
+                BooleanEquals: true
+                Next: UpdateStatusTask
+              - Variable: $.match
+                BooleanEquals: false
+                Next: SendNotMatchTask
+            Default: SendNotMatchTask
+          SendNotMatchTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
+            Parameters:
+              Payload.$: $
+            Next: UpdateStatusTask
+          UpdateStatusTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-updateStatus"
+            Parameters:
+              Payload.$: $
+            Next: RecordAgeChoice
+          SuccessState:
+            Type: Succeed
+          FailState:
+            Type: Fail

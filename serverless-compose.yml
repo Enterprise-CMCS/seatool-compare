@@ -1,15 +1,54 @@
 services:
+  alerts:
+    path: src/services/alerts
+  appian:
+    path: src/services/appian
   mmdl:
     path: src/services/mmdl
   seatool:
     path: src/services/seatool
-  compare:
-    path: src/services/compare
+  status-appian:
+    path: src/services/status-appian
+  compare-mmdl:
+    dependsOn: alerts
+    path: src/services/compare-mmdl
     params:
       mmdlTableName: ${mmdl.TableName}
       mmdlTableArn: ${mmdl.TableArn}
       mmdlTableStreamArn: ${mmdl.TableStreamArn}
       seatoolTableName: ${seatool.TableName}
       seatoolTableArn: ${seatool.TableArn}
-  alerts:
-    path: src/services/alerts
+      sesLogGroupArn: ${alerts.SesLogGroupArn}
+      sesLogGroupName: ${alerts.SesLogGroupName}
+      errorsTopicArn: ${alerts.ErrorsTopicArn}
+  compare-appian:
+    dependsOn: alerts
+    path: src/services/compare-appian
+    params:
+      appianTableArn: ${appian.TableArn}
+      appianTableName: ${appian.TableName}
+      appianTableStreamArn: ${appian.TableStreamArn}
+      seatoolTableName: ${seatool.TableName}
+      seatoolTableArn: ${seatool.TableArn}
+      statusTableName: ${status-appian.TableName}
+      statusTableArn: ${status-appian.TableArn}
+      sesLogGroupArn: ${alerts.SesLogGroupArn}
+      sesLogGroupName: ${alerts.SesLogGroupName}
+      errorsTopicArn: ${alerts.ErrorsTopicArn}
+  connector:
+    dependsOn:
+      - compare-mmdl
+      - compare-appian
+    path: src/services/connector
+    params:
+      appianTableArn: ${appian.TableArn}
+      appianTableName: ${appian.TableName}
+      appianTableStreamArn: ${appian.TableStreamArn}
+      mmdlTableName: ${mmdl.TableName}
+      mmdlTableArn: ${mmdl.TableArn}
+      mmdlTableStreamArn: ${mmdl.TableStreamArn}
+      seatoolTableName: ${seatool.TableName}
+      seatoolTableArn: ${seatool.TableArn}
+      alarmsTopicArn: ${alerts.AlarmsTopicArn}
+  dashboard:
+    path: src/services/dashboard

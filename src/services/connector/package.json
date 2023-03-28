@@ -1,0 +1,14 @@
+{
+  "name": "connector",
+  "dependencies": {},
+  "devDependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.258.0",
+    "@stratiformdigital/serverless-iam-helper": "^3.2.0",
+    "@stratiformdigital/serverless-online": "^3.2.0",
+    "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
+    "esbuild": "0.16.17",
+    "serverless-esbuild": "^1.37.2",
+    "serverless-stack-termination-protection": "^2.0.2",
+    "serverless-step-functions": "^3.12.1"
+  }
+}
