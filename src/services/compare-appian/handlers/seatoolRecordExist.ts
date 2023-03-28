@@ -18,7 +18,8 @@ exports.handler = async function (
     const item = await getItem({
       tableName: process.env.seatoolTableName,
       key: {
-        id: data.SPA_ID,
+        PK: data.SPA_ID,
+        SK: data.SPA_ID,
       },
     });
 
