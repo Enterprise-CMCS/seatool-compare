@@ -17,7 +17,7 @@ const callback = vi.fn();
 const event = { Payload: {} };
 
 describe("sendNoMatchAlert", () => {
-  describe.skip("when process.env values are not set", async () => {
+  describe("when process.env values are not set", async () => {
     it("throws an error if process.env.region is not defined", async () => {
       await expect(() =>
         handler.handler(event, null, callback)
