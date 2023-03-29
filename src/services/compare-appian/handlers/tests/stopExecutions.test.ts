@@ -32,7 +32,7 @@ describe("stopExecutions", () => {
     vi.clearAllMocks();
   });
 
-  it("logs the received event in the expected format", async () => {
+  it("logs the request in the expected format", async () => {
     await handler.handler(event);
     expect(console.log).toHaveBeenCalledWith(
       "Request:",
