@@ -26,8 +26,12 @@ const event = {
 
 const callbackData = {
   iterations: 0,
-  PK: "PK-Test",
-  SK: "SK-Test",
+  PK: {
+    S: "PK-Test",
+  },
+  SK: {
+    S: "SK-Test",
+  },
 };
 
 describe("initStatus", () => {
@@ -49,7 +53,7 @@ describe("initStatus", () => {
 
     beforeEach(() => {
       vi.spyOn(console, "log").mockImplementation(() => {});
-      vi.spyOn(libs, "putItem").mockImplementation(() => {});
+      vi.spyOn(libs, "putItem");
       vi.spyOn(libs, "trackError");
     });
 
