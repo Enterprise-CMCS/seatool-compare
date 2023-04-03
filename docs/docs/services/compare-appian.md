@@ -32,8 +32,7 @@ The record is then updated in the status-appian table to reflect the new data, a
 - `initStatus` puts initial record to the status-appian table with iterations value set to 0.
 - `getAppianData` gets appian record and extracts signature date and program type to be used in comparison.
 - `seatoolRecordExist` gets seatool item using id. checks if seatoolItem exists.
-- `sendNotExistAlert` checks if secrets exist for that stage. uses that secret value to define recipients for SES Alert. Sends does not exist alert. `putsLogEvent` logs that an email should be or would be sent for event.
-- `sendNoMatchAlert` checks if secrets exist for that stage. uses that secret value to define recipients for SES Alert. Sends does not match alert. `putsLogEvent` logs that an email should be or would be sent for event.
+- `sendNoMatchAlert` checks if secrets exist for that stage. uses that secret value to define recipients for SES Alert. Sends does not match alert or seatool record does not exist. `putsLogEvent` logs that an email should be or would be sent for event.
 - `compare` compares date values from appian and seatool record and sets "match" value of event data.
 - `updaeStatus` updates status-appian table with state machine data and updates interations value by 1.
 

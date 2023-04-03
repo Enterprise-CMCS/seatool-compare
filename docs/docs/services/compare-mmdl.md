@@ -34,7 +34,6 @@ The record is then updated in the status-mmdl table to reflect the new data, and
 - `initStatus` puts initial record to the status-mmdl table with iterations value set to 0.
 - `getMmdlData` gets mmdl record and extracts signature date and program type to be used in comparison.
 - `seatoolRecordExist` gets seatool item using id. checks if seatoolItem exists.
-- `sendNotExistAlert` checks if secrets exist for that stage. uses that secret value to define recipients for SES Alert. Sends does not exist alert. `putsLogEvent` logs that an email should be or would be sent for event.
 - `sendNoMatchAlert` checks if secrets exist for that stage. uses that secret value to define recipients for SES Alert. Sends does not match alert. `putsLogEvent` logs that an email should be or would be sent for event.
 - `compare` compares date values from mmdl and seatool record and sets "match" value of event data.
 - `updaeStatus` updates status-mmdl table with state machine data and updates interations value by 1.
