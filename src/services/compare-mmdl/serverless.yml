@@ -97,7 +97,7 @@ params:
     tempWaitSec: 172800
     timeSinceClockStartChoiceSec: 259200
     recordAgeChoiceSec: 21686400
-    workflowsStatus: OFF
+    workflowsStatus: ON
     seatoolSubdomain: sea
     ignoredStates: ZZ,ZT
     skipWait: false
