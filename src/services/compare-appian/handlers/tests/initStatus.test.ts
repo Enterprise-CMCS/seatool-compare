@@ -52,7 +52,7 @@ describe("initStatus", () => {
     });
 
     beforeEach(() => {
-      vi.spyOn(console, "log").mockImplementation(() => {});
+      vi.spyOn(console, "log");
       vi.spyOn(libs, "putItem");
       vi.spyOn(libs, "trackError");
     });

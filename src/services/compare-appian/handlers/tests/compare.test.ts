@@ -19,8 +19,8 @@ const event = {
 
 describe("compare", () => {
   beforeEach(() => {
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log");
+    vi.spyOn(console, "error");
     vi.spyOn(libs, "trackError");
   });
 
