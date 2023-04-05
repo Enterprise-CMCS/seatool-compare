@@ -9,15 +9,16 @@ import {
   vi,
 } from "vitest";
 import * as sendNoMatchAlert from "../sendNoMatchAlert";
-import {
-  doesSecretExist,
-  getEmailParams,
-  getSecretsValue,
-  putLogsEvent,
-  trackError,
-} from "../../../../libs";
+import * as libs from "../../../../libs";
 
-const body = {
+// Mock email values
+const ToAddresses = ["test@example.com"];
+const CcAddresses = ["cc@example.com"];
+const sourceEmail = "source@example.com";
+const testSpaId = "test-spa-id";
+const subjectText = `${testSpaId} - ACTION REQUIRED - No matching record in SEA Tool`;
+
+const Body = {
   Html: {
     Data: "HTML data",
   },
@@ -26,28 +27,24 @@ const body = {
   },
 };
 
-const CcAddresses = ["cc@example.com"];
-
 const emailParams = {
   Destination: {
-    ToAddresses: ["test@example.com"],
+    ToAddresses,
     CcAddresses,
   },
-  Source: "source@example.com",
+  Source: sourceEmail,
   Message: {
-    Body: body,
+    Body,
     Subject: {
-      Data: "Subject Line",
+      Data: subjectText,
     },
   },
 };
 
-const testSpaId = "test-spa-id";
-
 vi.mock("../../../../libs", () => {
   return {
     doesSecretExist: vi.fn(),
-    getEmailBody: vi.fn().mockImplementation(() => body),
+    getEmailBody: vi.fn().mockImplementation(() => Body),
     getEmailParams: vi.fn().mockImplementation(() => emailParams),
     getSecretsValue: vi.fn(),
     putLogsEvent: vi.fn(),
@@ -61,6 +58,7 @@ const callback = vi.fn();
 const event = {
   Payload: {
     SPA_ID: testSpaId,
+    secSinceAppianSubmitted: 10000,
   },
 };
 
@@ -104,7 +102,7 @@ describe("sendNoMatchAlert", () => {
         JSON.stringify(emailParams, null, 2)
       );
 
-      expect(putLogsEvent).toBeCalledWith({
+      expect(libs.putLogsEvent).toBeCalledWith({
         type: "NOTFOUND-APPIAN",
         message: `Alert for ${testSpaId} - TEST `,
       });
@@ -112,7 +110,7 @@ describe("sendNoMatchAlert", () => {
 
     it("does not log an error if secret does exist", async () => {
       (
-        doesSecretExist as MockedFunction<typeof doesSecretExist>
+        libs.doesSecretExist as MockedFunction<typeof libs.doesSecretExist>
       ).mockResolvedValue(true);
 
       await handler.handler(event, null, callback);
@@ -122,7 +120,7 @@ describe("sendNoMatchAlert", () => {
         JSON.stringify(emailParams, null, 2)
       );
 
-      expect(putLogsEvent).not.toBeCalledWith({
+      expect(libs.putLogsEvent).not.toBeCalledWith({
         type: "NOTFOUND-APPIAN",
         message: `Alert for ${testSpaId} - TEST `,
       });
@@ -130,8 +128,8 @@ describe("sendNoMatchAlert", () => {
 
     it("attempts to get the secrets value if secret exists", async () => {
       await handler.handler(event, null, callback);
-      expect(getSecretsValue).toBeCalled();
-      expect(trackError).toBeCalled();
+      expect(libs.getSecretsValue).toBeCalled();
+      expect(libs.trackError).toBeCalled();
     });
 
     it("calls trackError if appianSecret is malformed", async () => {
@@ -139,18 +137,18 @@ describe("sendNoMatchAlert", () => {
       const expectedError = new Error(
         "Cannot read properties of undefined (reading 'sourceEmail')"
       );
-      expect(trackError).toBeCalledWith(expectedError);
+      expect(libs.trackError).toBeCalledWith(expectedError);
     });
 
     describe("properly-formatted secret", () => {
       beforeEach(() => {
         (
-          getSecretsValue as MockedFunction<typeof getSecretsValue>
+          libs.getSecretsValue as MockedFunction<typeof libs.getSecretsValue>
         ).mockResolvedValue({
           emailRecipients: {
             ToAddresses: ["test@example.com"],
             CcAddresses: [
-              { email: "cc@example.com", alertIfGreaterThanSeconds: 1000 },
+              { email: "cc@example.com", alertIfGreaterThanSeconds: 10000 }, // more than 5 days
             ],
           },
           sourceEmail: "source@example.com",
@@ -159,25 +157,57 @@ describe("sendNoMatchAlert", () => {
 
       it("does not call trackError if the secret is properly formed", async () => {
         await handler.handler(event, null, callback);
-        expect(trackError).not.toBeCalled();
+        expect(libs.trackError).not.toBeCalled();
       });
 
       it("calls getEmailParams as expected", async () => {
-        // await handler.handler(event, null, callback);
-        // expect(getEmailParams).toBeCalledWith({
-        //   Body: body,
-        //   id: testSpaId,
-        //   CcAddresses,
-        // });
+        await handler.handler(event, null, callback);
+        expect(libs.getEmailParams).toBeCalledWith({
+          Body,
+          id: testSpaId,
+          CcAddresses,
+          sourceEmail,
+          subjectText,
+          ToAddresses,
+        });
       });
 
-      it("calls sendAlert with properly-formatted email params", async () => {});
+      it("calls sendAlert with properly-formatted email params", async () => {
+        await handler.handler(event, null, callback);
+        expect(libs.sendAlert).toBeCalledWith({
+          Destination: {
+            ToAddresses,
+            CcAddresses,
+          },
+          Source: sourceEmail,
+          Message: {
+            Body,
+            Subject: {
+              Data: subjectText,
+            },
+          },
+        });
+      });
 
-      it("handles errors thrown by sendAlert", async () => {});
+      it("calls putLogsEvent as expected when the email is sent", async () => {
+        await handler.handler(event, null, callback);
+        expect(libs.putLogsEvent).toBeCalledWith({
+          type: "NOTFOUND-APPIAN",
+          message: `Alert for ${testSpaId} - sent to ${[
+            ...ToAddresses,
+            ...CcAddresses,
+          ].join(", ")}`,
+        });
+      });
 
-      it("calls putLogsEvent when the email is sent", async () => {});
-
-      it("sends the expected data to the callback", async () => {});
+      it("sends the expected data to the callback", async () => {
+        await handler.handler(event, null, callback);
+        console.log("callback", callback.mock.calls[0][1]);
+        expect(callback.mock.calls[0][1]).toEqual({
+          SPA_ID: "test-spa-id",
+          secSinceAppianSubmitted: 10000,
+        });
+      });
     });
   });
 });
