@@ -278,7 +278,7 @@ resources:
         LogGroupName:
           Ref: "KafkaConnectWorkerLogGroup"
         FilterName: ConnectorLogsWarnCount
-        FilterPattern: "WARN"
+        FilterPattern: '{($.message = "WARN") && ($.message != /.*Commit of offsets timed out.*/)}'
         MetricTransformations:
           - MetricValue: "1"
             DefaultValue: "0"
@@ -428,8 +428,8 @@ resources:
                   ${self:custom.brokerString}
               - Name: CONNECT_CONSUMER_SECURITY_PROTOCOL
                 Value: SSL
-              - Name: CONNECT_CONSUMER_OFFSET_FLUSH_TIMEOUT_MS
-                Value: "60000" # default 5000 (5s)
+              # - Name: CONNECT_CONSUMER_OFFSET_FLUSH_TIMEOUT_MS
+              #   Value: "60000" # default 5000 (5s)
             LogConfiguration:
               LogDriver: awslogs
               Options:
