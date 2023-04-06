@@ -278,7 +278,7 @@ resources:
         LogGroupName:
           Ref: "KafkaConnectWorkerLogGroup"
         FilterName: ConnectorLogsWarnCount
-        FilterPattern: '{($.message = "WARN") && ($.message != /.*Commit of offsets timed out.*/)}'
+        FilterPattern: WARN -"Commit of offsets timed out"
         MetricTransformations:
           - MetricValue: "1"
             DefaultValue: "0"
