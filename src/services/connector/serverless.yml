@@ -429,7 +429,7 @@ resources:
               - Name: CONNECT_CONSUMER_SECURITY_PROTOCOL
                 Value: SSL
               - Name: CONNECT_CONSUMER_OFFSET_FLUSH_TIMEOUT_MS
-                Value: "1000" # default 5000 (5s)
+                Value: "60000" # default 5000 (5s)
             LogConfiguration:
               LogDriver: awslogs
               Options:
