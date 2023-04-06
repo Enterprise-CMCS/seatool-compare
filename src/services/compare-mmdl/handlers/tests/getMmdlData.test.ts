@@ -1,4 +1,5 @@
 import {
+  MockedFunction,
   afterEach,
   beforeAll,
   beforeEach,
@@ -9,13 +10,6 @@ import {
 } from "vitest";
 import * as getMmdlData from "../getMmdlData";
 import * as libs from "../../../../libs";
-
-vi.mock("../../../../libs", async () => {
-  return {
-    getItem: vi.fn().mockImplementation(() => {}),
-    trackError: vi.fn(),
-  };
-});
 
 const handler = getMmdlData as { handler: Function };
 const callback = vi.fn();
@@ -33,7 +27,16 @@ const event = {
 const mmdlReportData = {
   PK: testPK,
   SK: testSK,
+  mmdlSigDate: "1680785774788",
+  clockStartDate: "1680785774788",
 };
+
+vi.mock("../../../../libs", async () => {
+  return {
+    getItem: vi.fn().mockImplementation(() => mmdlReportData),
+    trackError: vi.fn(),
+  };
+});
 
 describe("getMmdlData", () => {
   beforeEach(() => {
@@ -55,6 +58,11 @@ describe("getMmdlData", () => {
       process.env.mmdlTableName = "test-table";
     });
 
+    it("does not call trackError with properly-formatted data", async () => {
+      await handler.handler(event, null, callback);
+      expect(libs.trackError).not.toBeCalled();
+    });
+
     it("logs the received event", async () => {
       await handler.handler(event, null, callback);
       expect(console.log).toBeCalledWith(
@@ -67,21 +75,40 @@ describe("getMmdlData", () => {
       await handler.handler(event, null, callback);
       expect(libs.getItem).toBeCalledWith({
         tableName: "test-table",
-        key: { PK: "test-pk", SK: "test-sk" },
+        key: { PK: testPK, SK: testSK },
       });
     });
 
-    it("calls trackError if mmdlSigDate is missing", async () => {
+    it("passes data to the callback as expected", async () => {
       await handler.handler(event, null, callback);
-      const expectedError = new Error(
-        "Cannot read properties of undefined (reading 'mmdlSigDate')"
-      );
-      expect(libs.trackError).toBeCalledWith(expectedError);
+      const callbackData = callback.mock.calls[0][1];
+      console.log(callbackData);
+      expect(callbackData).toHaveProperty("programType");
+      expect(callbackData).toHaveProperty("TN");
     });
 
-    // it("does not call trackError with properly-formatted data", async () => {
-    //   await handler.handler(event, null, callback);
-    //   expect(libs.trackError).not.toBeCalled();
-    // });
+    it("calculates secSinceMmdlSigned as a number", async () => {
+      await handler.handler(event, null, callback);
+      const callbackData = callback.mock.calls[0][1];
+      expect(callbackData).toHaveProperty("secSinceMmdlSigned");
+      expect(callbackData["secSinceMmdlSigned"]).toBeTypeOf("number");
+    });
+
+    it("calculates secSinceClockStart as a number", async () => {
+      await handler.handler(event, null, callback);
+      const callbackData = callback.mock.calls[0][1];
+      expect(callbackData).toHaveProperty("secSinceClockStart");
+      expect(callbackData["secSinceClockStart"]).toBeTypeOf("number");
+    });
+
+    it("logs the returning data", async () => {
+      await handler.handler(event, null, callback);
+      const callbackData = callback.mock.calls[0][1];
+
+      expect(console.log).toBeCalledWith(
+        `Returning data `,
+        JSON.stringify(callbackData, null, 2)
+      );
+    });
   });
 });
