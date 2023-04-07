@@ -202,7 +202,6 @@ describe("sendNoMatchAlert", () => {
 
       it("sends the expected data to the callback", async () => {
         await handler.handler(event, null, callback);
-        console.log("callback", callback.mock.calls[0][1]);
         expect(callback.mock.calls[0][1]).toEqual({
           SPA_ID: "test-spa-id",
           secSinceAppianSubmitted: 10000,
