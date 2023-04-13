@@ -38,7 +38,7 @@
             }
         },
         {
-            "height": 7,
+            "height": 5,
             "width": 8,
             "y": 4,
             "x": 16,
@@ -55,20 +55,20 @@
                         }
                     ]
                 ],
-                "view": "timeSeries",
+                "view": "bar",
                 "stacked": false,
                 "region": "${env:REGION_A}",
                 "title": "SNS Topic",
-                "period": 300,
+                "period": 2592000,
                 "stat": "Sum"
             }
         },
         {
-            "type": "alarm",
-            "x": 0,
-            "y": 4,
+            "height": 5,
             "width": 16,
-            "height": 8,
+            "y": 4,
+            "x": 0,
+            "type": "alarm",
             "properties": {
                 "title": "Alarms",
                 "alarms": [
@@ -89,66 +89,102 @@
             }
         },
         {
-            "type": "log",
-            "x": 0,
-            "y": 12,
-            "width": 24,
             "height": 12,
+            "width": 24,
+            "y": 9,
+            "x": 0,
+            "type": "log",
             "properties": {
-                "query": "SOURCE '/aws/fargate/compare-connector-${sls:stage}-kafka-connect' | SOURCE '/aws/vendedlogs/states/compare-connector-${sls:stage}-configure-connector' | fields @timestamp, @message, @logStream, @log\n| sort @timestamp desc\n| limit 20",
+                "query": "SOURCE '/aws/fargate/compare-connector-${sls:stage}-kafka-connect' | fields @timestamp, @message\n| sort @timestamp desc\n| limit 20",
                 "region": "${env:REGION_A}",
                 "stacked": false,
+                "title": "Kafka connect logs",
                 "view": "table"
             }
         },
         {
-            "type": "metric",
-            "x": 0,
-            "y": 24,
+            "height": 4,
             "width": 24,
-            "height": 3,
+            "y": 21,
+            "x": 0,
+            "type": "metric",
             "properties": {
-                "sparkline": true,
-                "view": "singleValue",
                 "metrics": [
                     [
                         "AWS/States",
                         "ExecutionsAborted",
                         "StateMachineArn",
-                        "arn:aws:states:${env:REGION_A}:${aws:accountId}:stateMachine:compare-compare-mmdl-${sls:stage}-compare-alerting-mmdl"
-                    ],
-                    [
-                        ".",
-                        "ExecutionThrottled",
-                        ".",
-                        "."
-                    ],
-                    [
-                        ".",
-                        "ExecutionsSucceeded",
-                        ".",
-                        "."
-                    ],
-                    [
-                        ".",
-                        "ExecutionsTimedOut",
-                        ".",
-                        "."
-                    ],
-                    [
-                        ".",
-                        "ExecutionsFailed",
-                        ".",
-                        "."
+                        "arn:aws:states:${env:REGION_A}:${aws:accountId}:stateMachine:compare-compare-mmdl-${sls:stage}-compare-alerting-mmdl",
+                        {
+                            "region": "${env:REGION_A}",
+                            "yAxis": "left"
+                        }
                     ],
                     [
                         ".",
                         "ExecutionsStarted",
                         ".",
-                        "."
+                        ".",
+                        {
+                            "region": "${env:REGION_A}"
+                        }
+                    ],
+                    [
+                        ".",
+                        "ExecutionThrottled",
+                        ".",
+                        ".",
+                        {
+                            "region": "${env:REGION_A}"
+                        }
+                    ],
+                    [
+                        ".",
+                        "ExecutionsSucceeded",
+                        ".",
+                        ".",
+                        {
+                            "region": "${env:REGION_A}"
+                        }
+                    ],
+                    [
+                        ".",
+                        "ExecutionsTimedOut",
+                        ".",
+                        ".",
+                        {
+                            "region": "${env:REGION_A}"
+                        }
+                    ],
+                    [
+                        ".",
+                        "ExecutionsFailed",
+                        ".",
+                        ".",
+                        {
+                            "region": "${env:REGION_A}"
+                        }
                     ]
                 ],
-                "region": "${env:REGION_A}"
+                "sparkline": true,
+                "view": "singleValue",
+                "region": "${env:REGION_A}",
+                "period": 604800,
+                "stat": "Sum",
+                "title": "MMDL Step Functions"
+            }
+        },
+        {
+            "type": "log",
+            "x": 0,
+            "y": 25,
+            "width": 24,
+            "height": 6,
+            "properties": {
+                "query": "SOURCE '/aws/ses/compare-alerts-${sls:stage}-sent-alerts' | fields @timestamp, @message, @logStream\n| sort @timestamp desc\n| limit 20",
+                "region": "${env:REGION_A}",
+                "title": "Sent Alerts",
+                "view": "table"
             }
         }
     ]
