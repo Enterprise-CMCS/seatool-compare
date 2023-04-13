@@ -149,7 +149,6 @@ describe("sendNoMatchAlert", async () => {
     expect(getEmailContent.getEmailContent).toBeCalledWith({
       id: testTN,
       isUrgent: false,
-      isCHP: false,
       seatoolSubdomain: testSubdomain,
     });
   });
