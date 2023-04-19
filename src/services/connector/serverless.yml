@@ -416,8 +416,8 @@ resources:
                 Value: /usr/share/java,/usr/local/share/kafka/plugins
               - Name: CONNECT_SECURITY_PROTOCOL
                 Value: SSL
-              # Producer/Consumer configs below
-              # Thank you to https://github.com/confluentinc/kafka-connect-jdbc/issues/161
+              # Producer/Consumer configs below#
+              # Thank you to https://github.com/confluentinc/kafka-connect-jdbc/issues/161#
               - Name: CONNECT_PRODUCER_BOOTSTRAP_SERVERS
                 Value: >-
                   ${self:custom.brokerString}
