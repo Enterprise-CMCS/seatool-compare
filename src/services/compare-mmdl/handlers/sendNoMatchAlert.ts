@@ -72,7 +72,6 @@ exports.handler = async function (
     id: data.TN,
     isUrgent,
     seatoolSubdomain: process.env.seatoolSubdomain,
-    isCHP,
   });
   const emailBody = getEmailBody(emailContent);
   const subjectText = `${data.TN} - ACTION REQUIRED - No matching record in SEA Tool`;

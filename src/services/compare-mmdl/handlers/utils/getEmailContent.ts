@@ -2,12 +2,10 @@ export const getEmailContent = ({
   id,
   isUrgent,
   seatoolSubdomain = "sea",
-  isCHP,
 }: {
   id: string;
   isUrgent: boolean;
   seatoolSubdomain?: string;
-  isCHP: boolean;
 }) => {
   const htmlData = `
         <html lang='en'>
@@ -25,8 +23,7 @@ export const getEmailContent = ({
                 <p>Either a record wasn't created in SEA Tool, or the SPA ID in MMDL and SEA Tool don't match.</p>
                 ${
                   isUrgent
-                    ? `<em>Failure to address this could lead to critical delays in the review process and a deemed approved SPA${
-                        isCHP ? `.` : ` or waiver action.`
+                    ? `<em>Failure to address this could lead to critical delays in the review process and a deemed approved SPA.
                       }</em>`
                     : ""
                 }
