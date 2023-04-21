@@ -29,7 +29,7 @@ exports.handler = async function (
       data.seatoolExist = true;
     } else {
       console.log(
-        `No Seatool record found for mmdl record id: ${data.PK}, Tranmittal Number: ${data.TN}`
+        `No Seatool record found for mmdl record id: ${data.PK}, Transmittal Number: ${data.TN}`
       );
     }
   } catch (e) {

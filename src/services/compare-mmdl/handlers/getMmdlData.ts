@@ -47,7 +47,7 @@ exports.handler = async function (
 // 'DD/MM/YYYY'
 function getSecsSinceNow(date: string | number) {
   const now = new Date().getTime();
-  const signedOn = new Date(date).getTime();
+  const signedOn = new Date(Number(date)).getTime();
 
   const diffInSec = (now - signedOn) / 1000; // from ms to sec we div by 1000
 
