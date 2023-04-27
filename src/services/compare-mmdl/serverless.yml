@@ -81,7 +81,7 @@ params:
     tempWaitSec: 172800 # 2 days
     timeSinceClockStartChoiceSec: 259200 # 3 days
     recordAgeChoiceSec: 21686400 # 251 days
-    workflowsStatus: OFF
+    workflowsStatus: ON
     seatoolSubdomain: seadev
     ignoredStates: N/A
     skipWait: false
@@ -89,7 +89,7 @@ params:
     tempWaitSec: 172800
     timeSinceClockStartChoiceSec: 259200
     recordAgeChoiceSec: 21686400
-    workflowsStatus: OFF
+    workflowsStatus: ON
     seatoolSubdomain: seaval
     ignoredStates: N/A
     skipWait: false
@@ -97,7 +97,7 @@ params:
     tempWaitSec: 172800
     timeSinceClockStartChoiceSec: 259200
     recordAgeChoiceSec: 21686400
-    workflowsStatus: OFF
+    workflowsStatus: ON
     seatoolSubdomain: sea
     ignoredStates: ZZ,ZT
     skipWait: false
@@ -105,7 +105,7 @@ params:
     tempWaitSec: 3600 # 1 hour
     timeSinceClockStartChoiceSec: 3
     recordAgeChoiceSec: 604800 # 7 days
-    workflowsStatus: OFF
+    workflowsStatus: ON
     seatoolSubdomain: seadev
     ignoredStates: N/A
     skipWait: true
