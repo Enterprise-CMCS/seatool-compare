@@ -105,7 +105,7 @@ params:
     tempWaitSec: 3600 # 1 hour
     timeSinceClockStartChoiceSec: 3
     recordAgeChoiceSec: 604800 # 7 days
-    workflowsStatus: OFF
+    workflowsStatus: ON
     seatoolSubdomain: seadev
     ignoredStates: N/A
     skipWait: true
