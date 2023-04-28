@@ -23,7 +23,7 @@ function formatReportData(data: Types.MmdlReportData[]) {
       "Submitted Status": i.isStatusSubmitted,
       "MMDL Signed Date": i.mmdlSigDate,
       "Test State": isIgnoredState || false,
-      "Description": i.description
+      Description: i.description,
     };
   });
 }

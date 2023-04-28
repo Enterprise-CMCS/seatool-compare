@@ -57,9 +57,13 @@ async function myHandler(
       transmittalNumber =
         recordValueObject.FORM_FIELDS[transmittalNumberKey].FIELD_VALUE;
     }
-    if (recordValueObject.FORM_FIELDS[transmittalNumberKey].REVISION_VERSION_WAIVER_DESCIPTION) {
+    if (
+      recordValueObject.FORM_FIELDS[transmittalNumberKey]
+        .REVISION_VERSION_WAIVER_DESCIPTION
+    ) {
       description =
-        recordValueObject.FORM_FIELDS[transmittalNumberKey].REVISION_VERSION_WAIVER_DESCIPTION;
+        recordValueObject.FORM_FIELDS[transmittalNumberKey]
+          .REVISION_VERSION_WAIVER_DESCIPTION;
     }
 
     if (
@@ -80,10 +84,9 @@ async function myHandler(
       return;
     }
 
-    const TN = transmittalNumber.trim().toUpperCase()
-    id = `${id}${TN ? `-${TN}` : ''}`
+    const TN = transmittalNumber.trim().toUpperCase();
+    id = `${id}${TN ? `-${TN}` : ""}`;
     const key = { PK: id, SK: id };
-
 
     const item: Types.MmdlRecord = {
       ...key,
@@ -92,7 +95,7 @@ async function myHandler(
       statuses: recordValueObject.APPLICATION_WORKFLOW_STATUSES,
       clockStartDate,
       clockStarted,
-      description
+      description,
     };
 
     const { programType } = getMmdlProgType(item);
