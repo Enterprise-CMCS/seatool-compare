@@ -81,7 +81,7 @@ async function myHandler(
     }
 
     const TN = transmittalNumber.trim().toUpperCase()
-    id = `${id}#${TN}`
+    id = `${id}${TN ? `-${TN}` : ''}`
     const key = { PK: id, SK: id };
 
 
