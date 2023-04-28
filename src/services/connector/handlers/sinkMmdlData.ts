@@ -18,8 +18,7 @@ async function myHandler(
     const recordKeyObject = JSON.parse(event.key) as Types.MmdlRecordKeyObject;
     const recordValueObject = JSON.parse(event.value) as Types.MmdlStreamRecord;
 
-    const id = `${recordKeyObject.STATE_CODE}-${recordKeyObject.AGGREGATED_FORM_FIELDS_WAIVER_ID}-${recordKeyObject.PROGRAM_TYPE_CODE}`;
-    const key = { PK: id, SK: id };
+    let id = `${recordKeyObject.STATE_CODE}-${recordKeyObject.AGGREGATED_FORM_FIELDS_WAIVER_ID}-${recordKeyObject.PROGRAM_TYPE_CODE}`;
 
     // Typically the PROGRAM_TYPE_CODE will match this _transNbr key
     //   MAC: "mac179_transNbr",
@@ -52,11 +51,19 @@ async function myHandler(
 
     const transmittalNumberKey = possibleTransmittalNumberKeys[0];
 
-    let transmittalNumber, clockStartDate, clockStarted;
+    let transmittalNumber, clockStartDate, clockStarted, description;
 
     if (recordValueObject.FORM_FIELDS[transmittalNumberKey].FIELD_VALUE) {
       transmittalNumber =
         recordValueObject.FORM_FIELDS[transmittalNumberKey].FIELD_VALUE;
+    }
+    if (
+      recordValueObject.FORM_FIELDS[transmittalNumberKey]
+        .REVISION_VERSION_WAIVER_DESCIPTION
+    ) {
+      description =
+        recordValueObject.FORM_FIELDS[transmittalNumberKey]
+          .REVISION_VERSION_WAIVER_DESCIPTION;
     }
 
     if (
@@ -77,13 +84,18 @@ async function myHandler(
       return;
     }
 
+    const TN = transmittalNumber.trim().toUpperCase();
+    id = `${id}${TN ? `-${TN}` : ""}`;
+    const key = { PK: id, SK: id };
+
     const item: Types.MmdlRecord = {
       ...key,
-      TN: transmittalNumber.trim().toUpperCase(),
+      TN,
       ...recordValueObject.FORM_FIELDS,
       statuses: recordValueObject.APPLICATION_WORKFLOW_STATUSES,
       clockStartDate,
       clockStarted,
+      description,
     };
 
     const { programType } = getMmdlProgType(item);
