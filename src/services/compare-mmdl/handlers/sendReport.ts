@@ -17,13 +17,13 @@ function formatReportData(data: Types.MmdlReportData[]) {
     const isIgnoredState = getIsIgnoredState(i);
     return {
       "Transmittal Number": i.TN,
-      ID: i.PK,
       "Program Type": i.programType,
       "Clock Start Date": convertMsToDate(i.clockStartDate),
       "Seatool Record Exist": i.seatoolExist || false,
       "Submitted Status": i.isStatusSubmitted,
       "MMDL Signed Date": i.mmdlSigDate,
-      "Alerts Ignored": isIgnoredState || false,
+      "Test State": isIgnoredState || false,
+      Description: i.description,
     };
   });
 }
