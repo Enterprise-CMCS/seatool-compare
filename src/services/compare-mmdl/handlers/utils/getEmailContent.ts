@@ -28,7 +28,7 @@ export const getEmailContent = ({
                     : ""
                 }
                 <br>
-                <div style=' background-color: rgb(22, 82, 150); padding: 20px; margin: 20px; color: white;'>If you have any questions, please contact the help desk at <a href="mailto:SEATool_HelpDesk@cms.hhs.gov" style="color:#ffffff;">SEATool_HelpDesk@cms.hhs.gov</a> </div>
+                <div style=' background-color: rgb(22, 82, 150); padding: 20px; margin: 20px; color: white;'>Please respond to this email address, <a href="mailto:SEATool_HelpDesk@cms.hhs.gov" style="color:#ffffff;">SEATool_HelpDesk@cms.hhs.gov</a>, if you have any further questions. </div>
                 </center>
             </body>
         </html>

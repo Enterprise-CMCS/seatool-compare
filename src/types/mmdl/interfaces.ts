@@ -8,6 +8,7 @@ export interface MmdlRecord extends MmdlSigInfo {
   SK: string; // State-WaiverID-ProgramCode
   TN: string; // Transmittal Number
   programType?: string;
+  description?: string;
   clockStartDate?: number;
   clockStarted?: boolean;
 }
