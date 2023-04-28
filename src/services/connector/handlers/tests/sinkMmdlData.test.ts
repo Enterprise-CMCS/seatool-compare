@@ -27,8 +27,8 @@ describe("mmdl sink service tests", () => {
     expect(dynamodb.putItem).toHaveBeenCalledWith({
       tableName: "mmdl-table",
       item: {
-        PK: "ZZ-16358-ABP#FALSE",
-        SK: "ZZ-16358-ABP#FALSE",
+        PK: "ZZ-16358-ABP-FALSE",
+        SK: "ZZ-16358-ABP-FALSE",
         TN: "FALSE",
         mac179_transNbr: {
           FIELD_NAME: "abp_AssuranceThree",
