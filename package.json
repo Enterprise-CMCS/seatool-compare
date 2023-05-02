@@ -17,14 +17,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cmsgov/seatool-compare"
+    "url": "https://github.com/Enterprise-CMCS/seatool-compare"
   },
   "author": "",
   "license": "CC0-1.0",
   "bugs": {
-    "url": "https://github.com/CMSgov/seatool-compare/issues"
+    "url": "https://github.com/Enterprise-CMCS/seatool-compare/issues"
   },
-  "homepage": "https://github.com/CMSgov/seatool-compare#readme",
+  "homepage": "https://github.com/Enterprise-CMCS/seatool-compare#readme",
   "devDependencies": {
     "@enterprise-cmcs/macpro-security-hub-sync": "^1.5.0",
     "@enterprise-cmcs/macpro-serverless-running-stages": "^1.0.4",

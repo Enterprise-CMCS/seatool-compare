@@ -36,7 +36,7 @@ custom:
     - arn:aws:iam::${aws:accountId}:policy/ADO-Restriction-Policy
     - arn:aws:iam::${aws:accountId}:policy/CMSApprovedAWSServices
     - arn:aws:iam::aws:policy/AdministratorAccess
-  SubjectClaimFilters: "repo:CMSgov/seatool-compare:${param:claimFilter}"
+  SubjectClaimFilters: "repo:Enterprise-CMCS/seatool-compare:${param:claimFilter}"
 resources:
   Resources:
     GitHubActionsServiceRole:
