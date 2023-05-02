@@ -1,13 +1,13 @@
 <h1 align="center" style="border-bottom: none;">seatool-compare</h1>
 <h3 align="center">Service for comparing legacy/seatool data and sending notifications.</h3>
 <p align="center">
-  <a href="https://cmsgov.github.io/seatool-compare/">
+  <a href="https://Enterprise-CMCS.github.io/seatool-compare/">
     <img alt="Docs" src="https://img.shields.io/badge/Docs-Pages-blue.svg">
   </a>
   <a href="https://cmsgov.slack.com/archives/C045M44HA0Y">
     <img alt="Slack" src="https://img.shields.io/badge/Slack-seatool--compare-purple.svg">
   </a>
-  <a href="https://codeclimate.com/github/CMSgov/seatool-compare/maintainability">
+  <a href="https://codeclimate.com/github/Enterprise-CMCS/seatool-compare/maintainability">
     <img src="https://api.codeclimate.com/v1/badges/80cdaddc034a103a8c3d/maintainability" />
   </a>
   <a href="https://dependabot.com/">
@@ -23,7 +23,7 @@
 
 ---
 
-### Please visit our [seatool-compare docs site](https://cmsgov.github.io/seatool-compare/) for complete documentation.
+### Please visit our [seatool-compare docs site](https://Enterprise-CMCS.github.io/seatool-compare/) for complete documentation.
 
 ---
 

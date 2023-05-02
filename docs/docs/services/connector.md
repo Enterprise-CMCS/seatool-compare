@@ -36,7 +36,7 @@ Several metrics and alarms were added to monitor this connector service.
 
 There are four functions that help to facilitate this service
 
-- configureConnectors - this function facilitates the connection of the nordstrom kafka connector and the kafka broker i.e [cms-bigmac](https://github.com/CMSgov/cms-bigmac)
+- configureConnectors - this function facilitates the connection of the nordstrom kafka connector and the kafka broker i.e [bigmac](https://github.com/Enterprise-CMCS/bigmac)
 - testConnectors - this function can be called by hand to test the connectors and connector task health. This function also runs every minute on a crom job and reports the health status to the `${self:service}-${sls:stage}.lambda.seatoolData` and `${self:service}-${sls:stage}.lambda.seatoolData` metric name.
 - sinkSeatoolData - this function recieves events from the `aws.ksqldb.seatool.agg.State_Plan` topic as single events reprenting the statuc of the state plan after a change. This function uses http put events to update the seatool dynamoDb table with these changes.
 - sinkMmdlData - this function recieves events from the `aws.ksqldb.mmdl.agg.PLAN_WVR_FLD_MPNG_TBL` topic as single events reprenting the status of the state plan after a change. This function uses http put events to update the mmdl dynamoDb table with these changes.
