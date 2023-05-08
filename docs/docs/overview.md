@@ -5,20 +5,22 @@ nav_order: 2
 ---
 
 # Overview
+
 {: .no_toc }
 
 The 10,000ft view
 {: .fs-6 .fw-300 }
 
 ## Table of contents
+
 {: .no_toc .text-delta }
 
 1. TOC
-{:toc}
+   {:toc}
 
 ---
 
-View this site's [\_config.yml](https://github.com/cmsgov/seatool-compare/tree/main/_config.yml) file as an example.
+View this site's [\_config.yml](https://github.com/Enterprise-CMCS/seatool-compare/tree/main/_config.yml) file as an example.
 
 ## Overview
 
@@ -30,4 +32,4 @@ The {{ site.repo.name }} project is a microservice which compares legacy data an
 
 ## View Metrics
 
-[Metrics](https://cmsgov.github.io/seatool-compare/dora/)
+[Metrics](https://Enterprise-CMCS.github.io/seatool-compare/dora/)

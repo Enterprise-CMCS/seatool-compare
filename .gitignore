@@ -13,3 +13,4 @@ build_run
 .esbuild
 run.js
 runner.js
+coverage
