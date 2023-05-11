@@ -18,7 +18,7 @@ export const getEmailContent = ({
         <center>
         <h2>This is ${
           isUrgent ? "an urgent" : "a"
-        } reminder that there's no matching record in <a href="https://${seatoolSubdomain}.cms.gov/" style="text-decoration:none" target="_blank">SEA Tool</a> for ${id}.</h2>
+        } reminder that there's no matching record in <a href="https://${seatoolSubdomain}.cms.gov/" target="_blank">SEA Tool</a> for ${id}.</h2>
         <br>
         <p>Either a record wasn't created in SEA Tool, or the SPA ID in Appian and SEA Tool don't match.</p>
         ${
