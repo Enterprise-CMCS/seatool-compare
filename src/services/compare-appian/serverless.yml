@@ -88,24 +88,28 @@ params:
     tempWaitSec: 172800 # 2 days
     sinceSubmissionChoiceSec: 345600 # 4 days
     recordAgeChoiceSec: 17366000 # 201 days
+    seatoolSubdomain: seadev
     workflowsStatus: ON
   val:
     initialWaitSec: 86400
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
+    seatoolSubdomain: seaval
     workflowsStatus: OFF
   production:
     initialWaitSec: 86400
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
+    seatoolSubdomain: sea
     workflowsStatus: OFF
   default:
     initialWaitSec: 2
     tempWaitSec: 43200 # 12 hours
     sinceSubmissionChoiceSec: 3
     recordAgeChoiceSec: 17366000 # 201 days
+    seatoolSubdomain: seadev
     workflowsStatus: ON
 
 custom:
@@ -170,6 +174,7 @@ functions:
       stage: ${sls:stage}
       sesLogGroupName: ${param:sesLogGroupName}
       errorsTopicArn: ${param:errorsTopicArn}
+      seatoolSubdomain: ${param:seatoolSubdomain}
   getAppianData:
     handler: handlers/getAppianData.handler
     environment:
