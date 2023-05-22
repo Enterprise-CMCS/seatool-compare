@@ -64,6 +64,7 @@ provider:
         - Effect: Allow
           Action:
             - logs:PutLogEvents
+            - logs:GetLogEvents
           Resource:
             - ${param:sesLogGroupArn}
         - Effect: Allow
@@ -77,11 +78,6 @@ provider:
             - kms:Decrypt
           Resource:
             - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
-        - Effect: "Allow"
-          Action:
-            - cloudwatch:PutMetricData
-          Resource: "*"
-
 params:
   master:
     initialWaitSec: 86400 # 1 days
@@ -250,7 +246,8 @@ stepFunctions:
             Choices:
               - Variable: $.seatoolExist
                 BooleanEquals: true
-                Next: CompareTask
+                Next: UpdateStatusTask # for now we are skipping the compare task
+                # Next: CompareTask # for now we are skipping the compare task
               - Variable: $.seatoolExist
                 BooleanEquals: false
                 Next: SinceSubmissionChoice
@@ -283,7 +280,7 @@ stepFunctions:
           TempWait:
             Type: Wait
             Seconds: ${param:tempWaitSec}
-            Next: InitialWait
+            Next: GetAppianDataTask
           LastLoopAMatchChoice:
             Type: Choice
             Choices:
@@ -294,28 +291,28 @@ stepFunctions:
                     BooleanEquals: true
                 Next: SuccessState
             Default: FailState
-          CompareTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
-            Parameters:
-              Payload.$: $
-            Next: RecordsMatchChoice
-          RecordsMatchChoice:
-            Type: Choice
-            Choices:
-              - Variable: $.match
-                BooleanEquals: true
-                Next: UpdateStatusTask
-              - Variable: $.match
-                BooleanEquals: false
-                Next: SendNotMatchTask
-            Default: SendNotMatchTask
-          SendNotMatchTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
-            Parameters:
-              Payload.$: $
-            Next: UpdateStatusTask
+          # CompareTask:
+          #   Type: Task
+          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
+          #   Parameters:
+          #     Payload.$: $
+          #   Next: RecordsMatchChoice
+          # RecordsMatchChoice:
+          #   Type: Choice
+          #   Choices:
+          #     - Variable: $.match
+          #       BooleanEquals: true
+          #       Next: UpdateStatusTask
+          #     - Variable: $.match
+          #       BooleanEquals: false
+          #       Next: SendNotMatchTask
+          #   Default: SendNotMatchTask
+          # SendNotMatchTask:
+          #   Type: Task
+          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
+          #   Parameters:
+          #     Payload.$: $
+          #   Next: UpdateStatusTask
           UpdateStatusTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-updateStatus"
