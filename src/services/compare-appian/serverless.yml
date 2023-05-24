@@ -247,7 +247,7 @@ stepFunctions:
               - Variable: $.seatoolExist
                 BooleanEquals: true
                 Next: UpdateStatusTask # for now we are skipping the compare task
-                # Next: CompareTask # for now we are skipping the compare task
+                # Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
                 Next: SinceSubmissionChoice

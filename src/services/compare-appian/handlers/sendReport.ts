@@ -20,7 +20,7 @@ function formatReportData(data: Types.AppianReportData[]) {
       "Seatool Signed Date": i.seatoolSubmissionDate
         ? formatDate(Number(i.seatoolSubmissionDate))
         : "N/A",
-      "Records Match": i.match || false,
+      // "Records Match": i.match || false,
     };
   });
 }
