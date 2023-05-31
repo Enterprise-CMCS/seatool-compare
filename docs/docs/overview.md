@@ -24,7 +24,7 @@ View this site's [\_config.yml](https://github.com/Enterprise-CMCS/seatool-compa
 
 ## Overview
 
-The {{ site.repo.name }} project is a microservice which compares legacy data and seatool data and sends notifications when certain conditions are met. Alerting is leveraged through [AWS SES](https://aws.amazon.com/ses/) service.
+The seatool-compare project is a microservice which compares legacy data and seatool data and sends notifications when certain conditions are met. Alerting is leveraged through [AWS SES](https://aws.amazon.com/ses/) service.
 
 ## Archtecture
 
@@ -39,4 +39,4 @@ We programmatically publish a set of Development metrics that align to the DevOp
 
 ## AWS Resources
 
-You can view and download a list of all aws resources this project uses for higher environments [here]({{ site.url }}{{ site.repo.name }}/metrics/aws).
+You can view and download a list of all aws resources this project uses for higher environments [here]({{ site.url }}seatool-compare/metrics/aws).
