@@ -10,7 +10,10 @@ import {
 import * as getMmdlData from "../getMmdlData";
 import * as libs from "../../../../libs";
 
-const handler = getMmdlData as unknown as { handler: Function, getSecsSinceNowFromSigDate: Function };
+const handler = getMmdlData as unknown as {
+  handler: Function;
+  getSecsSinceNowFromSigDate: Function;
+};
 const callback = vi.fn();
 
 const testPK = "test-pk";
@@ -101,11 +104,11 @@ describe("getMmdlData", () => {
     });
 
     it("calculates seconds since now from sig date correctly", () => {
-      const result = handler.getSecsSinceNowFromSigDate('05/24/2023');
-      expect(result).not.toBeNull()
-      expect(result).toBeTypeOf("number")
-      expect(result).toBeGreaterThan(660000)
-    })
+      const result = handler.getSecsSinceNowFromSigDate("05/24/2023");
+      expect(result).not.toBeNull();
+      expect(result).toBeTypeOf("number");
+      expect(result).toBeGreaterThan(660000);
+    });
 
     it("logs the returning data", async () => {
       await handler.handler(event, null, callback);

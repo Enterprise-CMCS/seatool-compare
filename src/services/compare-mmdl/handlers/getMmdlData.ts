@@ -22,11 +22,15 @@ exports.handler = async function (
     })) as Types.MmdlReportData;
 
     if (mmdlRecord.mmdlSigDate) {
-      data.secSinceMmdlSigned = getSecsSinceNowFromSigDate(mmdlRecord?.mmdlSigDate);
+      data.secSinceMmdlSigned = getSecsSinceNowFromSigDate(
+        mmdlRecord?.mmdlSigDate
+      );
     }
 
     if (mmdlRecord.clockStartDate) {
-      const secSinceClockStart = getSecsSinceNowFromClockStartDate(mmdlRecord?.clockStartDate);
+      const secSinceClockStart = getSecsSinceNowFromClockStartDate(
+        mmdlRecord?.clockStartDate
+      );
       data.secSinceClockStart = secSinceClockStart;
     }
 
@@ -59,10 +63,12 @@ export function getSecsSinceNowFromSigDate(date: string) {
   const desiredDateTime = new Date(date);
 
   // Get the current date and time
-  const currentDateTime = new Date()
+  const currentDateTime = new Date();
 
   // Calculate the difference in seconds
-  const secondsDifference = Math.floor((currentDateTime.getTime() - desiredDateTime.getTime()) / 1000);
+  const secondsDifference = Math.floor(
+    (currentDateTime.getTime() - desiredDateTime.getTime()) / 1000
+  );
 
-  return secondsDifference
+  return secondsDifference;
 }
