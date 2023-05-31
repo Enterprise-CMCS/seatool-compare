@@ -28,4 +28,8 @@ DORA, short for (DevOps Research and Assessment) was a study performed by google
 
 Linked below is Development Metrics dashboard in question. But in essence it collects a data around deployments, commits, and pull-requests that occur in github and displays it in a useful and easily readable way.
 
-[View Development Metrics](https://Enterprise-CMCS.github.io/seatool-compare/dora/)
+A link to the dora page will need to be pasted here. View this page in the code to see the format.
+
+[View Development Metrics]({{ site.url }}{{ site.repo.name }}/metrics/dora)
+
+[View AWS Resources]({{ site.url }}{{ site.repo.name }}/metrics/aws)

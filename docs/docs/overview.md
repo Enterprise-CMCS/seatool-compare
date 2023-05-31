@@ -32,4 +32,11 @@ The {{ site.repo.name }} project is a microservice which compares legacy data an
 
 ## View Metrics
 
-[Metrics](https://Enterprise-CMCS.github.io/seatool-compare/dora/)
+
+## Development Metrics (DORA)
+
+We programmatically publish a set of Development metrics that align to the DevOps Research and Assesment (DORA) standards.  Those metrics can be viewed [here]({{ site.url }}{{ site.repo.name }}/metrics/dora).
+
+## AWS Resources
+
+You can view and download a list of all aws resources this project uses for higher environments [here]({{ site.url }}{{ site.repo.name }}/metrics/aws).
