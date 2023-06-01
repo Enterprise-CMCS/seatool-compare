@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "coverage": "vitest run --coverage",
     "test": "vitest --config ./src/tests/vitest.config.ts",
     "test-ci": "vitest run --config ./src/tests/vitest.config.ts",
     "test-gui": "vitest --ui",
@@ -17,14 +18,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cmsgov/seatool-compare"
+    "url": "https://github.com/Enterprise-CMCS/seatool-compare"
   },
   "author": "",
   "license": "CC0-1.0",
   "bugs": {
-    "url": "https://github.com/CMSgov/seatool-compare/issues"
+    "url": "https://github.com/Enterprise-CMCS/seatool-compare/issues"
   },
-  "homepage": "https://github.com/CMSgov/seatool-compare#readme",
+  "homepage": "https://github.com/Enterprise-CMCS/seatool-compare#readme",
   "devDependencies": {
     "@enterprise-cmcs/macpro-security-hub-sync": "^1.5.0",
     "@enterprise-cmcs/macpro-serverless-running-stages": "^1.0.4",
@@ -35,9 +36,10 @@
     "@stratiformdigital/serverless-stage-destroyer": "^2.0.0",
     "@types/node": "^18.11.18",
     "@types/yargs": "^17.0.20",
-    "@vitest/ui": "^0.28.5",
-    "aws-sdk-client-mock": "^2.0.1",
     "esbuild": "0.16.17",
+    "@vitest/coverage-c8": "^0.29.8",
+    "@vitest/ui": "^0.29.8",
+    "aws-sdk-client-mock": "^2.0.1",
     "prettier": "2.7.1",
     "semantic-release": "^19.0.5",
     "serverless": "^3.17.0",
@@ -45,10 +47,11 @@
     "serverless-disable-functions": "^1.0.0",
     "serverless-esbuild": "^1.37.2",
     "serverless-plugin-scripts": "^1.0.2",
-    "serverless-stack-termination-protection": "^2.0.2",
     "serverless-step-functions": "^3.12.1",
     "typescript": "^4.9.4",
-    "vitest": "^0.26.2"
+    "serverless-plugin-warmup": "^7.1.0",
+    "serverless-stack-termination-protection": "^2.0.2",
+    "vitest": "^0.29.8"
   },
   "release": {
     "branches": [

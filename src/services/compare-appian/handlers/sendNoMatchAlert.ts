@@ -48,7 +48,11 @@ exports.handler = async function (
   const isUrgent = secSinceAppianSubmitted >= 432000; // Five days in secs
 
   // Build the email from the template:
-  const emailContent = getEmailContent({ id, isUrgent });
+  const emailContent = getEmailContent({
+    id,
+    isUrgent,
+    seatoolSubdomain: process.env.seatoolSubdomain,
+  });
   const emailBody = Libs.getEmailBody(emailContent);
   const subjectText = `${id} - ACTION REQUIRED - No matching record in SEA Tool`;
 
