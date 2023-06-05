@@ -285,6 +285,10 @@ stepFunctions:
                     BooleanEquals: true
                 Next: SuccessState
             Default: FailState
+          SuccessState:
+            Type: Succeed
+          FailState:
+            Type: Fail
           # CompareTask:
           #   Type: Task
           #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
