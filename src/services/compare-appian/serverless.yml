@@ -213,9 +213,6 @@ stepFunctions:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for Appian."
         StartAt: InitialWait
         States:
-          InitializeTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-initStatus"
           InitialWait:
             Type: Wait
             Parameters:
