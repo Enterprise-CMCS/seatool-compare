@@ -218,11 +218,11 @@ stepFunctions:
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getStartAtTimeStamp"
             Parameters:
               Payload.$: $
+            Next: InitialWait
+          InitialWait:
+            Type: Wait
+            TimestampPath: $.startAtTimeStamp
             Next: GetMmdlDataTask
-          # InitialWait:
-          #   Type: Wait
-          #   TimestampPath: $.startAtTimeStamp
-          #   Next: GetMmdlDataTask
           GetMmdlDataTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getMmdlData"

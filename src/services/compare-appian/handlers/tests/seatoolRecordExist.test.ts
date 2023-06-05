@@ -27,21 +27,7 @@ const exampleAppianRecord = {
 };
 
 describe("seatoolRecordExists", () => {
-  describe("when process.env.statusTableName is not defined", () => {
-    it("throws an error if process.env.statusTableName is not defined", async () => {
-      await expect(() =>
-        handler.handler(event, null, callback)
-      ).rejects.toThrowError(
-        "process.env.seatoolTableName needs to be defined."
-      );
-    });
-  });
-
   describe("when process.env.statusTableName is defined", () => {
-    beforeAll(() => {
-      process.env.seatoolTableName = "table-name";
-    });
-
     beforeEach(() => {
       vi.spyOn(console, "log");
       vi.spyOn(libs, "getItem");

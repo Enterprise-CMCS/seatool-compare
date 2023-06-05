@@ -10,7 +10,6 @@ function formatDate(dateMs: number) {
 function formatReportData(data: Types.AppianReportData[]) {
   return data.map((i) => {
     return {
-      PCKG_ID: i.PK,
       "SPA ID": i.SPA_ID,
       "Iterations ": i.iterations,
       "Submission Date": i.appianSubmittedDate
@@ -54,10 +53,6 @@ exports.handler = async function (event: { recipient: string }) {
 
   if (!recipientEmail) {
     throw 'You must manually provide a recipient email in the event to send a report. ex. {"recipient": "user@example.com"}';
-  }
-
-  if (!process.env.statusTable) {
-    throw "process.env.statusTable needs to be defined.";
   }
 
   const params = {

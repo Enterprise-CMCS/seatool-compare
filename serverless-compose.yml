@@ -7,8 +7,6 @@ services:
     path: src/services/mmdl
   seatool:
     path: src/services/seatool
-  status-appian:
-    path: src/services/status-appian
   compare-mmdl:
     dependsOn: alerts
     path: src/services/compare-mmdl
@@ -30,8 +28,6 @@ services:
       appianTableStreamArn: ${appian.TableStreamArn}
       seatoolTableName: ${seatool.TableName}
       seatoolTableArn: ${seatool.TableArn}
-      statusTableName: ${status-appian.TableName}
-      statusTableArn: ${status-appian.TableArn}
       sesLogGroupArn: ${alerts.SesLogGroupArn}
       sesLogGroupName: ${alerts.SesLogGroupName}
       errorsTopicArn: ${alerts.ErrorsTopicArn}

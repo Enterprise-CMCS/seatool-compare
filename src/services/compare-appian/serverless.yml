@@ -34,7 +34,6 @@ provider:
           Resource:
             - ${param:appianTableArn}
             - ${param:seatoolTableArn}
-            - ${param:statusTableArn}
         - Effect: Allow
           Action:
             - sns:Publish
@@ -134,9 +133,12 @@ functions:
     maximumRetryAttempts: 0
   sendReport:
     handler: handlers/sendReport.handler
+    timeout: 120
     environment:
       region: ${self:provider.region}
-      statusTable: ${param:statusTableName}
+      seatoolTableName: ${param:seatoolTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
+      appianTableName: ${param:appianTableName}
   compare:
     handler: handlers/compare.handler
     environment:
@@ -148,20 +150,13 @@ functions:
       region: ${self:provider.region}
       seatoolTableName: ${param:seatoolTableName}
       errorsTopicArn: ${param:errorsTopicArn}
-  initStatus:
-    handler: handlers/initStatus.handler
-    environment:
-      region: ${self:provider.region}
-      statusTableName: ${param:statusTableName}
-      errorsTopicArn: ${param:errorsTopicArn}
-      namespace: ${self:service}-${sls:stage}
-  updateStatus:
-    handler: handlers/updateStatus.handler
-    environment:
-      region: ${self:provider.region}
-      statusTableName: ${param:statusTableName}
-      errorsTopicArn: ${param:errorsTopicArn}
-      namespace: ${self:service}-${sls:stage}
+  # initStatus:
+  #   handler: handlers/initStatus.handler
+  #   environment:
+  #     region: ${self:provider.region}
+  #     statusTableName: ${param:statusTableName}
+  #     errorsTopicArn: ${param:errorsTopicArn}
+  #     namespace: ${self:service}-${sls:stage}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
     environment:
@@ -216,17 +211,16 @@ stepFunctions:
           - !GetAtt StateMachineLogGroup.Arn
       definition:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for Appian."
-        StartAt: InitializeTask
+        StartAt: InitialWait
         States:
           InitializeTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-initStatus"
-            Parameters:
-              Payload.$: $
-              Context.$: $$
-            Next: InitialWait
           InitialWait:
             Type: Wait
+            Parameters:
+              Payload.$: $
+              # Context.$: $$
             Seconds: ${param:initialWaitSec}
             Next: GetAppianDataTask
           GetAppianDataTask:
@@ -246,7 +240,7 @@ stepFunctions:
             Choices:
               - Variable: $.seatoolExist
                 BooleanEquals: true
-                Next: UpdateStatusTask # for now we are skipping the compare task
+                Next: RecordAgeChoices # for now we are skipping the compare task
                 # Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
@@ -263,13 +257,13 @@ stepFunctions:
                   - Variable: $.isAppianSubmitted
                     BooleanEquals: true
                 Next: SendNotExistTask
-            Default: UpdateStatusTask
+            Default: RecordAgeChoice
           SendNotExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
             Parameters:
               Payload.$: $
-            Next: UpdateStatusTask
+            Next: RecordAgeChoice
           RecordAgeChoice:
             Type: Choice
             Choices:
@@ -313,13 +307,3 @@ stepFunctions:
           #   Parameters:
           #     Payload.$: $
           #   Next: UpdateStatusTask
-          UpdateStatusTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-updateStatus"
-            Parameters:
-              Payload.$: $
-            Next: RecordAgeChoice
-          SuccessState:
-            Type: Succeed
-          FailState:
-            Type: Fail

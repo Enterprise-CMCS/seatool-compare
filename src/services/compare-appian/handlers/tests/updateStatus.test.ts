@@ -30,27 +30,7 @@ describe("updateStatus", () => {
     vi.clearAllMocks();
   });
 
-  describe("without process.env.statusTableName defined", () => {
-    it("throws an error", async () => {
-      await expect(() =>
-        handler.handler(event, null, callback)
-      ).rejects.toThrowError(
-        "process.env.statusTableName needs to be defined."
-      );
-    });
-  });
-
   describe("with process.env.statusTableName", () => {
-    beforeAll(() => {
-      process.env.statusTableName = "table-name";
-    });
-
-    it("does not throw an error", async () => {
-      await expect(() =>
-        handler.handler(event, null, callback)
-      ).not.toThrowError("process.env.statusTableName needs to be defined.");
-    });
-
     it("logs the received event in the expected format", async () => {
       await handler.handler(event, null, callback);
       expect(console.log).toHaveBeenCalledWith(

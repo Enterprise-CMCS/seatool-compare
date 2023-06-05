@@ -51,17 +51,7 @@ describe("sendReport", () => {
     vi.clearAllMocks();
   });
 
-  it("throws an error if process.env.statusTable is not defined", async () => {
-    await expect(handler.handler(event)).rejects.toThrowError(
-      "process.env.statusTable needs to be defined."
-    );
-  });
-
   describe("when process.env.statusTable is defined", () => {
-    beforeAll(() => {
-      process.env.statusTable = "test-table";
-    });
-
     it("logs the received event in the expected format", async () => {
       vi.spyOn(console, "log");
       await handler.handler(event);
