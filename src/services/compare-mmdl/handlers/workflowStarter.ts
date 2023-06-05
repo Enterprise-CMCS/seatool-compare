@@ -51,8 +51,12 @@ exports.handler = async function (event: {
         "Result from starting step function command",
         JSON.stringify(result, null, 2)
       );
-    } catch (e) {
-      await trackError(e);
+    } catch (e: any) {
+      if (e.name === "ExecutionAlreadyExists") {
+        console.log(`Execution already exists for key: ${JSON.stringify(key)}. Taking no action.`)
+      } else {
+        await trackError(e);
+      }
     } finally {
       console.log("finally");
     }
