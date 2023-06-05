@@ -240,7 +240,7 @@ stepFunctions:
             Choices:
               - Variable: $.seatoolExist
                 BooleanEquals: true
-                Next: RecordAgeChoices # for now we are skipping the compare task
+                Next: RecordAgeChoice # for now we are skipping the compare task
                 # Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
