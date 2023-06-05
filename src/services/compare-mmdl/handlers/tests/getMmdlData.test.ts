@@ -1,5 +1,4 @@
 import {
-  MockedFunction,
   afterEach,
   beforeAll,
   beforeEach,
@@ -11,7 +10,9 @@ import {
 import * as getMmdlData from "../getMmdlData";
 import * as libs from "../../../../libs";
 
-const handler = getMmdlData as { handler: Function };
+const handler = getMmdlData as unknown as {
+  handler: Function;
+};
 const callback = vi.fn();
 
 const testPK = "test-pk";

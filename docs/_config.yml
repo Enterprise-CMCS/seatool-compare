@@ -18,6 +18,28 @@
 title: seatool-compare
 description: Project that perfoms data comparisons of legacy and seatool data and alerts accordingly when mismatches are found.
 
+url: "https://enterprise-cmcs.github.io/" # the base hostname & protocol for your site, e.g. http://example.com
+keep_files: ["docs/metrics/_next"]
+include: ["_next", "_app-*.js", "_buildManifest.js", "_ssgManifest.js"]
+exclude:
+  [
+    ".jekyll-cache",
+    "node_modules/",
+    "*.gemspec",
+    "*.gem",
+    "Gemfile",
+    "Gemfile.lock",
+    "package.json",
+    "package-lock.json",
+    "script/",
+    "LICENSE.txt",
+    "lib/",
+    "bin/",
+    "docs/metrics/_next",
+    "README.md",
+    "Rakefile",
+  ]
+
 contact_email: bpaige@gswell.com
 
 team:
@@ -44,7 +66,7 @@ team:
       email: jdinh@gswell.com
   core_hours: 10:00am - 3:00pm ET
 
-  repo:
+repo:
   org: Enterprise-CMCS
   name: seatool-compare
   url: https://github.com/Enterprise-CMCS/seatool-compare
@@ -53,24 +75,6 @@ team:
 # url: "https://just-the-docs.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 remote_theme: just-the-docs/just-the-docs
 permalink: pretty
-include: ["_next", "_app-*.js", "_buildManifest.js", "_ssgManifest.js"]
-exclude:
-  [
-    ".jekyll-cache",
-    "node_modules/",
-    "*.gemspec",
-    "*.gem",
-    "Gemfile",
-    "Gemfile.lock",
-    "package.json",
-    "package-lock.json",
-    "script/",
-    "LICENSE.txt",
-    "lib/",
-    "bin/",
-    "README.md",
-    "Rakefile",
-  ]
 
 layout: default
 nav_order: 2
