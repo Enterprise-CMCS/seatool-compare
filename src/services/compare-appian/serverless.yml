@@ -150,13 +150,12 @@ functions:
       region: ${self:provider.region}
       seatoolTableName: ${param:seatoolTableName}
       errorsTopicArn: ${param:errorsTopicArn}
-  # initStatus:
-  #   handler: handlers/initStatus.handler
-  #   environment:
-  #     region: ${self:provider.region}
-  #     statusTableName: ${param:statusTableName}
-  #     errorsTopicArn: ${param:errorsTopicArn}
-  #     namespace: ${self:service}-${sls:stage}
+  getStartAtTimeStamp:
+    handler: handlers/getStartAtTimeStamp.handler
+    environment:
+      region: ${self:provider.region}
+      errorsTopicArn: ${param:errorsTopicArn}
+      # skipWait: ${param:skipWait}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
     environment:
@@ -211,13 +210,17 @@ stepFunctions:
           - !GetAtt StateMachineLogGroup.Arn
       definition:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for Appian."
-        StartAt: InitialWait
+        StartAt: GetStartAtTimeStampTask
         States:
-          InitialWait:
-            Type: Wait
+          GetStartAtTimeStampTask:
+            Type: Task
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getStartAtTimeStamp"
             Parameters:
               Payload.$: $
-              # Context.$: $$
+              Context.$: $$
+            Next: InitialWait
+          InitialWait:
+            Type: Wait
             Seconds: ${param:initialWaitSec}
             Next: GetAppianDataTask
           GetAppianDataTask:
