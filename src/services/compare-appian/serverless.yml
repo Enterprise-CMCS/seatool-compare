@@ -79,33 +79,33 @@ provider:
             - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
 params:
   master:
-    initialWaitSec: 86400 # 1 days
     tempWaitSec: 172800 # 2 days
     sinceSubmissionChoiceSec: 345600 # 4 days
     recordAgeChoiceSec: 17366000 # 201 days
     seatoolSubdomain: seadev
     workflowsStatus: ON
+    skipWait: true
   val:
-    initialWaitSec: 86400
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: seaval
     workflowsStatus: OFF
+    skipWait: true
   production:
-    initialWaitSec: 86400
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: sea
     workflowsStatus: OFF
+    skipWait: true
   default:
-    initialWaitSec: 2
-    tempWaitSec: 43200 # 12 hours
+    tempWaitSec: 3600 # 1 hour
     sinceSubmissionChoiceSec: 3
     recordAgeChoiceSec: 17366000 # 201 days
     seatoolSubdomain: seadev
     workflowsStatus: ON
+    skipWait: true
 
 custom:
   project: ${env:PROJECT}
@@ -155,7 +155,7 @@ functions:
     environment:
       region: ${self:provider.region}
       errorsTopicArn: ${param:errorsTopicArn}
-      # skipWait: ${param:skipWait}
+      skipWait: ${param:skipWait}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
     environment:
@@ -217,11 +217,10 @@ stepFunctions:
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getStartAtTimeStamp"
             Parameters:
               Payload.$: $
-              Context.$: $$
             Next: InitialWait
           InitialWait:
             Type: Wait
-            Seconds: ${param:initialWaitSec}
+            TimestampPath: $.startAtTimeStamp
             Next: GetAppianDataTask
           GetAppianDataTask:
             Type: Task
