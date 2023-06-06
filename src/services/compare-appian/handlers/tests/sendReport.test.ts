@@ -1,6 +1,7 @@
 import {
   MockedFunction,
   afterEach,
+  beforeAll,
   beforeEach,
   describe,
   expect,
@@ -50,7 +51,13 @@ describe("sendReport", () => {
     vi.clearAllMocks();
   });
 
+  it("throws an error if process.env.statusTable is not defined", async () => {
   describe("when process.env.statusTable is defined", () => {
+    beforeAll(() => {
+      process.env.seatoolTableName = "test-table";
+      process.env.appianTableName = "test-table2";
+    });
+
     it("logs the received event in the expected format", async () => {
       vi.spyOn(console, "log");
       await handler.handler(event);
