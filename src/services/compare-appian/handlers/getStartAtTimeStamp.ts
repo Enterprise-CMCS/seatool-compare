@@ -1,11 +1,11 @@
 import { trackError } from "../../../libs";
 import * as Types from "../../../types";
 
-// const getTenMinutesFromNow = () => {
-//   const date = new Date();
-//   const tenMinutesFromNow = new Date(date.getTime() + 600000).toISOString();
-//   return tenMinutesFromNow;
-// };
+const getTenMinutesFromNow = () => {
+  const date = new Date();
+  const tenMinutesFromNow = new Date(date.getTime() + 600000).toISOString();
+  return tenMinutesFromNow;
+};
 
 // 8am EST two days from now
 const getTimeToStart = () => {
@@ -32,11 +32,11 @@ exports.handler = async function (
   try {
     let timeToStart;
 
-    // if (process.env.skipWait === "true") {
-    //   timeToStart = getTenMinutesFromNow();
-    // } else {
-    timeToStart = getTimeToStart();
-    // }
+    if (process.env.skipWait === "true") {
+      timeToStart = getTenMinutesFromNow();
+    } else {
+      timeToStart = getTimeToStart();
+    }
 
     data.startAtTimeStamp = timeToStart;
   } catch (e) {
