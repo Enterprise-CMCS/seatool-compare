@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import * as seatoolRecordExists from "../seatoolRecordExist";
 import * as libs from "../../../../libs";
 
@@ -20,6 +28,10 @@ const exampleAppianRecord = {
 
 describe("seatoolRecordExists", () => {
   describe("when process.env.statusTableName is defined", () => {
+    beforeAll(() => {
+      process.env.seatoolTableName = "table-name";
+    });
+
     beforeEach(() => {
       vi.spyOn(console, "log");
       vi.spyOn(libs, "getItem");

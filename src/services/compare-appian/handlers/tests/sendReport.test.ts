@@ -38,7 +38,7 @@ const appianReportData = [
   },
 ];
 
-const event = { recipient: "recipient@example.com" };
+const event = { recipient: "user@example.com", days: 250 };
 
 describe("sendReport", () => {
   beforeEach(() => {
