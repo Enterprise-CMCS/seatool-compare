@@ -289,9 +289,9 @@ stepFunctions:
             Type: Choice
             Choices:
               - And:
-                  - Variable: $.match
+                  - Variable: $.seatoolExist
                     IsPresent: true
-                  - Variable: $.match
+                  - Variable: $.seatoolExist
                     BooleanEquals: true
                 Next: SuccessState
             Default: FailState
