@@ -237,7 +237,7 @@ stepFunctions:
               - Variable: $.isAppianSubmitted
                 BooleanEquals: false
                 Next: RecordAgeChoice
-            Default: RecordAgeChoice          
+            Default: RecordAgeChoice
           DoesSeatoolRecordExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-seatoolRecordExist"
