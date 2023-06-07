@@ -34,7 +34,7 @@ exports.handler = async function (
       appianRecord.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
       appianRecord.payload?.SPA_PCKG_ID?.toLowerCase()?.at(-1) === "o";
 
-    data.appianSubmittedDate = new Date(submissionDate).getTime();
+    data.appianSubmittedDate = submissionDate || undefined;
   } catch (e) {
     await trackError(e);
   } finally {
