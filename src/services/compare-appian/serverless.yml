@@ -84,21 +84,21 @@ params:
     recordAgeChoiceSec: 17366000 # 201 days
     seatoolSubdomain: seadev
     workflowsStatus: ON
-    skipWait: true
+    skipWait: false
   val:
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: seaval
     workflowsStatus: OFF
-    skipWait: true
+    skipWait: false
   production:
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: sea
     workflowsStatus: OFF
-    skipWait: true
+    skipWait: false
   default:
     tempWaitSec: 3600 # 1 hour
     sinceSubmissionChoiceSec: 3
