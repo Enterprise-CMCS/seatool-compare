@@ -80,7 +80,7 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     const appianRecords = await Libs.scanTable<Types.AppianReportData>({
       TableName: process.env.appianTableName,
     });
-    console.log("logging appian records");
+    console.log("logging appian records", appianRecords);
     const relevantAppianRecords = (
       appianRecords as Types.AppianReportData[]
     ).filter((record) => {
