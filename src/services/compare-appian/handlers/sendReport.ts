@@ -91,6 +91,8 @@ exports.handler = async function (event: { recipient: string; days: number }) {
       );
     });
 
+    console.log("logging relevant appian records", relevantAppianRecords);
+
     if (!relevantAppianRecords) {
       throw "No relevant appain records to show. Check your days value.";
     }
@@ -98,6 +100,8 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     const results = await Promise.all(
       relevantAppianRecords.map(await addSeatoolExists)
     );
+
+    console.log("logging results", results);
 
     const reportDataJson = formatReportData(
       results as Types.AppianReportData[]
