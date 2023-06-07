@@ -98,7 +98,7 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     }
 
     const results = await Promise.all(
-      relevantAppianRecords.map(await addSeatoolExists)
+      relevantAppianRecords.map((record) => addSeatoolExists(record))
     );
 
     console.log("logging results", results);
