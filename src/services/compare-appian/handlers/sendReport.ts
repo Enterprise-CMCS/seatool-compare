@@ -84,8 +84,8 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     const relevantAppianRecords = (appianRecords as any[]).filter((record) => {
       return (
         record &&
-        record.payload?.appianSubmittedDate &&
-        record.payload?.appianSubmittedDate >= epochTime
+        record.payload?.SBMSSN_DATE &&
+        record.payload?.SBMSSN_DATE >= epochTime
       );
     });
 
