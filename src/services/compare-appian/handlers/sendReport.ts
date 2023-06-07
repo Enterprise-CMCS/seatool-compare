@@ -77,17 +77,15 @@ exports.handler = async function (event: { recipient: string; days: number }) {
   try {
     const epochTime = new Date().getTime() - days * 86400000; // one day in miliseconds
 
-    const appianRecords = await Libs.scanTable<Types.AppianReportData>({
+    const appianRecords = await Libs.scanTable<any>({
       TableName: process.env.appianTableName,
     });
     console.log("logging appian records", appianRecords);
-    const relevantAppianRecords = (
-      appianRecords as Types.AppianReportData[]
-    ).filter((record) => {
+    const relevantAppianRecords = (appianRecords as any[]).filter((record) => {
       return (
         record &&
-        record.appianSubmittedDate &&
-        record.appianSubmittedDate >= epochTime
+        record.payload?.appianSubmittedDate &&
+        record.payload?.appianSubmittedDate >= epochTime
       );
     });
 
