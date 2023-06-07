@@ -35,7 +35,6 @@ The record is then updated in the status-mmdl table to reflect the new data, and
 - `seatoolRecordExist` gets seatool item using id. checks if seatoolItem exists.
 - `sendNoMatchAlert` checks if secrets exist for that stage. uses that secret value to define recipients for SES Alert. Sends does not match alert. `putsLogEvent` logs that an email should be or would be sent for event.
 - `compare` compares date values from mmdl and seatool record and sets "match" value of event data.
-- `updaeStatus` updates status-mmdl table with state machine data and updates interations value by 1.
 
 #### Alerting
 - The `sendNotExistTask` and `sendNoMatchTask` functions handle the email notifications. They use the `secret-manager-lib` to get the list of recipient and source emails from secrets manager, defines the email content and initiates email sending via the [AWS SES](https://aws.amazon.com/ses/) service.
