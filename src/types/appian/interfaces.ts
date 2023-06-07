@@ -82,7 +82,7 @@ export interface AppianReportData {
   appianSubmittedDate: number;
   seatoolExist: boolean;
   seatoolSubmissionDate?: string;
-  // match?: boolean;
+  match?: boolean;
   startAtTimeStamp?: string;
 }
 
