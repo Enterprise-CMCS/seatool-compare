@@ -29,12 +29,10 @@ The record is then updated in the status-appian table to reflect the new data, a
 #### Functions
 
 - `workflowStarter` its trigger is set to be the appian service’s dynamo stream. In this way, when a new appian record arrives, this function will determine if the record has been submitted & official and the record had been submitted within 200 days in the table the workflow creator is triggered.
-- `initStatus` puts initial record to the status-appian table with iterations value set to 0.
 - `getAppianData` gets appian record and extracts signature date and program type to be used in comparison.
 - `seatoolRecordExist` gets seatool item using id. checks if seatoolItem exists.
 - `sendNoMatchAlert` checks if secrets exist for that stage. uses that secret value to define recipients for SES Alert. Sends does not match alert or seatool record does not exist. `putsLogEvent` logs that an email should be or would be sent for event.
 - `compare` compares date values from appian and seatool record and sets "match" value of event data.
-- `updaeStatus` updates status-appian table with state machine data and updates interations value by 1.
 
 #### Alerting
 - The `sendNotExistTask` and `sendNoMatchTask` functions handle the email notifications. They use the `secret-manager-lib` to get the list of recipient and source emails from secrets manager, defines the email content and initiates email sending via the [AWS SES](https://aws.amazon.com/ses/) service.
