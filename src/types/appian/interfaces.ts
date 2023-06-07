@@ -70,6 +70,7 @@ export interface AppianSeatoolCompareData {
   secSinceAppianSubmitted: number;
   isAppianSubmitted: boolean;
   appianSubmittedDate: number;
+  seatoolExist: boolean;
 }
 
 export interface AppianReportData {
@@ -77,8 +78,7 @@ export interface AppianReportData {
   SK: string;
   isAppianSubmitted: boolean;
   SPA_ID: string;
-  iterations: number;
-  secSinceAppianSubmitted: string;
+  secSinceAppianSubmitted: number;
   appianSubmittedDate: number;
   seatoolExist: boolean;
   seatoolSubmissionDate?: string;

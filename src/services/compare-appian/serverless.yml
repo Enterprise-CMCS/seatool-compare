@@ -102,7 +102,7 @@ params:
   default:
     tempWaitSec: 3600 # 1 hour
     sinceSubmissionChoiceSec: 3
-    recordAgeChoiceSec: 17366000 # 201 days
+    recordAgeChoiceSec: 17366000
     seatoolSubdomain: seadev
     workflowsStatus: OFF
     skipWait: true

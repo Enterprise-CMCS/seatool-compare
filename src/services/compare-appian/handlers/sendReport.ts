@@ -21,7 +21,6 @@ function formatReportData(data: Types.AppianReportData[]) {
   return data.map((i) => {
     return {
       "SPA ID": i.SPA_ID,
-      "Iterations ": i.iterations,
       "Submission Date": convertMsToDate(i.appianSubmittedDate)
         ? formatDate(Number(i.appianSubmittedDate))
         : "",
@@ -81,7 +80,7 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     const appianRecords = await Libs.scanTable<Types.AppianReportData>({
       TableName: process.env.appianTableName,
     });
-
+    console.log("logging appian records");
     const relevantAppianRecords = (
       appianRecords as Types.AppianReportData[]
     ).filter((record) => {
