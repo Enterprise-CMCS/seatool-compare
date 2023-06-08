@@ -24,7 +24,7 @@ function formatReportData(
     seatoolSubmissionDate?: number;
   }[]
 ) {
-  console.log(formatReportData);
+  console.log(data);
   return data.map((i) => {
     return {
       "SPA ID": i.results?.SPA_ID,
