@@ -231,10 +231,10 @@ stepFunctions:
           StatusSubmittedChoice:
             Type: Choice
             Choices:
-              - Variable: $.isAppianSubmitted
+              - Variable: $.isAppianInSubmittedStatus
                 BooleanEquals: true
                 Next: DoesSeatoolRecordExistTask
-              - Variable: $.isAppianSubmitted
+              - Variable: $.isAppianInSubmittedStatus
                 BooleanEquals: false
                 Next: RecordAgeChoice
             Default: RecordAgeChoice
@@ -263,7 +263,7 @@ stepFunctions:
                     IsPresent: true
                   - Variable: $.secSinceAppianSubmitted
                     NumericGreaterThanEquals: ${param:sinceSubmissionChoiceSec}
-                  - Variable: $.isAppianSubmitted
+                  - Variable: $.isAppianInSubmittedStatus
                     BooleanEquals: true
                 Next: SendNotExistTask
             Default: RecordAgeChoice

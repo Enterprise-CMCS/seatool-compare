@@ -30,9 +30,8 @@ exports.handler = async function (
     /* Checking if the appian record was submitted within the last 200 days. */
     const submissionDate = appianRecord.payload?.SBMSSN_DATE;
     data.secSinceAppianSubmitted = secondsBetweenDates(submissionDate);
-    data.isAppianSubmitted =
-      appianRecord.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
-      appianRecord.payload?.SPA_PCKG_ID?.toLowerCase()?.at(-1) === "o";
+    data.isAppianInSubmittedStatus =
+      appianRecord.payload?.CRNT_STUS === "Submitted";
 
     data.appianSubmittedDate = submissionDate || undefined;
   } catch (e) {

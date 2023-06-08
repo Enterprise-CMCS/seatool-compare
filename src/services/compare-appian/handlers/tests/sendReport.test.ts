@@ -26,7 +26,7 @@ const submissionDateString = "1680723474372";
 
 const appianReportData = [
   {
-    isAppianSubmitted: true,
+    isAppianInSubmittedStatus: true,
     SPA_ID: "test-id",
     secSinceAppianSubmitted: "12345678",
     appianSubmittedDate: submissionDateString,
