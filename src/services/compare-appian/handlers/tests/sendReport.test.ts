@@ -26,16 +26,12 @@ const submissionDateString = "1680723474372";
 
 const appianReportData = [
   {
-    PK: "test-pk",
-    SK: "test-sk",
     isAppianSubmitted: true,
     SPA_ID: "test-id",
-    iterations: 0,
     secSinceAppianSubmitted: "12345678",
     appianSubmittedDate: submissionDateString,
     seatoolExist: true,
     seatoolSubmissionDate: submissionDateString,
-    match: true,
   },
 ];
 

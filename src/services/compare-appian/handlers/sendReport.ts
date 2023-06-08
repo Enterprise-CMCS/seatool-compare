@@ -111,14 +111,18 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     console.log("logging results", results);
 
     const reportDataJson = formatReportData(results as any[]);
+    console.log("reportdata", reportDataJson);
 
     const csv = Libs.getCsvFromJson(reportDataJson);
+
+    console.log("csv", csv);
+
     const mailOptions = getMailOptionsWithAttachment({
       recipient,
       attachment: csv,
       days,
     });
-
+    console.log("before await", mailOptions);
     await Libs.sendAttachment(mailOptions);
   } catch (e) {
     await Libs.trackError(e);
