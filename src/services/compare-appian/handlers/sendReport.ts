@@ -146,5 +146,8 @@ async function addSeatoolExists(record: Types.AppianFormField) {
       seatoolSubmissionDate: seatoolItem.STATE_PLAN.SUBMISSION_DATE,
     };
   }
-  return record;
+  return {
+    ...record,
+    seatoolExist: false,
+  };
 }
