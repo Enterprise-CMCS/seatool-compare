@@ -24,10 +24,11 @@ function formatReportData(
     seatoolSubmissionDate?: number;
   }[]
 ) {
+  console.log(formatReportData);
   return data.map((i) => {
     return {
-      "SPA ID": i.results.SPA_ID,
-      "Submission Date": convertMsToDate(i.results.SBMSSN_DATE)
+      "SPA ID": i.results?.SPA_ID,
+      "Submission Date": convertMsToDate(i.results?.SBMSSN_DATE)
         ? formatDate(Number(i.results.SBMSSN_DATE))
         : "",
       "Seatool Record Exist": i.seatoolExist,
