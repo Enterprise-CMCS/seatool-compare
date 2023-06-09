@@ -26,7 +26,15 @@ function formatReportData(
 ) {
   console.log("in format report", data);
   return data.map((i) => {
-    console.log("iteration:", data);
+    console.log(
+      "iteration:",
+      i,
+      "ooo",
+      i.results?.SPA_ID,
+      i.results?.SBMSSN_DATE,
+      i.seatoolExist,
+      i.seatoolSubmissionDate
+    );
     return {
       "SPA ID": i.results?.SPA_ID,
       "Submission Date": convertMsToDate(i.results?.SBMSSN_DATE)
