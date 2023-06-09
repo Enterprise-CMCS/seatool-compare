@@ -17,21 +17,15 @@ const convertMsToDate = (milliseconds?: number) => {
   return dateStr;
 };
 
-function formatReportData(
-  data: {
-    results: Types.AppianFormField;
-    seatoolExist?: boolean;
-    seatoolSubmissionDate?: number;
-  }[]
-) {
+function formatReportData(data: any[]) {
   console.log("in format report", data);
   return data.map((i) => {
     console.log(
       "iteration:",
       i,
       "ooo",
-      i.results?.SPA_ID,
-      i.results?.SBMSSN_DATE,
+      i.SPA_ID,
+      i.SBMSSN_DATE,
       i.seatoolExist,
       i.seatoolSubmissionDate
     );
