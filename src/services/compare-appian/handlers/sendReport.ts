@@ -30,15 +30,16 @@ function formatReportData(data: any[]) {
       i.seatoolSubmissionDate
     );
     return {
-      "SPA ID": i.results?.SPA_ID,
-      // "Submission Date": convertMsToDate(i.results?.SBMSSN_DATE)
-      //   ? formatDate(Number(i.results.SBMSSN_DATE))
-      //   : "",
-      // "Seatool Record Exist": i.seatoolExist,
-      // "Seatool Signed Date": i.seatoolSubmissionDate
-      //   ? formatDate(Number(i.seatoolSubmissionDate))
-      // : "N/A",
-      // "Records Match": i.match || false,
+      "SPA ID": i.SPA_ID,
+      "Submission Date":
+        i.SBMSSN_DATE && convertMsToDate(i.SBMSSN_DATE)
+          ? formatDate(Number(i.SBMSSN_DATE))
+          : "",
+      "Seatool Record Exist": i.seatoolExist,
+      "Seatool Signed Date": i.seatoolSubmissionDate
+        ? formatDate(Number(i.seatoolSubmissionDate))
+        : "N/A",
+      "Records Match": i.match || false,
     };
   });
 }
