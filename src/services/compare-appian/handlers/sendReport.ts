@@ -37,7 +37,7 @@ function formatReportData(data: any[]) {
       // "Seatool Record Exist": i.seatoolExist,
       // "Seatool Signed Date": i.seatoolSubmissionDate
       //   ? formatDate(Number(i.seatoolSubmissionDate))
-        : "N/A",
+      // : "N/A",
       // "Records Match": i.match || false,
     };
   });
