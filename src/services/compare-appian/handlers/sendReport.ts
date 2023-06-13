@@ -28,7 +28,7 @@ function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
       "Seatool Record Exist": i.seatoolExist,
       "Seatool Signed Date": i.seatoolSubmissionDate
         ? formatDate(Number(i.seatoolSubmissionDate))
-        : "Not Found",
+        : "N/A",
       // "Records Match": i.match || false,
     };
   });
