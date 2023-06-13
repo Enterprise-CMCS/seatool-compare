@@ -17,18 +17,8 @@ const convertMsToDate = (milliseconds?: number) => {
   return dateStr;
 };
 
-function formatReportData(data: any[]) {
-  console.log("in format report", data);
+function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
   return data.map((i) => {
-    console.log(
-      "iteration:",
-      i,
-      "ooo",
-      i.SPA_ID,
-      i.SBMSSN_DATE,
-      i.seatoolExist,
-      i.seatoolSubmissionDate
-    );
     return {
       "SPA ID": i.SPA_ID,
       "Submission Date":
@@ -38,8 +28,8 @@ function formatReportData(data: any[]) {
       "Seatool Record Exist": i.seatoolExist,
       "Seatool Signed Date": i.seatoolSubmissionDate
         ? formatDate(Number(i.seatoolSubmissionDate))
-        : "N/A",
-      "Records Match": i.match || false,
+        : "Not Found",
+      // "Records Match": i.match || false,
     };
   });
 }
@@ -88,10 +78,11 @@ exports.handler = async function (event: { recipient: string; days: number }) {
   try {
     const epochTime = new Date().getTime() - days * 86400000; // one day in miliseconds
 
-    const appianRecords = await Libs.scanTable<any>({
+    const appianRecords = await Libs.scanTable<{
+      payload: Types.AppianFormField;
+    }>({
       TableName: process.env.appianTableName,
     });
-    console.log("logging appian records", appianRecords);
 
     const recordsWithPayload = appianRecords?.map((record) => {
       return record.payload;
@@ -103,8 +94,6 @@ exports.handler = async function (event: { recipient: string; days: number }) {
       return record && record.SBMSSN_DATE && record.SBMSSN_DATE >= epochTime;
     });
 
-    console.log("logging relevant appian records", relevantAppianRecords);
-
     if (!relevantAppianRecords) {
       throw "No relevant appain records to show. Check your days value.";
     }
@@ -113,15 +102,8 @@ exports.handler = async function (event: { recipient: string; days: number }) {
       relevantAppianRecords.map((record) => addSeatoolExists(record))
     );
 
-    console.log("logging results", results);
-
-    const reportDataJson = formatReportData(results as any[]);
-    console.log("reportdata", reportDataJson);
-
+    const reportDataJson = formatReportData(results);
     const csv = Libs.getCsvFromJson(reportDataJson);
-
-    console.log("csv", csv);
-
     const mailOptions = getMailOptionsWithAttachment({
       recipient,
       attachment: csv,
@@ -134,7 +116,9 @@ exports.handler = async function (event: { recipient: string; days: number }) {
   }
 };
 
-async function addSeatoolExists(record: Types.AppianFormField) {
+async function addSeatoolExists(
+  record: Types.AppianFormField
+): Promise<Types.ReportData> {
   const seatoolItem = await getItem({
     tableName: process.env.seatoolTableName || "",
     key: {

@@ -62,6 +62,18 @@ export interface AppianFormField {
   VWD_BY_OTHR_STATES: string;
 }
 
+export interface ReportData extends AppianFormField {
+  seatoolExist: boolean;
+  seatoolSubmissionDate?: number;
+}
+
+export interface CSVData {
+  "SPA ID": string;
+  "Submission Date": string;
+  "Seatool Record Exist": boolean;
+  "Seatool Signed Date": string;
+}
+
 export interface AppianSeatoolCompareData {
   appianRecord: AppianRecord;
   PK: string;
