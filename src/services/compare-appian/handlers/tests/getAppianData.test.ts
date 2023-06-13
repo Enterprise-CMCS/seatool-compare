@@ -125,6 +125,7 @@ describe("getAppianData", () => {
             SBMSSN_TYPE: "oFfIcIaL", // this should be case insensitive
             SPA_ID: "TEST-SPA-ID",
             SPA_PCKG_ID: "test-o",
+            CRNT_STUS: "Submitted",
           },
         };
 
