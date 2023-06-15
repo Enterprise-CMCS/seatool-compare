@@ -9,7 +9,7 @@ exports.handler = async function (event: {
 }) {
   console.log("Received event:", JSON.stringify(event, null, 2));
   const client = new SFNClient({ region: process.env.region });
-  const PK = event.Records[0].dynamodb.Keys.PK.S;
+  const PK = event.Records[0].dynamodb.Keys.PK.S?.trim()?.replace(/\s+/g, "-");
   const SK = event.Records[0].dynamodb.Keys.SK.S;
   const key = { PK, SK };
 
