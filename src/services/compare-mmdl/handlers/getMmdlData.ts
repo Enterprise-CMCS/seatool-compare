@@ -59,7 +59,7 @@ exports.handler = async function (
     }
 
     data.programType = mmdlRecord?.programType;
-    data.TN = mmdlRecord?.TN;
+    data.TN = mmdlRecord?.TN?.trim();
     data.mmdlSigned = mmdlRecord?.mmdlSigned;
     data.mmdlSigDate = mmdlRecord?.mmdlSigDate;
     data.isStatusSubmitted = mmdlRecord?.isStatusSubmitted;
