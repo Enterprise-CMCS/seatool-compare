@@ -83,6 +83,7 @@ export interface AppianReportData {
   seatoolExist: boolean;
   seatoolSubmissionDate?: string;
   match?: boolean;
+  startAtTimeStamp?: string;
 }
 
 interface CcAddress {

@@ -34,7 +34,6 @@ provider:
           Resource:
             - ${param:appianTableArn}
             - ${param:seatoolTableArn}
-            - ${param:statusTableArn}
         - Effect: Allow
           Action:
             - sns:Publish
@@ -64,6 +63,7 @@ provider:
         - Effect: Allow
           Action:
             - logs:PutLogEvents
+            - logs:GetLogEvents
           Resource:
             - ${param:sesLogGroupArn}
         - Effect: Allow
@@ -77,40 +77,35 @@ provider:
             - kms:Decrypt
           Resource:
             - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
-        - Effect: "Allow"
-          Action:
-            - cloudwatch:PutMetricData
-          Resource: "*"
-
 params:
   master:
-    initialWaitSec: 86400 # 1 days
     tempWaitSec: 172800 # 2 days
     sinceSubmissionChoiceSec: 345600 # 4 days
     recordAgeChoiceSec: 17366000 # 201 days
     seatoolSubdomain: seadev
     workflowsStatus: ON
+    skipWait: true
   val:
-    initialWaitSec: 86400
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: seaval
     workflowsStatus: OFF
+    skipWait: true
   production:
-    initialWaitSec: 86400
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 345600
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: sea
     workflowsStatus: OFF
+    skipWait: true
   default:
-    initialWaitSec: 2
-    tempWaitSec: 43200 # 12 hours
+    tempWaitSec: 3600 # 1 hour
     sinceSubmissionChoiceSec: 3
     recordAgeChoiceSec: 17366000 # 201 days
     seatoolSubdomain: seadev
-    workflowsStatus: ON
+    workflowsStatus: OFF
+    skipWait: true
 
 custom:
   project: ${env:PROJECT}
@@ -138,9 +133,12 @@ functions:
     maximumRetryAttempts: 0
   sendReport:
     handler: handlers/sendReport.handler
+    timeout: 120
     environment:
       region: ${self:provider.region}
-      statusTable: ${param:statusTableName}
+      seatoolTableName: ${param:seatoolTableName}
+      errorsTopicArn: ${param:errorsTopicArn}
+      appianTableName: ${param:appianTableName}
   compare:
     handler: handlers/compare.handler
     environment:
@@ -152,20 +150,12 @@ functions:
       region: ${self:provider.region}
       seatoolTableName: ${param:seatoolTableName}
       errorsTopicArn: ${param:errorsTopicArn}
-  initStatus:
-    handler: handlers/initStatus.handler
+  getStartAtTimeStamp:
+    handler: handlers/getStartAtTimeStamp.handler
     environment:
       region: ${self:provider.region}
-      statusTableName: ${param:statusTableName}
       errorsTopicArn: ${param:errorsTopicArn}
-      namespace: ${self:service}-${sls:stage}
-  updateStatus:
-    handler: handlers/updateStatus.handler
-    environment:
-      region: ${self:provider.region}
-      statusTableName: ${param:statusTableName}
-      errorsTopicArn: ${param:errorsTopicArn}
-      namespace: ${self:service}-${sls:stage}
+      skipWait: ${param:skipWait}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
     environment:
@@ -220,25 +210,34 @@ stepFunctions:
           - !GetAtt StateMachineLogGroup.Arn
       definition:
         Comment: "A State Machine to orchestrate a CMS alerting workflow for Appian."
-        StartAt: InitializeTask
+        StartAt: GetStartAtTimeStampTask
         States:
-          InitializeTask:
+          GetStartAtTimeStampTask:
             Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-initStatus"
+            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getStartAtTimeStamp"
             Parameters:
               Payload.$: $
-              Context.$: $$
             Next: InitialWait
           InitialWait:
             Type: Wait
-            Seconds: ${param:initialWaitSec}
+            TimestampPath: $.startAtTimeStamp
             Next: GetAppianDataTask
           GetAppianDataTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-getAppianData"
             Parameters:
               Payload.$: $
-            Next: DoesSeatoolRecordExistTask
+            Next: StatusSubmittedChoice
+          StatusSubmittedChoice:
+            Type: Choice
+            Choices:
+              - Variable: $.isAppianSubmitted
+                BooleanEquals: true
+                Next: DoesSeatoolRecordExistTask
+              - Variable: $.isAppianSubmitted
+                BooleanEquals: false
+                Next: RecordAgeChoice
+            Default: RecordAgeChoice
           DoesSeatoolRecordExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-seatoolRecordExist"
@@ -250,7 +249,8 @@ stepFunctions:
             Choices:
               - Variable: $.seatoolExist
                 BooleanEquals: true
-                Next: CompareTask
+                Next: RecordAgeChoice # for now we are skipping the compare task
+                # Next: CompareTask
               - Variable: $.seatoolExist
                 BooleanEquals: false
                 Next: SinceSubmissionChoice
@@ -266,13 +266,13 @@ stepFunctions:
                   - Variable: $.isAppianSubmitted
                     BooleanEquals: true
                 Next: SendNotExistTask
-            Default: UpdateStatusTask
+            Default: RecordAgeChoice
           SendNotExistTask:
             Type: Task
             Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
             Parameters:
               Payload.$: $
-            Next: UpdateStatusTask
+            Next: RecordAgeChoice
           RecordAgeChoice:
             Type: Choice
             Choices:
@@ -283,46 +283,40 @@ stepFunctions:
           TempWait:
             Type: Wait
             Seconds: ${param:tempWaitSec}
-            Next: InitialWait
+            Next: GetAppianDataTask
           LastLoopAMatchChoice:
             Type: Choice
             Choices:
               - And:
-                  - Variable: $.match
+                  - Variable: $.seatoolExist
                     IsPresent: true
-                  - Variable: $.match
+                  - Variable: $.seatoolExist
                     BooleanEquals: true
                 Next: SuccessState
             Default: FailState
-          CompareTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
-            Parameters:
-              Payload.$: $
-            Next: RecordsMatchChoice
-          RecordsMatchChoice:
-            Type: Choice
-            Choices:
-              - Variable: $.match
-                BooleanEquals: true
-                Next: UpdateStatusTask
-              - Variable: $.match
-                BooleanEquals: false
-                Next: SendNotMatchTask
-            Default: SendNotMatchTask
-          SendNotMatchTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
-            Parameters:
-              Payload.$: $
-            Next: UpdateStatusTask
-          UpdateStatusTask:
-            Type: Task
-            Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-updateStatus"
-            Parameters:
-              Payload.$: $
-            Next: RecordAgeChoice
           SuccessState:
             Type: Succeed
           FailState:
             Type: Fail
+          # CompareTask:
+          #   Type: Task
+          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-compare"
+          #   Parameters:
+          #     Payload.$: $
+          #   Next: RecordsMatchChoice
+          # RecordsMatchChoice:
+          #   Type: Choice
+          #   Choices:
+          #     - Variable: $.match
+          #       BooleanEquals: true
+          #       Next: UpdateStatusTask
+          #     - Variable: $.match
+          #       BooleanEquals: false
+          #       Next: SendNotMatchTask
+          #   Default: SendNotMatchTask
+          # SendNotMatchTask:
+          #   Type: Task
+          #   Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-sendNoMatchAlert"
+          #   Parameters:
+          #     Payload.$: $
+          #   Next: UpdateStatusTask

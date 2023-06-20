@@ -37,7 +37,7 @@ exports.handler = async function (event: {
   if (mmdlRecord.clockStarted) {
     const params = {
       input: JSON.stringify(key),
-      name: `v1-${PK}`,
+      name: `v1-${PK?.trim()?.replace(/\s+/g, "-")}`,
       stateMachineArn: process.env.stateMachineArn,
     };
 
@@ -53,7 +53,11 @@ exports.handler = async function (event: {
       );
     } catch (e: any) {
       if (e.name === "ExecutionAlreadyExists") {
-        console.log(`Execution already exists for key: ${JSON.stringify(key)}. Taking no action.`)
+        console.log(
+          `Execution already exists for key: ${JSON.stringify(
+            key
+          )}. Taking no action.`
+        );
       } else {
         await trackError(e);
       }

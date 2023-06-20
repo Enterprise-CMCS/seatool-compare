@@ -84,7 +84,7 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     );
 
     if (!relevantMmdlRecords) {
-      throw "No relevant mmdl records to show. Sheck your days value.";
+      throw "No relevant mmdl records to show. Check your days value.";
     }
 
     const results = await Promise.all(
