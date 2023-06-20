@@ -37,7 +37,7 @@ exports.handler = async function (event: {
   if (mmdlRecord.clockStarted) {
     const params = {
       input: JSON.stringify(key),
-      name: `v1-${PK}`,
+      name: `v1-${PK?.trim()?.replace(/\s+/g, "-")}`,
       stateMachineArn: process.env.stateMachineArn,
     };
 
