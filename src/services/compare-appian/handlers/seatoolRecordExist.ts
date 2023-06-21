@@ -8,8 +8,6 @@ exports.handler = async function (
   console.log("Received event:", JSON.stringify(event, null, 2));
   const data = { ...event.Payload, seatoolExist: false };
 
-  // appian.SPA_ID should have a 1-to-1 relationship with SEATool.id
-
   if (!process.env.seatoolTableName) {
     throw "process.env.seatoolTableName needs to be defined.";
   }
