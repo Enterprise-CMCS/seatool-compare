@@ -43,7 +43,6 @@ function getMailOptionsWithAttachment({
   attachment: string;
   days?: number;
 }) {
-  console.log(days);
   const todaysDate = new Date().toISOString().split("T")[0];
   const mailOptions = {
     from: "noreply@cms.hhs.gov",
@@ -109,7 +108,6 @@ exports.handler = async function (event: { recipient: string; days: number }) {
       attachment: csv,
       days,
     });
-    console.log("before await", mailOptions);
     await Libs.sendAttachment(mailOptions);
   } catch (e) {
     await Libs.trackError(e);
