@@ -104,7 +104,7 @@ params:
     sinceSubmissionChoiceSec: 3
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: seadev
-    workflowsStatus: ON
+    workflowsStatus: OFF
     skipWait: true
 
 custom:
