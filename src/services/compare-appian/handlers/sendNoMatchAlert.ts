@@ -39,7 +39,9 @@ exports.handler = async function (
 
   const secretId = `${project}/${stage}/alerts-appian`;
 
-  const data = { ...event.Payload } as Types.AppianSeatoolCompareData;
+  const data: Types.AppianReportData = {
+    ...event.Payload,
+  } as Types.AppianSeatoolCompareData;
   const id: string = data.SPA_ID;
   const secretExists = await Libs.doesSecretExist(region, secretId);
   const secSinceAppianSubmitted = data.secSinceAppianSubmitted || 0;

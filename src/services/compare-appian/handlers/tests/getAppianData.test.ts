@@ -116,7 +116,7 @@ describe("getAppianData", () => {
         );
       });
 
-      it("sets isAppianSubmitted to true when expected", async () => {
+      it("sets isAppianInSubmittedStatus to true when expected", async () => {
         const submittedAppianRecord = {
           PK: "test-pk",
           SK: "test-sk",
@@ -125,6 +125,7 @@ describe("getAppianData", () => {
             SBMSSN_TYPE: "oFfIcIaL", // this should be case insensitive
             SPA_ID: "TEST-SPA-ID",
             SPA_PCKG_ID: "test-o",
+            CRNT_STUS: "Submitted",
           },
         };
 
@@ -134,17 +135,21 @@ describe("getAppianData", () => {
 
         await handler.handler(event, null, callback);
         expect(
-          callback.mock.calls[0][1].hasOwnProperty("isAppianSubmitted")
+          callback.mock.calls[0][1].hasOwnProperty("isAppianInSubmittedStatus")
         ).toBe(true);
-        expect(callback.mock.calls[0][1]["isAppianSubmitted"]).toBe(true);
+        expect(callback.mock.calls[0][1]["isAppianInSubmittedStatus"]).toBe(
+          true
+        );
       });
 
-      it("sets isAppianSubmitted to false when expected", async () => {
+      it("sets isAppianInSubmittedStatus to false when expected", async () => {
         await handler.handler(event, null, callback);
         expect(
-          callback.mock.calls[0][1].hasOwnProperty("isAppianSubmitted")
+          callback.mock.calls[0][1].hasOwnProperty("isAppianInSubmittedStatus")
         ).toBe(true);
-        expect(callback.mock.calls[0][1]["isAppianSubmitted"]).toBe(false);
+        expect(callback.mock.calls[0][1]["isAppianInSubmittedStatus"]).toBe(
+          false
+        );
       });
 
       it("includes appianSubmittedDate in the callback data", async () => {

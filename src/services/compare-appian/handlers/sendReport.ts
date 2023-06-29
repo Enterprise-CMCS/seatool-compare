@@ -17,14 +17,14 @@ const convertMsToDate = (milliseconds?: number) => {
   return dateStr;
 };
 
-function formatReportData(data: Types.AppianReportData[]) {
+function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
   return data.map((i) => {
     return {
       "SPA ID": i.SPA_ID,
-      "Iterations ": i.iterations,
-      "Submission Date": convertMsToDate(i.appianSubmittedDate)
-        ? formatDate(Number(i.appianSubmittedDate))
-        : "",
+      "Submission Date":
+        i.SBMSSN_DATE && convertMsToDate(i.SBMSSN_DATE)
+          ? formatDate(Number(i.SBMSSN_DATE))
+          : "",
       "Seatool Record Exist": i.seatoolExist,
       "Seatool Signed Date": i.seatoolSubmissionDate
         ? formatDate(Number(i.seatoolSubmissionDate))
@@ -43,7 +43,6 @@ function getMailOptionsWithAttachment({
   attachment: string;
   days?: number;
 }) {
-  console.log(days);
   const todaysDate = new Date().toISOString().split("T")[0];
   const mailOptions = {
     from: "noreply@cms.hhs.gov",
@@ -78,18 +77,20 @@ exports.handler = async function (event: { recipient: string; days: number }) {
   try {
     const epochTime = new Date().getTime() - days * 86400000; // one day in miliseconds
 
-    const appianRecords = await Libs.scanTable<Types.AppianReportData>({
+    const appianRecords = await Libs.scanTable<{
+      payload: Types.AppianFormField;
+    }>({
       TableName: process.env.appianTableName,
     });
 
+    const recordsWithPayload = appianRecords?.map((record) => {
+      return record.payload;
+    });
+
     const relevantAppianRecords = (
-      appianRecords as Types.AppianReportData[]
+      recordsWithPayload as Types.AppianFormField[]
     ).filter((record) => {
-      return (
-        record &&
-        record.appianSubmittedDate &&
-        record.appianSubmittedDate >= epochTime
-      );
+      return record && record.SBMSSN_DATE && record.SBMSSN_DATE >= epochTime;
     });
 
     if (!relevantAppianRecords) {
@@ -97,31 +98,30 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     }
 
     const results = await Promise.all(
-      relevantAppianRecords.map(await addSeatoolExists)
+      relevantAppianRecords.map((record) => addSeatoolExists(record))
     );
 
-    const reportDataJson = formatReportData(
-      results as Types.AppianReportData[]
-    );
+    const reportDataJson = formatReportData(results);
     const csv = Libs.getCsvFromJson(reportDataJson);
     const mailOptions = getMailOptionsWithAttachment({
       recipient,
       attachment: csv,
       days,
     });
-
     await Libs.sendAttachment(mailOptions);
   } catch (e) {
     await Libs.trackError(e);
   }
 };
 
-async function addSeatoolExists(record: Types.AppianReportData) {
+async function addSeatoolExists(
+  record: Types.AppianFormField
+): Promise<Types.ReportData> {
   const seatoolItem = await getItem({
     tableName: process.env.seatoolTableName || "",
     key: {
-      PK: record.PK,
-      SK: record.SK,
+      PK: record.SPA_ID,
+      SK: record.SPA_ID,
     },
   });
 
@@ -129,7 +129,11 @@ async function addSeatoolExists(record: Types.AppianReportData) {
     return {
       ...record,
       seatoolExist: true,
+      seatoolSubmissionDate: seatoolItem.STATE_PLAN.SUBMISSION_DATE,
     };
   }
-  return record;
+  return {
+    ...record,
+    seatoolExist: false,
+  };
 }
