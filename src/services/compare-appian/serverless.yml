@@ -80,21 +80,21 @@ provider:
 params:
   master:
     tempWaitSec: 172800 # 2 days
-    sinceSubmissionChoiceSec: 345600 # 4 days
+    sinceSubmissionChoiceSec: 259200 # 3 days
     recordAgeChoiceSec: 17366000 # 201 days
     seatoolSubdomain: seadev
     workflowsStatus: ON
     skipWait: false
   val:
     tempWaitSec: 172800
-    sinceSubmissionChoiceSec: 345600
+    sinceSubmissionChoiceSec: 259200
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: seaval
     workflowsStatus: OFF
     skipWait: false
   production:
     tempWaitSec: 172800
-    sinceSubmissionChoiceSec: 345600
+    sinceSubmissionChoiceSec: 259200
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: sea
     workflowsStatus: OFF
