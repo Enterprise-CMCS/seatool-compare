@@ -62,23 +62,35 @@ export interface AppianFormField {
   VWD_BY_OTHR_STATES: string;
 }
 
+export interface ReportData extends AppianFormField {
+  seatoolExist: boolean;
+  seatoolSubmissionDate?: number;
+}
+
+export interface CSVData {
+  "SPA ID": string;
+  "Submission Date": string;
+  "Seatool Record Exist": boolean;
+  "Seatool Signed Date": string;
+}
+
 export interface AppianSeatoolCompareData {
   appianRecord: AppianRecord;
   PK: string;
   SK: string;
   SPA_ID: string;
   secSinceAppianSubmitted: number;
-  isAppianSubmitted: boolean;
+  isAppianInSubmittedStatus: boolean;
   appianSubmittedDate: number;
+  seatoolExist: boolean;
 }
 
 export interface AppianReportData {
   PK: string;
   SK: string;
-  isAppianSubmitted: boolean;
+  isAppianInSubmittedStatus: boolean;
   SPA_ID: string;
-  iterations: number;
-  secSinceAppianSubmitted: string;
+  secSinceAppianSubmitted: number;
   appianSubmittedDate: number;
   seatoolExist: boolean;
   seatoolSubmissionDate?: string;
