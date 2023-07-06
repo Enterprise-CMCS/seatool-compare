@@ -90,7 +90,7 @@ params:
     sinceSubmissionChoiceSec: 259200
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: seaval
-    workflowsStatus: OFF
+    workflowsStatus: ON
     skipWait: false
   production:
     tempWaitSec: 172800
