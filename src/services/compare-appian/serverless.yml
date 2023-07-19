@@ -97,7 +97,7 @@ params:
     sinceSubmissionChoiceSec: 259200
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: sea
-    workflowsStatus: OFF
+    workflowsStatus: ON
     skipWait: false
   default:
     tempWaitSec: 3600 # 1 hour
