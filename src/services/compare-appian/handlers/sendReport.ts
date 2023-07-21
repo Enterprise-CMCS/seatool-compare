@@ -1,6 +1,7 @@
 import * as Libs from "../../../libs";
 import * as Types from "../../../types";
 import { getItem } from "../../../libs";
+import { getIsIgnoredState } from "./utils/getIsIgnoredState";
 
 function formatDate(dateMs: number) {
   return new Date(dateMs).toLocaleString("en-US", {
@@ -19,6 +20,7 @@ const convertMsToDate = (milliseconds?: number) => {
 
 function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
   return data.map((i) => {
+    const isIgnoredState = getIsIgnoredState(i);
     return {
       "SPA ID": i.SPA_ID,
       "Submission Date":
@@ -29,6 +31,7 @@ function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
       "Seatool Signed Date": i.seatoolSubmissionDate
         ? formatDate(Number(i.seatoolSubmissionDate))
         : "N/A",
+      "Test State": isIgnoredState || false,
       // "Records Match": i.match || false,
     };
   });
