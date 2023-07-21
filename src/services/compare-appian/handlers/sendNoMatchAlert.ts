@@ -103,7 +103,9 @@ exports.handler = async function (
         ToAddresses,
       });
 
+      console.log("before alert");
       if (!isIgnoredState) {
+        console.log("running alert");
         await Libs.sendAlert(emailParams);
       }
 
