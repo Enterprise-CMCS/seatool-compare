@@ -80,31 +80,35 @@ provider:
 params:
   master:
     tempWaitSec: 172800 # 2 days
-    sinceSubmissionChoiceSec: 345600 # 4 days
+    sinceSubmissionChoiceSec: 259200 # 3 days
     recordAgeChoiceSec: 17366000 # 201 days
     seatoolSubdomain: seadev
     workflowsStatus: ON
-    skipWait: true
+    ignoredStates: N/A
+    skipWait: false
   val:
     tempWaitSec: 172800
-    sinceSubmissionChoiceSec: 345600
+    sinceSubmissionChoiceSec: 259200
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: seaval
-    workflowsStatus: OFF
-    skipWait: true
+    workflowsStatus: ON
+    ignoredStates: N/A
+    skipWait: false
   production:
     tempWaitSec: 172800
-    sinceSubmissionChoiceSec: 345600
+    sinceSubmissionChoiceSec: 259200
     recordAgeChoiceSec: 17366000
     seatoolSubdomain: sea
-    workflowsStatus: OFF
-    skipWait: true
+    workflowsStatus: ON
+    ignoredStates: ZZ,ZT
+    skipWait: false
   default:
     tempWaitSec: 3600 # 1 hour
     sinceSubmissionChoiceSec: 3
-    recordAgeChoiceSec: 17366000 # 201 days
+    recordAgeChoiceSec: 17366000
     seatoolSubdomain: seadev
     workflowsStatus: OFF
+    ignoredStates: N/A
     skipWait: true
 
 custom:
@@ -139,6 +143,7 @@ functions:
       seatoolTableName: ${param:seatoolTableName}
       errorsTopicArn: ${param:errorsTopicArn}
       appianTableName: ${param:appianTableName}
+      ignoredStates: ${param:ignoredStates}
   compare:
     handler: handlers/compare.handler
     environment:
@@ -165,6 +170,7 @@ functions:
       sesLogGroupName: ${param:sesLogGroupName}
       errorsTopicArn: ${param:errorsTopicArn}
       seatoolSubdomain: ${param:seatoolSubdomain}
+      ignoredStates: ${param:ignoredStates}
   getAppianData:
     handler: handlers/getAppianData.handler
     environment:
@@ -231,10 +237,10 @@ stepFunctions:
           StatusSubmittedChoice:
             Type: Choice
             Choices:
-              - Variable: $.isAppianSubmitted
+              - Variable: $.isAppianInSubmittedStatus
                 BooleanEquals: true
                 Next: DoesSeatoolRecordExistTask
-              - Variable: $.isAppianSubmitted
+              - Variable: $.isAppianInSubmittedStatus
                 BooleanEquals: false
                 Next: RecordAgeChoice
             Default: RecordAgeChoice
@@ -263,7 +269,7 @@ stepFunctions:
                     IsPresent: true
                   - Variable: $.secSinceAppianSubmitted
                     NumericGreaterThanEquals: ${param:sinceSubmissionChoiceSec}
-                  - Variable: $.isAppianSubmitted
+                  - Variable: $.isAppianInSubmittedStatus
                     BooleanEquals: true
                 Next: SendNotExistTask
             Default: RecordAgeChoice

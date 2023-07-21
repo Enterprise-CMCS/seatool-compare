@@ -1,6 +1,7 @@
 import * as Libs from "../../../libs";
 import * as Types from "../../../types";
 import { getEmailContent } from "./utils/getEmailContent";
+import { getIsIgnoredState } from "./utils/getIsIgnoredState";
 
 /*
   secret should be formatted like this: validate your JSON!!
@@ -39,10 +40,13 @@ exports.handler = async function (
 
   const secretId = `${project}/${stage}/alerts-appian`;
 
-  const data = { ...event.Payload } as Types.AppianSeatoolCompareData;
+  const data: Types.AppianReportData = {
+    ...event.Payload,
+  } as Types.AppianSeatoolCompareData;
   const id: string = data.SPA_ID;
   const secretExists = await Libs.doesSecretExist(region, secretId);
   const secSinceAppianSubmitted = data.secSinceAppianSubmitted || 0;
+  const isIgnoredState = getIsIgnoredState(data);
 
   // Was this submitted more than five days ago? If so, it's urgent:
   const isUrgent = secSinceAppianSubmitted >= 432000; // Five days in secs
@@ -99,13 +103,17 @@ exports.handler = async function (
         ToAddresses,
       });
 
-      await Libs.sendAlert(emailParams);
+      if (!isIgnoredState) {
+        await Libs.sendAlert(emailParams);
+      }
+
       await Libs.putLogsEvent({
         type: "NOTFOUND-APPIAN",
-        message: `Alert for ${id} - sent to ${[
-          ...ToAddresses,
-          ...CcAddresses,
-        ].join(", ")}`,
+        message: `${
+          isIgnoredState ? "IGNORED STATE - " : ""
+        }Alert for ${id} - sent to ${[...ToAddresses, ...CcAddresses].join(
+          ", "
+        )}`,
       });
     }
   } catch (e) {
