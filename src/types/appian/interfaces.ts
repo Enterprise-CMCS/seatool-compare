@@ -68,10 +68,10 @@ export interface ReportData extends AppianFormField {
 }
 
 export interface CSVData {
-  "SPA ID"?: string;
-  "Submission Date"?: string;
-  "Seatool Record Exist"?: boolean;
-  "Seatool Signed Date"?: string;
+  "SPA ID": string;
+  "Submission Date": string;
+  "Seatool Record Exist": boolean;
+  "Seatool Signed Date": string;
 }
 
 export interface AppianSeatoolCompareData {
