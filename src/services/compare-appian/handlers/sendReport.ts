@@ -128,6 +128,7 @@ exports.handler = async function (event: { recipient: string; days: number }) {
 async function addSeatoolExists(
   record: Types.AppianFormField
 ): Promise<Types.ReportData> {
+  console.log("before get item", record.SPA_ID, process.env.seatoolTableName);
   const seatoolItem = await getItem({
     tableName: process.env.seatoolTableName || "",
     key: {
@@ -140,7 +141,7 @@ async function addSeatoolExists(
     return {
       ...record,
       seatoolExist: true,
-      seatoolSubmissionDate: seatoolItem.SUBMISSION_DATE,
+      seatoolSubmissionDate: seatoolItem.STATE_PLAN.SUBMISSION_DATE,
     };
   }
   return {
