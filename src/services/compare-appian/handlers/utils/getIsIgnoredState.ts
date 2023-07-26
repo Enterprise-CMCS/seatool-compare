@@ -4,7 +4,7 @@ export const getIsIgnoredState = (
   data: Types.AppianReportData | Types.ReportData
 ) => {
   const ignoredStates = process.env.ignoredStates;
-  if (!ignoredStates) {
+  if (!ignoredStates || !data.SPA_ID) {
     return false;
   }
   const testStatesList: string[] = [];
