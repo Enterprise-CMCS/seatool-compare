@@ -20,7 +20,7 @@ const convertMsToDate = (milliseconds?: number) => {
 
 function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
   return data.map((i) => {
-    console.log("before ignore state");
+    console.log("before ignore state", i.SPA_ID);
     const isIgnoredState = getIsIgnoredState(i);
     console.log(
       "after ignore state",
@@ -30,6 +30,7 @@ function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
       i.seatoolSubmissionDate,
       isIgnoredState
     );
+
     return {
       "SPA ID": i.SPA_ID,
       "Submission Date":
