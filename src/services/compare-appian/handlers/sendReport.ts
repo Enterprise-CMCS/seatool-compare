@@ -140,7 +140,7 @@ async function addSeatoolExists(
     return {
       ...record,
       seatoolExist: true,
-      seatoolSubmissionDate: seatoolItem.STATE_PLAN.SUBMISSION_DATE,
+      seatoolSubmissionDate: seatoolItem.SUBMISSION_DATE,
     };
   }
   return {
