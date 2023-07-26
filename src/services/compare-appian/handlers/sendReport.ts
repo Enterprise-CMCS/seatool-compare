@@ -86,15 +86,20 @@ exports.handler = async function (event: { recipient: string; days: number }) {
       TableName: process.env.appianTableName,
     });
 
+    console.log("appianRecords", appianRecords);
+
     const recordsWithPayload = appianRecords?.map((record) => {
       return record.payload;
     });
+    console.log("recordsWithPayload", recordsWithPayload);
 
     const relevantAppianRecords = (
       recordsWithPayload as Types.AppianFormField[]
     ).filter((record) => {
       return record && record.SBMSSN_DATE && record.SBMSSN_DATE >= epochTime;
     });
+
+    console.log("relevantAppianRecords", relevantAppianRecords);
 
     if (!relevantAppianRecords) {
       throw "No relevant appain records to show. Check your days value.";
@@ -104,7 +109,10 @@ exports.handler = async function (event: { recipient: string; days: number }) {
       relevantAppianRecords.map((record) => addSeatoolExists(record))
     );
 
+    console.log("results", results);
+
     const reportDataJson = formatReportData(results);
+    console.log("reportDataJson", reportDataJson);
     const csv = Libs.getCsvFromJson(reportDataJson);
     const mailOptions = getMailOptionsWithAttachment({
       recipient,
