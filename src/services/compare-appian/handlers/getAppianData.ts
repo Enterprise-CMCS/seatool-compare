@@ -26,6 +26,7 @@ exports.handler = async function (
 
     data.appianRecord = appianRecord as Types.AppianRecord;
     data.SPA_ID = appianRecord.payload?.SPA_ID;
+    data.SPA_PCKG_ID = appianRecord.payload?.SPA_PCKG_ID;
 
     /* Checking if the appian record was submitted within the last 200 days. */
     const submissionDate = appianRecord.payload?.SBMSSN_DATE;
