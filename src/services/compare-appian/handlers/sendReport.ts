@@ -93,7 +93,12 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     const relevantAppianRecords = (
       recordsWithPayload as Types.AppianFormField[]
     ).filter((record) => {
-      return record && record.SBMSSN_DATE && record.SBMSSN_DATE >= epochTime;
+      return (
+        record &&
+        record.SBMSSN_DATE &&
+        record.SBMSSN_DATE >= epochTime &&
+        record.CRNT_STUS === "Submitted"
+      );
     });
 
     if (!relevantAppianRecords) {
