@@ -23,6 +23,7 @@ function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
     const isIgnoredState = getIsIgnoredState(i);
     return {
       "SPA ID": i.SPA_ID,
+      "Appian Record Exist": !!i.SPA_ID,
       "Submission Date":
         i.SBMSSN_DATE && convertMsToDate(i.SBMSSN_DATE)
           ? formatDate(Number(i.SBMSSN_DATE))
