@@ -98,7 +98,8 @@ exports.handler = async function (event: { recipient: string; days: number }) {
         record &&
         record.SBMSSN_DATE &&
         record.SBMSSN_DATE >= epochTime &&
-        record.CRNT_STUS === "Submitted"
+        record.CRNT_STUS === "Submitted" &&
+        record.IS_CRNT_VRSN === "Y"
       );
     });
 
