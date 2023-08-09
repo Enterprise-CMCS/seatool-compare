@@ -23,9 +23,10 @@ function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
           ? convertMsToDate(i.SBMSSN_DATE)
           : "",
       "Seatool Record Exist": i.seatoolExist,
-      "Seatool Signed Date": i.seatoolSubmissionDate
-        ? convertMsToDate(i.SBMSSN_DATE)
-        : "N/A",
+      "Seatool Signed Date":
+        i.seatoolSubmissionDate && convertMsToDate(i.seatoolSubmissionDate)
+          ? convertMsToDate(i.seatoolSubmissionDate)
+          : "N/A",
       "Test State": isIgnoredState || false,
       // "Records Match": i.match || false,
     };
