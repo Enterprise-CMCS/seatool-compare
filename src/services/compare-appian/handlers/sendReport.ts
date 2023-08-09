@@ -3,12 +3,6 @@ import * as Types from "../../../types";
 import { getItem } from "../../../libs";
 import { getIsIgnoredState } from "./utils/getIsIgnoredState";
 
-function formatDate(dateMs: number) {
-  return new Date(dateMs).toLocaleString("en-US", {
-    timeZone: "America/New_York",
-  });
-}
-
 const convertMsToDate = (milliseconds?: number) => {
   if (!milliseconds) return "N/A";
   let date = new Date(milliseconds);
@@ -26,11 +20,11 @@ function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
       "Appian Record Exist": !!i.SPA_ID,
       "Submission Date":
         i.SBMSSN_DATE && convertMsToDate(i.SBMSSN_DATE)
-          ? formatDate(Number(i.SBMSSN_DATE))
+          ? convertMsToDate(i.SBMSSN_DATE)
           : "",
       "Seatool Record Exist": i.seatoolExist,
       "Seatool Signed Date": i.seatoolSubmissionDate
-        ? formatDate(Number(i.seatoolSubmissionDate))
+        ? convertMsToDate(i.SBMSSN_DATE)
         : "N/A",
       "Test State": isIgnoredState || false,
       // "Records Match": i.match || false,
