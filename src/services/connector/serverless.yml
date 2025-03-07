@@ -592,6 +592,7 @@ resources:
         Period: 60
         Statistic: Sum
         Threshold: 1
+        TreatMissingData: notBreaching
     MmdlDynamoUpdateAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
@@ -605,6 +606,7 @@ resources:
         Period: 60
         Statistic: Sum
         Threshold: 1
+        TreatMissingData: notBreaching
     AppianDynamoUpdateAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
@@ -618,6 +620,7 @@ resources:
         Period: 60
         Statistic: Sum
         Threshold: 1
+        TreatMissingData: notBreaching
     KafkaConnectServiceECSCpuAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
