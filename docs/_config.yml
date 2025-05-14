@@ -19,7 +19,6 @@ title: seatool-compare
 description: Project that perfoms data comparisons of legacy and seatool data and alerts accordingly when mismatches are found.
 
 url: "https://enterprise-cmcs.github.io/" # the base hostname & protocol for your site, e.g. http://example.com
-include: ["_next", "_app-*.js", "_buildManifest.js", "_ssgManifest.js"]
 exclude:
   [
     ".jekyll-cache",
