@@ -3,9 +3,9 @@
   "compilerOptions": {
     "sourceMap": true,
     "incremental": true,
-    "target": "ES2020",
-    "module": "es2020",
-    "lib": ["es6", "dom"],
+    "target": "ES2021",
+    "module": "ES2020",
+    "lib": ["ES2021", "DOM"],
     "outDir": "build_run",
     "rootDir": "src",
     "strict": true,
