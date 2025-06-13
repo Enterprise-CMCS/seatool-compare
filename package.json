@@ -9,7 +9,6 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "rm -rf build_run && tsc",
     "coverage": "vitest run --coverage",
     "test": "vitest --config ./src/tests/vitest.config.ts",
     "test-ci": "vitest run --config ./src/tests/vitest.config.ts",

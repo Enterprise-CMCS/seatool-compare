@@ -6,10 +6,10 @@ runs:
     - name: Configure direnv
       uses: HatsuneMiku3939/direnv-action@v1
 
-    - name: Setup Node.js
+    - name: Install Node
       uses: actions/setup-node@v3
       with:
-        node-version-file: ".nvmrc"
+        node-version-file: .nvmrc
 
     - name: Node cache
       uses: actions/cache@v3
