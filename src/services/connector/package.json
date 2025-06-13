@@ -1,12 +1,35 @@
 {
   "name": "connector",
-  "dependencies": {},
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "serverless deploy",
+    "remove": "serverless remove",
+    "test": "vitest",
+    "build": "tsc",
+    "clean": "rm -rf .serverless node_modules",
+    "start": "serverless offline start"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "@aws-sdk/client-ecs": "^3.0.0",
+    "@aws-sdk/client-ec2": "^3.0.0",
+    "@aws-sdk/client-cloudwatch": "^3.0.0",
+    "@aws-sdk/client-secrets-manager": "^3.0.0",
+    "aws-lambda": "^1.0.7"
+  },
   "devDependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.258.0",
-    "@stratiformdigital/serverless-iam-helper": "^3.2.0",
-    "@stratiformdigital/serverless-online": "^3.2.0",
-    "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
+    "@types/node": "^20.11.24",
+    "@types/aws-lambda": "^8.10.108",
+    "serverless": "^3.17.0",
     "serverless-stack-termination-protection": "^2.0.2",
-    "serverless-step-functions": "^3.12.1"
+    "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
+    "@stratiformdigital/serverless-online": "^3.2.0",
+    "@stratiformdigital/serverless-iam-helper": "^3.2.0",
+    "serverless-step-functions": "^3.12.1",
+    "serverless-plugin-scripts": "^1.0.2",
+    "typescript": "^4.9.4",
+    "vitest": "^0.29.8"
   }
 }

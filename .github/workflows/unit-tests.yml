@@ -3,23 +3,29 @@ name: Test Coverage
 on:
   push:
     branches:
-      - master
+      - "!production"
+      - "!skipci*"
   pull_request:
     branches:
-      - master
+      - "!production"
+      - "!skipci*"
 
 jobs:
   coverage-report:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - name: install
-        run: run install
-      - run: yarn run coverage
-      - name: publish test coverage to code climate
+      
+      - name: Install dependencies
+        run: yarn install:all
+
+      - name: Run tests with coverage
+        run: yarn coverage
+
+      - name: Publish test coverage to Code Climate
         if: always() && env.CC_TEST_REPORTER_ID != ''
-        uses: paambaati/codeclimate-action@v3.2.0
+        uses: paambaati/codeclimate-action@v4.0.0
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         with:

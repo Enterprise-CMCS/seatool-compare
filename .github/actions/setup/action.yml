@@ -9,10 +9,21 @@ runs:
     - name: Install Node
       uses: actions/setup-node@v3
       with:
-        node-version: '20.17.0'
+        node-version: '.nvmrc'
+
+    - name: Install Yarn
+      uses: actions/setup-node@v3
+      with:
+        node-version: '.nvmrc'
+        cache: 'yarn'
 
     - name: Node cache
       uses: actions/cache@v3
       with:
-        path: "**/node_modules"
-        key: ${{ github.workflow}}-${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock', '.nvmrc') }}
+        path: |
+          **/node_modules
+          .yarn/cache
+          .yarn/unplugged
+        key: ${{ github.workflow }}-${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ github.workflow }}-${{ runner.os }}-modules-

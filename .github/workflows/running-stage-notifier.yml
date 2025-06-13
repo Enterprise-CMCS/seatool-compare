@@ -16,12 +16,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: ./.github/actions/setup
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_TO_ASSUME }}
           aws-region: us-east-1
@@ -34,7 +34,7 @@ jobs:
           echo $runningStages >> $GITHUB_OUTPUT
 
       - name: Slack Notification - notify of currently running stages
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@v2.2.0
         if: env.SLACK_WEBHOOK != '' && steps.runningStages.outputs.runningStages != ''
         env:
           SLACK_MSG_AUTHOR: ${{ github.repository }}
@@ -47,7 +47,7 @@ jobs:
           MSG_MINIMAL: true
 
       - name: Slack Notification - notify of failure reporting on running stages
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@v2.2.0
         if: env.SLACK_WEBHOOK != '' && failure()
         env:
           SLACK_MSG_AUTHOR: ${{ github.repository }}

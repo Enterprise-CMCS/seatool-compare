@@ -4,6 +4,10 @@
   "description": "Service for comparing legacy/seatool data and sending notifications",
   "version": "0.0.0-managed-by-semantic-release",
   "private": true,
+  "workspaces": [
+    "src/services/*",
+    "src/libs/*"
+  ],
   "main": "index.js",
   "directories": {
     "test": "tests"
@@ -13,7 +17,12 @@
     "test": "vitest --config ./src/tests/vitest.config.ts",
     "test-ci": "vitest run --config ./src/tests/vitest.config.ts",
     "test-gui": "vitest --ui",
-    "test-tsc": "tsc --skipLibCheck --noEmit"
+    "test-tsc": "tsc --skipLibCheck --noEmit",
+    "build:all": "yarn workspaces run build",
+    "deploy:all": "yarn workspaces run deploy",
+    "clean:all": "yarn workspaces run clean",
+    "test:all": "yarn workspaces run test",
+    "install:all": "yarn install && yarn workspaces run install"
   },
   "repository": {
     "type": "git",
@@ -33,7 +42,7 @@
     "@stratiformdigital/serverless-online": "^3.2.0",
     "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
     "@stratiformdigital/serverless-stage-destroyer": "^2.0.0",
-    "@types/node": "^18.11.18",
+    "@types/node": "^20.11.24",
     "@types/yargs": "^17.0.20",
     "@vitest/coverage-c8": "^0.29.8",
     "@vitest/ui": "^0.29.8",

@@ -9,14 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Create Pull Request
         uses: repo-sync/pull-request@v2
         with:
           destination_branch: production
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_title: Release to production
+          pr_title: "chore(release): prepare release"
           pr_body: |
-            Release to production.
+            This PR is automatically created to prepare a new release.
 
-            #### Please **create a merge commit**
+            The semantic-release bot will:
+            1. Analyze commits since the last release
+            2. Determine the next version number
+            3. Generate release notes
+            4. Create a GitHub release
+            5. Update the version in package.json
+
+            #### Please **create a merge commit** when merging this PR

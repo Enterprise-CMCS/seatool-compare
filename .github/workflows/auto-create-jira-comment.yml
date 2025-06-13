@@ -16,7 +16,7 @@ jobs:
           JIRA_BASE_URL: https://qmacbis.atlassian.net/browse/
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
           BODY: ${{ github.event.pull_request.body }}
-        if: env.JIRA_TOKEN != ''
+        if: env.JIRA_TOKEN != '' && failure()
         run: |
           printenv BODY > .tmp.body.txt
           issues=(`grep -oP "(?<=${JIRA_BASE_URL})[A-Z]+\d+-\d+" .tmp.body.txt || true`)
@@ -26,19 +26,19 @@ jobs:
     runs-on: ubuntu-latest
     name: Comment on Jira Issues
     needs: search
-    if: needs.search.outputs.issues && needs.search.outputs.issues != '[]'
+    if: needs.search.outputs.issues && needs.search.outputs.issues != '[]' && failure()
     strategy:
       matrix:
         value: ${{fromJson(needs.search.outputs.issues)}}
     steps:
       - name: Login
-        uses: atlassian/gajira-login@v3
+        uses: atlassian/gajira-login@v3.0.0
         env:
           JIRA_API_TOKEN: ${{ secrets.JIRA_TOKEN }}
           JIRA_BASE_URL: https://qmacbis.atlassian.net
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USERNAME }}
       - name: Comment on issue
-        uses: atlassian/gajira-comment@v3
+        uses: atlassian/gajira-comment@v3.0.0
         with:
           issue: ${{ matrix.value }}
           comment: This issue was mentioned on ${{ github.event.pull_request._links.html.href }}
