@@ -12,7 +12,6 @@ plugins:
   - "@stratiformdigital/serverless-iam-helper"
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-s3-security-helper"
-  - serverless-esbuild
 
 provider:
   name: aws
