@@ -22,13 +22,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v4
         with:
-          node-version: '.nvmrc'
-
-      - name: Install Yarn
-        uses: actions/setup-node@v4
-        with:
-          node-version: '.nvmrc'
-          cache: 'yarn'
+          node-version-file: '.nvmrc'
 
       - name: Upgrade all node dependencies
         id: upgrade

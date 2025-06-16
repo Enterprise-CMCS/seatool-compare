@@ -6,13 +6,10 @@ runs:
     - name: Configure direnv
       uses: HatsuneMiku3939/direnv-action@v1
 
-    - name: checkout
-      uses: actions/checkout@v4
-
     - name: Install Node
       uses: actions/setup-node@v4
       with:
-        node-version: '.nvmrc'
+        node-version-file: '.nvmrc'
         cache: 'yarn'
 
     - name: Install Dependencies
