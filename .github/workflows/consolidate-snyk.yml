@@ -27,7 +27,7 @@ jobs:
       - name: Create and merge Snyk branches
         id: merge
         run: |
-          DATE=$(date +%Y%m%d)
+          DATE=$(date %m%d)
           NEW_BRANCH="snyk-merge-$DATE"
           git checkout master
           git pull origin master
