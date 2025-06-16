@@ -43,7 +43,7 @@ jobs:
 
       - name: Destroy
         shell: bash
-        run: run destroy --stage $STAGE_NAME --verify false
+        run: run destroy --stage $STAGE_NAME
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2.2.0

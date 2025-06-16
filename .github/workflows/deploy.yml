@@ -41,7 +41,7 @@ jobs:
 
       - name: Deploy
         shell: bash
-        run: run deploy --stage $STAGE_NAME --verify false
+        run: run deploy --stage $STAGE_NAME
 
       - name: Slack Notification - notify of failure
         uses: rtCamp/action-slack-notify@v2.2.0
