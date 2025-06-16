@@ -22,19 +22,19 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20.17.0'
+          node-version: '.nvmrc'
 
       - name: Install Yarn
         uses: actions/setup-node@v4
         with:
-          node-version: '20.17.0'
+          node-version: '.nvmrc'
           cache: 'yarn'
 
       - name: Upgrade all node dependencies
         id: upgrade
         run: |
-          yarn install
-          yarn upgrade-interactive --latest
+          yarn install:all
+          yarn workspaces run upgrade-interactive --latest
           if [ "$(git status --porcelain)" ]; then
             echo "changes=true" >> $GITHUB_OUTPUT
           fi

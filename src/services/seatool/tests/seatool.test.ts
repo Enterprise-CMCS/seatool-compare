@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DynamoDBClient, GetItemCommand, PutItemCommand, AttributeValue } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
 // Mock AWS SDK clients
 vi.mock('@aws-sdk/client-dynamodb', () => ({
@@ -22,23 +21,12 @@ vi.mock('@aws-sdk/client-dynamodb', () => ({
   PutItemCommand: vi.fn()
 }));
 
-vi.mock('@aws-sdk/lib-dynamodb', () => ({
-  DynamoDBDocumentClient: {
-    from: vi.fn(() => ({
-      get: vi.fn(),
-      put: vi.fn()
-    }))
-  }
-}));
-
-describe('MMDL Service', () => {
+describe('Seatool Service', () => {
   let dynamoClient: DynamoDBClient;
-  let docClient: DynamoDBDocumentClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
     dynamoClient = new DynamoDBClient({});
-    docClient = DynamoDBDocumentClient.from(dynamoClient);
   });
 
   describe('DynamoDB Operations', () => {

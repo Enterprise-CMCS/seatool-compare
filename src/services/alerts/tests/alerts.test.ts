@@ -5,7 +5,7 @@ import { CloudWatchLogsClient, PutLogEventsCommand, PutLogEventsCommandOutput } 
 // Mock AWS SDK clients
 vi.mock('@aws-sdk/client-sns', () => ({
   SNSClient: vi.fn(() => ({
-    send: vi.fn().mockImplementation(async (command: PublishCommand): Promise<PublishCommandOutput> => {
+    send: vi.fn().mockImplementation(async (): Promise<PublishCommandOutput> => {
       return { MessageId: 'test-message-id', $metadata: {} };
     })
   })),
@@ -14,7 +14,7 @@ vi.mock('@aws-sdk/client-sns', () => ({
 
 vi.mock('@aws-sdk/client-cloudwatch-logs', () => ({
   CloudWatchLogsClient: vi.fn(() => ({
-    send: vi.fn().mockImplementation(async (command: PutLogEventsCommand): Promise<PutLogEventsCommandOutput> => {
+    send: vi.fn().mockImplementation(async (): Promise<PutLogEventsCommandOutput> => {
       return { nextSequenceToken: 'test-token', $metadata: {} };
     })
   })),
@@ -38,8 +38,7 @@ describe('Alerts Service', () => {
         TopicArn: 'arn:aws:sns:us-east-1:123456789012:test-topic'
       };
 
-      const command = new PublishCommand(mockMessage);
-      const response = await snsClient.send(command);
+      const response = await snsClient.send(new PublishCommand(mockMessage));
 
       expect(snsClient.send).toHaveBeenCalledWith(expect.any(PublishCommand));
       expect(response.MessageId).toBe('test-message-id');
@@ -53,8 +52,7 @@ describe('Alerts Service', () => {
 
       vi.mocked(snsClient.send).mockRejectedValueOnce(new Error('SNS publish failed'));
 
-      const command = new PublishCommand(mockMessage);
-      await expect(snsClient.send(command)).rejects.toThrow('SNS publish failed');
+      await expect(snsClient.send(new PublishCommand(mockMessage))).rejects.toThrow('SNS publish failed');
     });
   });
 
@@ -71,8 +69,7 @@ describe('Alerts Service', () => {
         ]
       };
 
-      const command = new PutLogEventsCommand(mockLogEvents);
-      const response = await cloudWatchClient.send(command);
+      const response = await cloudWatchClient.send(new PutLogEventsCommand(mockLogEvents));
 
       expect(cloudWatchClient.send).toHaveBeenCalledWith(expect.any(PutLogEventsCommand));
       expect(response.nextSequenceToken).toBe('test-token');
@@ -92,8 +89,7 @@ describe('Alerts Service', () => {
 
       vi.mocked(cloudWatchClient.send).mockRejectedValueOnce(new Error('CloudWatch put logs failed'));
 
-      const command = new PutLogEventsCommand(mockLogEvents);
-      await expect(cloudWatchClient.send(command)).rejects.toThrow('CloudWatch put logs failed');
+      await expect(cloudWatchClient.send(new PutLogEventsCommand(mockLogEvents))).rejects.toThrow('CloudWatch put logs failed');
     });
   });
 }); 

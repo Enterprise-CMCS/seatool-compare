@@ -7,23 +7,10 @@ runs:
       uses: HatsuneMiku3939/direnv-action@v1
 
     - name: Install Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: '.nvmrc'
-
-    - name: Install Yarn
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '.nvmrc'
         cache: 'yarn'
 
-    - name: Node cache
-      uses: actions/cache@v3
-      with:
-        path: |
-          **/node_modules
-          .yarn/cache
-          .yarn/unplugged
-        key: ${{ github.workflow }}-${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-          ${{ github.workflow }}-${{ runner.os }}-modules-
+    - name: Install Dependencies
+      run: yarn install:all

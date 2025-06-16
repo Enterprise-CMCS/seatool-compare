@@ -21,8 +21,8 @@
     "build:all": "yarn workspaces run build",
     "deploy:all": "yarn workspaces run deploy",
     "clean:all": "yarn workspaces run clean",
-    "test:all": "yarn workspaces run test",
-    "install:all": "yarn install && yarn workspaces run install"
+    "test:all": "yarn test-tsc && vitest run --config ./src/tests/vitest.config.ts",
+    "install:all": "yarn install"
   },
   "repository": {
     "type": "git",

@@ -5,9 +5,8 @@
   "scripts": {
     "deploy": "serverless deploy",
     "remove": "serverless remove",
-    "test": "vitest",
     "build": "tsc",
-    "clean": "rm -rf .serverless node_modules",
+    "clean": "rm -rf .serverless node_modules yarn.lock",
     "start": "serverless offline start"
   },
   "dependencies": {

@@ -6,7 +6,8 @@
     "deploy": "serverless deploy",
     "remove": "serverless remove",
     "build": "tsc",
-    "clean": "rm -rf .serverless node_modules"
+    "clean": "rm -rf .serverless node_modules yarn.lock",
+    "start": "serverless offline start"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.0.0",

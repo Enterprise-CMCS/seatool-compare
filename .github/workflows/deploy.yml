@@ -13,22 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure direnv
-        uses: HatsuneMiku3939/direnv-action@v1
-
-      - name: Install Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.17.0'
-
-      - name: Install Yarn
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.17.0'
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install
+      - uses: ./.github/actions/setup
 
       - name: Build
         run: yarn build:all
@@ -40,7 +25,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Deploy
-        run: yarn deploy:all
+        run: run deploy --stage $STAGE_NAME --verify false
 
       - name: Slack Notification - notify of failure
         uses: rtCamp/action-slack-notify@v2.2.0
