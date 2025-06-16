@@ -36,6 +36,7 @@ jobs:
 
       - name: Invoke Security Hub Jira Sync
         id: jiraUpdates
+        shell: bash
         env:
           JIRA_HOST: qmacbis.atlassian.net
           JIRA_PROJECT: OY2

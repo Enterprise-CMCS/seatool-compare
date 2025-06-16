@@ -42,6 +42,7 @@ jobs:
           role-duration-seconds: 10800
 
       - name: Destroy
+        shell: bash
         run: run destroy --stage $STAGE_NAME --verify false
 
       - name: Slack Notification

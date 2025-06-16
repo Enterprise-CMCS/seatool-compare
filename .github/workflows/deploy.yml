@@ -16,6 +16,7 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Build
+        shell: bash
         run: yarn build:all
 
       - name: Configure AWS credentials
@@ -25,6 +26,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Deploy
+        shell: bash
         run: run deploy --stage $STAGE_NAME --verify false
 
       - name: Slack Notification - notify of failure

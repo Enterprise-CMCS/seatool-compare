@@ -18,9 +18,11 @@ jobs:
       - uses: ./.github/actions/setup
       
       - name: Install dependencies
+        shell: bash
         run: yarn install:all
 
       - name: Run tests with coverage
+        shell: bash
         run: yarn coverage
 
       - name: Publish test coverage to Code Climate

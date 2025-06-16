@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: find issues
         id: search
+        shell: bash
         env:
           JIRA_BASE_URL: https://qmacbis.atlassian.net/browse/
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}

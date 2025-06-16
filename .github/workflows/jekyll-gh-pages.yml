@@ -26,4 +26,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
       - name: Show deployment URL
+        shell: bash
         run: echo "Deployed to ${{ steps.deployment.outputs.page_url }}"

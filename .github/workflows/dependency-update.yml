@@ -32,6 +32,7 @@ jobs:
 
       - name: Upgrade all node dependencies
         id: upgrade
+        shell: bash
         run: |
           yarn install:all
           yarn workspaces run upgrade-interactive --latest
@@ -41,6 +42,7 @@ jobs:
 
       - name: Commit code to deps branch
         if: ${{ steps.upgrade.outputs.changes }}
+        shell: bash
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com

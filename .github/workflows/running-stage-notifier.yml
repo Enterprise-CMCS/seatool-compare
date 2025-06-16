@@ -29,6 +29,7 @@ jobs:
 
       - name: Get a list of running stages
         id: runningStages
+        shell: bash
         run: |
           runningStages=`run listRunningStages | grep "runningStages="`
           echo $runningStages >> $GITHUB_OUTPUT

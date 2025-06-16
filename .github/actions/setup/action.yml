@@ -16,4 +16,5 @@ runs:
         cache: 'yarn'
 
     - name: Install Dependencies
+      shell: bash
       run: yarn install:all
