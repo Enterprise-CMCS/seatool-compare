@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "clean": "rm -rf .serverless node_modules .yarn.lock",
-    "install": "yarn install --frozen-lockfile"
+    "clean": "rm -rf .serverless node_modules .yarn.lock"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.180.0",

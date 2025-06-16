@@ -6,7 +6,7 @@
   "private": true,
   "workspaces": [
     "src/services/*",
-    "src/libs/*"
+    "src/libs"
   ],
   "main": "index.js",
   "directories": {
