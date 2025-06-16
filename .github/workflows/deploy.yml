@@ -20,10 +20,15 @@ jobs:
         run: yarn build:all
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_TO_ASSUME }}
           aws-region: us-east-1
+          role-duration-seconds: 10800
+
+      - name: Test
+        shell: bash
+        run: yarn test:all
 
       - name: Deploy
         shell: bash
