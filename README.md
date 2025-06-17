@@ -44,3 +44,103 @@ If you don't have access to Jira, would like access to Jira, or would like to di
 [![License](https://img.shields.io/badge/License-CC0--1.0--Universal-blue.svg)](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
 
 See [LICENSE](LICENSE) for full details.
+
+## Authentication
+
+### AWS Authentication
+To work with this project, you'll need AWS credentials configured. The recommended way is to use AWS SSO:
+
+1. Install the AWS CLI v2
+2. Configure AWS SSO:
+   ```bash
+   aws configure sso
+   ```
+3. Enter the following when prompted:
+   - SSO start URL: `https://cmsgov.awsapps.com/start`
+   - SSO Region: `us-east-1`
+   - Choose your account and role
+   - CLI profile name: `cmsgov`
+
+### GitHub Authentication
+For accessing private repositories and packages:
+
+1. Create a GitHub Personal Access Token (PAT) with `read:packages` scope
+2. Configure npm to use the token:
+   ```bash
+   npm login --registry=https://npm.pkg.github.com
+   ```
+
+## Local Development
+
+### Prerequisites
+- Node.js v20.17.0
+- Yarn v1.22.19 or later
+- AWS CLI v2
+- AWS SSO configured
+
+### Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Enterprise-CMCS/seatool-compare.git
+   cd seatool-compare
+   ```
+
+2. Install dependencies:
+   ```bash
+   yarn install:all
+   ```
+
+### Available Commands
+
+#### Workspace Commands
+- `yarn install:all` - Install dependencies for all services
+- `yarn build:all` - Build all services
+- `yarn deploy:all` - Deploy all services
+- `yarn test:all` - Run tests for all services
+
+#### Individual Service Commands
+To run commands for a specific service:
+```bash
+yarn workspace <service-name> <command>
+```
+
+Available services:
+- `alerts` - Alert notification service
+- `appian` - Appian integration service
+- `compare-appian` - Appian comparison service
+- `compare-mmdl` - MMDL comparison service
+- `connector` - Data connector service
+- `dashboard` - Dashboard service
+- `mmdl` - MMDL service
+- `seatool` - Seatool service
+
+Example:
+```bash
+# Build the alerts service
+yarn workspace alerts build
+
+# Run tests for the connector service
+yarn workspace connector test
+
+# Start the dashboard service locally
+yarn workspace dashboard start
+```
+
+### Running Tests
+Each service has its own test suite. To run tests for a specific service:
+```bash
+yarn workspace <service-name> test
+```
+
+For example:
+```bash
+yarn workspace alerts test
+```
+
+### Local Development Server
+To run a service locally:
+```bash
+yarn workspace <service-name> start
+```
+
+This will start the service in development mode with hot reloading enabled.

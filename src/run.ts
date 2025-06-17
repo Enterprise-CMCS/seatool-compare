@@ -95,18 +95,22 @@ yargs(process.argv.slice(2))
       await runner.run_command_and_output(`SLS Deploy`, deployCmd, ".");
     }
   )
-  .command("test", "run all available tests.", {}, async () => {
-    await install_deps_for_services();
-    await runner.run_command_and_output(`Unit Tests`, ["yarn", "test-ci"], ".");
-  })
-  .command("test-gui", "open unit-testing gui for vitest.", {}, async () => {
-    await install_deps_for_services();
-    await runner.run_command_and_output(
-      `Unit Tests`,
-      ["yarn", "test-gui"],
-      "."
-    );
-  })
+  .command(
+    "test",
+    "run any available tests.",
+    {
+      stage: { type: "string", demandOption: true },
+    },
+    async (options) => {
+      await install_deps_for_services();
+      await refreshOutputs(options.stage);
+      await runner.run_command_and_output(
+        `Unit Tests`,
+        ["yarn", "test-ci"],
+        "."
+      );
+    }
+  )
   .command(
     "destroy",
     "destroy a stage in AWS",
@@ -192,52 +196,6 @@ yargs(process.argv.slice(2))
           "docs"
         );
       }
-    }
-  )
-  .command(
-    "base-update",
-    "this will update your code to the latest version of the base template",
-    {},
-    async () => {
-      const addRemoteCommand = [
-        "git",
-        "remote",
-        "add",
-        "base",
-        "https://github.com/Enterprise-CMCS/macpro-base-template",
-      ];
-
-      await runner.run_command_and_output(
-        "Update from Base | adding remote",
-        addRemoteCommand,
-        ".",
-        true,
-        {
-          stderr: true,
-          close: true,
-        }
-      );
-
-      const fetchBaseCommand = ["git", "fetch", "base"];
-
-      await runner.run_command_and_output(
-        "Update from Base | fetching base template",
-        fetchBaseCommand,
-        "."
-      );
-
-      const mergeCommand = ["git", "merge", "base/production", "--no-ff"];
-
-      await runner.run_command_and_output(
-        "Update from Base | merging code from base template",
-        mergeCommand,
-        ".",
-        true
-      );
-
-      console.log(
-        "Merge command was performed. You may have conflicts. This is normal behaivor. To complete the update process fix any conflicts, commit, push, and open a PR."
-      );
     }
   )
   .command(
