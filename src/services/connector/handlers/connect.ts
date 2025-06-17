@@ -1,4 +1,4 @@
-import * as connect from "../../../libs/connect-lib";
+import * as connect from "../../../libs/connect-lib.js";
 
 export async function findTaskIp(event: {
   Context: { Execution: { Input: { cluster: string } } };
