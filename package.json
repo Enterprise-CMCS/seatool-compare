@@ -47,11 +47,11 @@
     "@stratiformdigital/serverless-stage-destroyer": "^2.0.0",
     "@types/node": "^20.11.24",
     "@types/yargs": "^17.0.20",
-    "@vitest/coverage-c8": "^0.29.8",
-    "@vitest/ui": "^0.29.8",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
     "aws-sdk-client-mock": "^2.0.1",
     "prettier": "2.7.1",
-    "semantic-release": "^19.0.5",
+    "semantic-release": "^24.2.5",
     "serverless": "^3.17.0",
     "serverless-disable-functions": "^1.0.0",
     "serverless-plugin-scripts": "^1.0.2",
@@ -59,7 +59,7 @@
     "typescript": "^4.9.4",
     "serverless-plugin-warmup": "^7.1.0",
     "serverless-stack-termination-protection": "^2.0.2",
-    "vitest": "^0.29.8"
+    "vitest": "^3.2.4"
   },
   "release": {
     "branches": [

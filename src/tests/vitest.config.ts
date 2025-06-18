@@ -19,7 +19,7 @@ export default defineConfig({
       '**/.{idea,git,cache,output,temp}/**'
     ],
     coverage: {
-      provider: 'c8',
+      provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: [
         '../services/**/*.ts',
@@ -34,8 +34,6 @@ export default defineConfig({
         '**/.{idea,git,cache,output,temp}/**'
       ]
     },
-    // Run tests in parallel
-    threads: true,
     // Show test progress
     reporters: ['default'],
     // Set timeout for tests
