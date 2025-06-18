@@ -21,10 +21,10 @@ export const handler = async (
     DashboardName: `${service}-${stage}`,
   });
   const templateJson = dashboard
-    .DashboardBody!.replaceAll(accountId, "${aws:accountId}")
-    .replaceAll(stage, "${sls:stage}")
-    .replaceAll(region, "${env:REGION_A}")
-    .replaceAll(service, "${self:service}");
+    .DashboardBody!.replace(new RegExp(accountId, 'g'), "${aws:accountId}")
+    .replace(new RegExp(stage, 'g'), "${sls:stage}")
+    .replace(new RegExp(region, 'g'), "${env:REGION_A}")
+    .replace(new RegExp(service, 'g'), "${self:service}");
 
   return templateJson;
 };

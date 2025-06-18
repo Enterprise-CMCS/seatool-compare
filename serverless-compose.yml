@@ -8,7 +8,10 @@ services:
   seatool:
     path: src/services/seatool
   compare-mmdl:
-    dependsOn: alerts
+    dependsOn: 
+      - alerts
+      - mmdl
+      - seatool
     path: src/services/compare-mmdl
     params:
       mmdlTableName: ${mmdl.TableName}
@@ -20,7 +23,10 @@ services:
       sesLogGroupName: ${alerts.SesLogGroupName}
       errorsTopicArn: ${alerts.ErrorsTopicArn}
   compare-appian:
-    dependsOn: alerts
+    dependsOn: 
+      - alerts
+      - appian
+      - seatool
     path: src/services/compare-appian
     params:
       appianTableArn: ${appian.TableArn}
@@ -35,6 +41,9 @@ services:
     dependsOn:
       - compare-mmdl
       - compare-appian
+      - appian
+      - mmdl
+      - seatool
     path: src/services/connector
     params:
       appianTableArn: ${appian.TableArn}

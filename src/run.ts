@@ -59,6 +59,25 @@ function getDirectories(path: string) {
   });
 }
 
+async function getCurrentGitBranch(): Promise<string> {
+  try {
+    const { execSync } = await import('child_process');
+    return execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+  } catch (error) {
+    throw new Error('Error getting git branch. Please specify --stage explicitly.');
+  }
+}
+
+async function getStageOrDefault(stage?: string): Promise<string> {
+  if (stage) {
+    return stage;
+  }
+  
+  const gitBranch = await getCurrentGitBranch();
+  console.log(`Using current git branch as stage: ${gitBranch}`);
+  return gitBranch;
+}
+
 async function refreshOutputs(stage: string) {
   await runner.run_command_and_output(
     `SLS Refresh Outputs`,
@@ -73,23 +92,60 @@ yargs(process.argv.slice(2))
     await install_deps_for_services();
   })
   .command(
+    "services",
+    "list available services",
+    {},
+    async () => {
+      await install_deps_for_services();  
+      const services = getDirectories("src/services");
+      console.log("Available services:");
+      services.forEach(service => {
+        console.log(`  - ${service}`);
+      });
+      console.log("\nUse './run deploy --stage <stage> --service <service>' to deploy a specific service");
+    }
+  )
+  .command(
+    "validate",
+    "validate serverless compose configuration",
+    {
+      stage: { type: "string", demandOption: false },
+    },
+    async (options) => {
+      await install_deps_for_services();
+      
+      const stage = await getStageOrDefault(options.stage);
+      
+      await runner.run_command_and_output(
+        `SLS Validate`,
+        ["sls", "print", "--stage", stage],
+        ".",
+        true
+      );
+    }
+  )
+  .command(
     "deploy",
     "deploy the project",
     {
-      stage: { type: "string", demandOption: true },
+      stage: { type: "string", demandOption: false },
       service: { type: "string", demandOption: false },
     },
     async (options) => {
       await install_deps_for_services();
-      var deployCmd = ["sls", "deploy", "--stage", options.stage];
+      
+      const stage = await getStageOrDefault(options.stage);
+      await refreshOutputs(stage);
+      
+      var deployCmd = ["sls", "deploy", "--stage", stage];
       if (options.service) {
-        await refreshOutputs(options.stage);
         deployCmd = [
           "sls",
-          options.service,
           "deploy",
           "--stage",
-          options.stage,
+          stage,
+          "--service",
+          options.service,
         ];
       }
       await runner.run_command_and_output(`SLS Deploy`, deployCmd, ".");
@@ -99,11 +155,14 @@ yargs(process.argv.slice(2))
     "test",
     "run any available tests.",
     {
-      stage: { type: "string", demandOption: true },
+      stage: { type: "string", demandOption: false },
     },
     async (options) => {
       await install_deps_for_services();
-      await refreshOutputs(options.stage);
+      
+      const stage = await getStageOrDefault(options.stage);
+      
+      await refreshOutputs(stage);
       await runner.run_command_and_output(
         `Unit Tests`,
         ["yarn", "test-ci"],
@@ -115,12 +174,14 @@ yargs(process.argv.slice(2))
     "destroy",
     "destroy a stage in AWS",
     {
-      stage: { type: "string", demandOption: true },
+      stage: { type: "string", demandOption: false },
       service: { type: "string", demandOption: false },
       wait: { type: "boolean", demandOption: false, default: true },
       verify: { type: "boolean", demandOption: false, default: true },
     },
     async (options) => {
+      const stage = await getStageOrDefault(options.stage);
+      
       let destroyer = new ServerlessStageDestroyer();
       let filters = [
         {
@@ -134,7 +195,7 @@ yargs(process.argv.slice(2))
           Value: `${options.service}`,
         });
       }
-      await destroyer.destroy(`${process.env.REGION_A}`, options.stage, {
+      await destroyer.destroy(`${process.env.REGION_A}`, stage, {
         wait: options.wait,
         filters: filters,
         verify: options.verify,
@@ -145,15 +206,18 @@ yargs(process.argv.slice(2))
     "connect",
     "Prints a connection string that can be run to 'ssh' directly onto the ECS Fargate task",
     {
-      stage: { type: "string", demandOption: true },
+      stage: { type: "string", demandOption: false },
       service: { type: "string", demandOption: true },
     },
     async (options) => {
       await install_deps_for_services();
-      await refreshOutputs(options.stage);
+      
+      const stage = await getStageOrDefault(options.stage);
+      
+      await refreshOutputs(stage);
       await runner.run_command_and_output(
         `SLS connect`,
-        ["sls", options.service, "connect", "--stage", options.stage],
+        ["sls", options.service, "connect", "--stage", stage],
         "."
       );
     }

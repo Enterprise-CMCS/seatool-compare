@@ -20,7 +20,10 @@
     "test-tsc": "tsc --skipLibCheck --noEmit",
     "build:all": "yarn workspaces run build",
     "deploy:all": "yarn workspaces run deploy",
-    "clean:all": "yarn workspaces run clean",
+    "deploy:validate": "yarn workspaces run deploy:validate",
+    "deploy:remove": "yarn workspaces run deploy:remove",
+    "clean:all": "yarn workspaces run clean && rm -rf .serverless",
+    "clean:modules": "yarn workspaces run clean",
     "test:all": "yarn test-tsc && vitest run --config ./src/tests/vitest.config.ts",
     "install:all": "yarn install"
   },

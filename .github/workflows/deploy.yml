@@ -39,9 +39,25 @@ jobs:
         shell: bash
         run: yarn test:all
 
-      - name: Deploy
+      - name: Deploy Infrastructure
         shell: bash
-        run: run deploy --stage $STAGE_NAME
+        run: |
+          echo "Deploying to stage: $STAGE_NAME"
+          # Use serverless compose for coordinated deployment
+          npx serverless deploy --stage $STAGE_NAME
+        env:
+          PROJECT: compare
+          REGION_A: us-east-1
+
+      - name: Verify Deployment
+        shell: bash
+        run: |
+          echo "Verifying deployment..."
+          # Check if all services are deployed
+          aws cloudformation describe-stacks \
+            --region us-east-1 \
+            --query "Stacks[?contains(StackName, 'compare-') && contains(StackName, '-$STAGE_NAME')].StackName" \
+            --output table
 
       - name: Slack Notification - notify of failure
         uses: rtCamp/action-slack-notify@v2.2.0
@@ -49,7 +65,8 @@ jobs:
         env:
           SLACK_COLOR: ${{job.status}}
           SLACK_ICON: https://github.com/${{ github.repository_owner }}.png?size=48
-          SLACK_TITLE: Failure
+          SLACK_TITLE: Deployment Failed
+          SLACK_MESSAGE: "Deployment to ${{ env.STAGE_NAME }} failed. Check the logs for details."
           SLACK_USERNAME: ${{ github.repository }} ${{job.status}}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -59,6 +76,6 @@ jobs:
           SLACK_COLOR: ${{job.status}}
           SLACK_ICON: https://github.com/${{ github.repository_owner }}.png?size=48
           SLACK_TITLE: Deploy Workflow - SUCCESS
-          SLACK_MESSAGE: Deployment completed successfully.
+          SLACK_MESSAGE: "Deployment to ${{ env.STAGE_NAME }} completed successfully."
           SLACK_USERNAME: ${{ github.repository }} ${{job.status}}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
