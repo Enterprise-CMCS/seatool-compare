@@ -88,7 +88,7 @@ custom:
             
             # Check if ECS service is running
             echo "Checking if ECS service is running..."
-            running_tasks=$(aws --region ${self:provider.region} ecs list-tasks --cluster ${self:service}-${sls:stage}-connect --desired-status RUNNING --query 'taskArns' --output text)
+            running_tasks=$(aws --region ${self:provider.region} ecs list-tasks --cluster ${connector_name} --desired-status RUNNING --query 'taskArns' --output text)
             
             if [ -z "$running_tasks" ]; then
               echo "No running ECS tasks found. Waiting 30 seconds before retry..."
@@ -135,7 +135,8 @@ custom:
         echo "Starting connector configuration..."
         
         # Configure each connector with individual error handling
-        connectors=("${self:service}-${sls:stage}-appian" "${self:service}-${sls:stage}-seatool" "${self:service}-${sls:stage}-mmdl")
+
+        connectors=("${self:service}-${sls:stage}-connect")
         failed_connectors=()
         
         for connector in "${connectors[@]}"; do
