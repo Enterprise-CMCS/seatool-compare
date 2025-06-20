@@ -50,15 +50,6 @@ jobs:
         shell: bash
         run: yarn test:all
 
-      - name: Pre-deployment validation
-        shell: bash
-        run: |
-          echo "Validating deployment prerequisites..."
-          echo "Stage: $STAGE_NAME"
-          echo "AWS Region: us-east-1"
-          echo "Checking @serverless/compose availability..."
-          npx @serverless/compose --version
-
       - name: Deploy Infrastructure
         shell: bash
         run: |
