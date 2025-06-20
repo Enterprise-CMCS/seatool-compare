@@ -21,10 +21,13 @@ jobs:
         !contains(fromJson('["master", "staging", "production"]'), inputs.environment)
       )
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment:
       name: ${{ inputs.environment || github.event.ref }}
     env:
       STAGE_NAME: ${{ inputs.environment || github.event.ref }}
+      PROJECT: compare
+      REGION_A: us-east-1
     permissions:
       id-token: write
       contents: read
@@ -40,6 +43,14 @@ jobs:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_TO_ASSUME }}
           aws-region: us-east-1
           role-duration-seconds: 10800
+
+      - name: Pre-destroy validation
+        shell: bash
+        run: |
+          echo "Preparing to destroy stage: $STAGE_NAME"
+          echo "Project: $PROJECT"
+          echo "Region: $REGION_A"
+          echo "⚠️  WARNING: This will destroy all resources for stage $STAGE_NAME"
 
       - name: Destroy
         shell: bash

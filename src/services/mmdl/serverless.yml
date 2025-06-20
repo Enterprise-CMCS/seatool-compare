@@ -30,7 +30,7 @@ resources:
     Table:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:custom.project}-${self:service}-${sls:stage}
+        TableName: ${self:service}-${sls:stage}
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: true
         StreamSpecification:
