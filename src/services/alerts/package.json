@@ -1,5 +1,27 @@
 {
   "name": "alerts",
-  "dependencies": {},
-  "devDependencies": {}
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "serverless deploy",
+    "remove": "serverless remove",
+    "test": "vitest",
+    "build": "tsc",
+    "clean": "rm -rf .serverless node_modules yarn.lock",
+    "start": "serverless offline start"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sns": "^3.0.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.0.0",
+    "nodemailer": "^6.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/nodemailer": "^6.4.14",
+    "serverless": "^3.17.0",
+    "serverless-stack-termination-protection": "^2.0.2",
+    "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
+    "typescript": "^4.9.4",
+    "vitest": "^3.2.4"
+  }
 }

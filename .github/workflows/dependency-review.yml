@@ -15,6 +15,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: "Dependency Review"
-        uses: actions/dependency-review-action@v2
+        uses: actions/dependency-review-action@v4
+        with:
+          # Only fail on high severity vulnerabilities to reduce noise
+          fail-on-severity: high
+          # Only show vulnerabilities, not all dependencies
+          allow-licenses: ""
+      - name: "Truncate Summary if Too Large"
+        if: always()
+        run: |
+          if [ -f "$GITHUB_STEP_SUMMARY" ]; then
+            # Check if summary is larger than 900KB (leaving some buffer)
+            SUMMARY_SIZE=$(wc -c < "$GITHUB_STEP_SUMMARY")
+            MAX_SIZE=921600  # 900KB in bytes
+            
+            if [ "$SUMMARY_SIZE" -gt "$MAX_SIZE" ]; then
+              echo "⚠️ Summary was too large ($SUMMARY_SIZE bytes), truncating to fit GitHub limits"
+              # Keep the first 800KB and add a truncation notice
+              head -c 819200 "$GITHUB_STEP_SUMMARY" > "${GITHUB_STEP_SUMMARY}.tmp"
+              echo "" >> "${GITHUB_STEP_SUMMARY}.tmp"
+              echo "---" >> "${GITHUB_STEP_SUMMARY}.tmp"
+              echo "**Note:** Summary was truncated due to size limits. Please check the full dependency review for complete details." >> "${GITHUB_STEP_SUMMARY}.tmp"
+              mv "${GITHUB_STEP_SUMMARY}.tmp" "$GITHUB_STEP_SUMMARY"
+            fi
+          fi

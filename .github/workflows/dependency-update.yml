@@ -13,42 +13,40 @@ jobs:
       deps_branch_name: dep-update
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       # We deliberately do not use the setup action, as we do not want node caching here.
       - name: Configure direnv
         uses: HatsuneMiku3939/direnv-action@v1
 
       - name: Install Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          node-version-file: '.nvmrc'
 
       - name: Upgrade all node dependencies
         id: upgrade
+        shell: bash
         run: |
-          lockfiles=(`find . -name "yarn.lock" ! -path '*/node_modules/*'`)
-          for i in "${lockfiles[@]}"
-          do
-            yarn --cwd "${i%/*}" upgrade
-          done
+          yarn install:all
+          yarn workspaces run upgrade-interactive --latest
           if [ "$(git status --porcelain)" ]; then
-            echo "::set-output name=changes::true"
+            echo "changes=true" >> $GITHUB_OUTPUT
           fi
+
       - name: Commit code to deps branch
         if: ${{ steps.upgrade.outputs.changes }}
+        shell: bash
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git branch -D $deps_branch_name || true
           git checkout -b $deps_branch_name
-          git commit -a -m "chore(deps):  Upgrade all node dependencies"
+          git commit -a -m "chore(deps): Upgrade all node dependencies"
           git push --set-upstream origin $deps_branch_name --force
+
       - name: Slack Notification - notify of failure
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@v2.2.0
         if: env.SLACK_WEBHOOK != '' && failure()
         env:
           SLACK_COLOR: ${{job.status}}
@@ -56,8 +54,9 @@ jobs:
           SLACK_TITLE: Failure
           SLACK_USERNAME: ${{ github.repository }} ${{job.status}}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
       - name: Slack Notification - notify of success
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@v2.2.0
         if: env.SLACK_WEBHOOK != ''
         env:
           SLACK_COLOR: ${{job.status}}

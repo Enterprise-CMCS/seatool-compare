@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2021"],
+    "outDir": "./.build",
+    "rootDir": "../../../",
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "baseUrl": "../../../",
+    "paths": {
+      "../../../libs/*": ["src/libs/*"],
+      "../../../types/*": ["src/types/*"]
+    }
+  },
+  "include": [
+    "handlers/**/*",
+    "utils/**/*",
+    "../../../libs/**/*",
+    "../../../types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    ".serverless",
+    ".build"
+  ]
+} 

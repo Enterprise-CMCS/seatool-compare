@@ -2,6 +2,7 @@ import {
   SecretsManagerClient,
   GetSecretValueCommand,
   ListSecretsCommand,
+  FilterNameStringType,
 } from "@aws-sdk/client-secrets-manager";
 
 export const getSecretsValue = async (region: string, secretId: string) => {
@@ -20,7 +21,9 @@ export const getSecretsValue = async (region: string, secretId: string) => {
 
 export const doesSecretExist = async (region: string, secretId: string) => {
   const client = new SecretsManagerClient({ region });
-  const input = { Filters: [{ Key: "name", Values: [secretId] }] };
+  const input = {
+    Filters: [{ Key: "name" as FilterNameStringType, Values: [secretId] }],
+  };
   const command = new ListSecretsCommand(input);
   const { SecretList } = await client.send(command);
 
