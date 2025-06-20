@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.0.0",
-    "aws-lambda": "^1.0.7"
+    "aws-lambda": "^1.0.7",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
