@@ -17,11 +17,11 @@
     "@aws-sdk/lib-dynamodb": "^3.180.0",
     "@aws-sdk/util-dynamodb": "^3.180.0",
     "@json2csv/plainjs": "^6.1.2",
-    "@types/nodemailer": "^6.4.7",
     "lodash": "^4.17.21",
     "nodemailer": "^6.9.0"
   },
   "devDependencies": {
+    "@types/nodemailer": "^6.4.7",
     "vitest": "^0.29.8"
   }
 }
