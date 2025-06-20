@@ -36,11 +36,9 @@ function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
 function getMailOptionsWithAttachment({
   recipient,
   attachment,
-  days,
 }: {
   recipient: string;
   attachment: string;
-  days?: number;
 }) {
   const todaysDate = new Date().toISOString().split("T")[0];
   const mailOptions = {
@@ -111,7 +109,6 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     const mailOptions = getMailOptionsWithAttachment({
       recipient,
       attachment: csv,
-      days,
     });
     await Libs.sendAttachment(mailOptions);
   } catch (e) {

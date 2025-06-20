@@ -134,7 +134,7 @@ describe("sendNoMatchAlert", () => {
 
     it("calls trackError if appianSecret is malformed", async () => {
       await handler.handler(event, null, callback);
-      const expectedError = new Error(
+      const expectedError = new TypeError(
         "Cannot read properties of undefined (reading 'sourceEmail')"
       );
       expect(libs.trackError).toBeCalledWith(expectedError);

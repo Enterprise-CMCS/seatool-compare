@@ -11,7 +11,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs18.x
+  runtime: nodejs20.x
   region: ${env:REGION_A}
   stackTags:
     PROJECT: ${self:custom.project}
@@ -48,7 +48,7 @@ resources:
         BillingMode: PAY_PER_REQUEST
   Outputs:
     TableName:
-      Value: !Ref Table
+      Value: ${self:service}-${sls:stage}
     TableArn:
       Value: !GetAtt Table.Arn
     TableStreamArn:

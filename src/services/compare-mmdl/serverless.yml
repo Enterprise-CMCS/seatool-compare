@@ -11,11 +11,10 @@ plugins:
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-iam-helper"
   - serverless-step-functions
-  - serverless-esbuild
 
 provider:
   name: aws
-  runtime: nodejs18.x
+  runtime: nodejs20.x
   region: ${env:REGION_A}
   stackTags:
     PROJECT: ${self:custom.project}

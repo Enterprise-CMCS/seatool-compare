@@ -4,7 +4,7 @@ import { secondsBetweenDates } from "./utils/timeHelper";
 
 /* This is the Lambda function that is triggered by the DynamoDB stream. It is responsible for starting
 the Step Function execution. */
-exports.handler = async function (event: {
+async function workflowStarter(event: {
   Records: { dynamodb: { Keys: { PK: { S: string }; SK: { S: string } } } }[];
 }) {
   console.log("Received event:", JSON.stringify(event, null, 2));
@@ -76,4 +76,6 @@ exports.handler = async function (event: {
   } else {
     console.log(`Record ${PK} not submitted within last 200 days. Ignoring...`);
   }
-};
+}
+
+export { workflowStarter as handler };
