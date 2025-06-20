@@ -19,6 +19,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    # Use GitHub environments for different stages
+    environment: 
+      name: ${{ github.ref_name == 'master' && 'master' || github.ref_name == 'val' && 'val' || github.ref_name == 'production' && 'production' || 'dev' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -54,6 +57,7 @@ jobs:
         shell: bash
         run: |
           echo "Deploying to stage: $STAGE_NAME"
+          echo "Environment: ${{ github.ref_name == 'master' && 'master' || github.ref_name == 'val' && 'val' || github.ref_name == 'production' && 'production' || 'dev' }}"
           # Use serverless compose for coordinated deployment
           npx @serverless/compose deploy --stage $STAGE_NAME --verbose
         env:
@@ -75,6 +79,7 @@ jobs:
         run: |
           echo "🎉 Deployment completed successfully!"
           echo "Stage: $STAGE_NAME"
+          echo "Environment: ${{ github.ref_name == 'master' && 'master' || github.ref_name == 'val' && 'val' || github.ref_name == 'production' && 'production' || 'dev' }}"
           echo "Region: us-east-1"
           echo "Services deployed via serverless-compose"
 
