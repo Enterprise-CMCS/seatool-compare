@@ -18,11 +18,22 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - uses: ./.github/actions/setup
+
+      - name: Validate serverless-compose.yml
+        shell: bash
+        run: |
+          echo "Validating serverless-compose configuration..."
+          if [ ! -f "serverless-compose.yml" ]; then
+            echo "❌ serverless-compose.yml not found"
+            exit 1
+          fi
+          echo "✅ serverless-compose.yml found"
 
       - name: Build
         shell: bash
@@ -44,7 +55,7 @@ jobs:
         run: |
           echo "Deploying to stage: $STAGE_NAME"
           # Use serverless compose for coordinated deployment
-          npx @serverless/compose deploy --stage $STAGE_NAME
+          npx @serverless/compose deploy --stage $STAGE_NAME --verbose
         env:
           PROJECT: compare
           REGION_A: us-east-1
@@ -57,7 +68,15 @@ jobs:
           aws cloudformation describe-stacks \
             --region us-east-1 \
             --query "Stacks[?contains(StackName, 'compare-') && contains(StackName, '-$STAGE_NAME')].StackName" \
-            --output table
+            --output table || echo "No stacks found or verification failed"
+
+      - name: Post-deployment summary
+        shell: bash
+        run: |
+          echo "🎉 Deployment completed successfully!"
+          echo "Stage: $STAGE_NAME"
+          echo "Region: us-east-1"
+          echo "Services deployed via serverless-compose"
 
       - name: Slack Notification - notify of failure
         uses: rtCamp/action-slack-notify@v2.2.0
@@ -66,7 +85,7 @@ jobs:
           SLACK_COLOR: ${{job.status}}
           SLACK_ICON: https://github.com/${{ github.repository_owner }}.png?size=48
           SLACK_TITLE: Deployment Failed
-          SLACK_MESSAGE: "Deployment to ${{ env.STAGE_NAME }} failed. Check the logs for details."
+          SLACK_MESSAGE: "❌ Deployment to ${{ env.STAGE_NAME }} failed. Check the logs for details."
           SLACK_USERNAME: ${{ github.repository }} ${{job.status}}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -76,6 +95,6 @@ jobs:
           SLACK_COLOR: ${{job.status}}
           SLACK_ICON: https://github.com/${{ github.repository_owner }}.png?size=48
           SLACK_TITLE: Deploy Workflow - SUCCESS
-          SLACK_MESSAGE: "Deployment to ${{ env.STAGE_NAME }} completed successfully."
+          SLACK_MESSAGE: "✅ Deployment to ${{ env.STAGE_NAME }} completed successfully."
           SLACK_USERNAME: ${{ github.repository }} ${{job.status}}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}

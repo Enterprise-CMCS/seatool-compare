@@ -41,7 +41,7 @@ fi
 
 # build and run dev.ts
 # ./node_modules/.bin/tsc && node ./build_run/run.js "$@"
-./node_modules/.bin/tsc --skipLibCheck --module esnext --moduleResolution node ./src/run.ts && node ./src/run.js "$@"
+./node_modules/.bin/tsc --skipLibCheck --module esnext --moduleResolution node ./src/run.ts ./src/runner.ts && node ./src/run.js "$@"
 
 # clean up
 rm ./src/run.js
