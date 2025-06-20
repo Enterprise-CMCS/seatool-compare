@@ -1,6 +1,6 @@
 import yargs from "yargs";
 import * as dotenv from "dotenv";
-import LabeledProcessRunner from "./runner.js";
+import LabeledProcessRunner from "./runner";
 import * as fs from "fs";
 import { ServerlessStageDestroyer } from "@stratiformdigital/serverless-stage-destroyer";
 import { ServerlessRunningStages } from "@enterprise-cmcs/macpro-serverless-running-stages";
@@ -34,13 +34,16 @@ async function install_deps(runner: LabeledProcessRunner, dir: string) {
       await frozenInstall(runner, dir);
     }
   } else {
+    const yarnLockPath = `${dir}/yarn.lock`;
+    const yarnInstallPath = `${dir}/.yarn_install`;
+    
     if (
-      !fs.existsSync(`${dir}/.yarn_install`) ||
-      fs.statSync(`${dir}/.yarn_install`).ctimeMs <
-        fs.statSync(`${dir}/yarn.lock`).ctimeMs
+      !fs.existsSync(yarnInstallPath) ||
+      !fs.existsSync(yarnLockPath) ||
+      fs.statSync(yarnInstallPath).ctimeMs < fs.statSync(yarnLockPath).ctimeMs
     ) {
       await frozenInstall(runner, dir);
-      touch(`${dir}/.yarn_install`);
+      touch(yarnInstallPath);
     }
   }
 }
@@ -81,7 +84,7 @@ async function getStageOrDefault(stage?: string): Promise<string> {
 async function refreshOutputs(stage: string) {
   await runner.run_command_and_output(
     `SLS Refresh Outputs`,
-    ["sls", "refresh-outputs", "--stage", stage],
+    ["npx", "serverless", "refresh-outputs", "--stage", stage],
     ".",
     true
   );
@@ -118,7 +121,7 @@ yargs(process.argv.slice(2))
       
       await runner.run_command_and_output(
         `SLS Validate`,
-        ["sls", "print", "--stage", stage],
+        ["npx", "serverless", "package", "--stage", stage],
         ".",
         true
       );
@@ -137,10 +140,11 @@ yargs(process.argv.slice(2))
       const stage = await getStageOrDefault(options.stage);
       await refreshOutputs(stage);
       
-      var deployCmd = ["sls", "deploy", "--stage", stage];
+      var deployCmd = ["npx", "@serverless/compose", "deploy", "--stage", stage];
       if (options.service) {
         deployCmd = [
-          "sls",
+          "npx",
+          "@serverless/compose",
           "deploy",
           "--stage",
           stage,
@@ -217,7 +221,7 @@ yargs(process.argv.slice(2))
       await refreshOutputs(stage);
       await runner.run_command_and_output(
         `SLS connect`,
-        ["sls", options.service, "connect", "--stage", stage],
+        ["npx", "serverless", options.service, "connect", "--stage", stage],
         "."
       );
     }

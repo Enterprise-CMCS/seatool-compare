@@ -1,4 +1,4 @@
-import * as connect from "../../../libs/connect-lib.js";
+import * as connect from "../../../libs/connect-lib";
 
 export async function findTaskIp(event: {
   Context: { Execution: { Input: { cluster: string } } };
@@ -13,7 +13,8 @@ export async function findTaskIp(event: {
     };
   } catch (error) {
     console.error("Error finding task IP:", error);
-    throw new Error(`Failed to find task IP: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to find task IP: ${errorMessage}`);
   }
 }
 
@@ -31,11 +32,12 @@ export async function checkIfConnectIsReady(event: {
     };
   } catch (error) {
     console.error("Error checking if connect is ready:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       ip: event.Payload.ip,
       ready: false,
       success: false,
-      error: error.message
+      error: errorMessage
     };
   }
 }
@@ -54,9 +56,10 @@ export async function createConnector(event: {
     return result;
   } catch (error) {
     console.error("Error creating connector:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       success: false,
-      error: error.message
+      error: errorMessage
     };
   }
 }

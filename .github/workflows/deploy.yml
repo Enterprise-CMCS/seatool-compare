@@ -44,7 +44,7 @@ jobs:
         run: |
           echo "Deploying to stage: $STAGE_NAME"
           # Use serverless compose for coordinated deployment
-          npx serverless deploy --stage $STAGE_NAME
+          npx @serverless/compose deploy --stage $STAGE_NAME
         env:
           PROJECT: compare
           REGION_A: us-east-1

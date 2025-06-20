@@ -4,12 +4,24 @@ frameworkVersion: "3"
 
 package:
   individually: true
+  patterns:
+    - '!./**'
+    - './handlers/**'
+    - '../../../libs/**'
+    - '../../../types/**'
+    - '../../../node_modules/lodash/**'
+    - '../../../node_modules/axios/**'
+    - '../../../node_modules/nodemailer/**'
+    - '../../../node_modules/@aws-sdk/**'
+    - '../../../node_modules/@smithy/**'
+    - '../../../node_modules/@aws-crypto/**'
 
 plugins:
+  - serverless-plugin-typescript
   - serverless-plugin-scripts
   - serverless-stack-termination-protection
   - serverless-step-functions
-  - "@stratiformdigital/serverless-iam-helper"
+  - "@stratiformdigital/serverless-iam-helper"  
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-s3-security-helper"
 
@@ -73,87 +85,12 @@ custom:
   vpc: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/vpc, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/vpc}
   brokerString: ${ssm:/aws/reference/secretsmanager/${self:custom.project}/${sls:stage}/brokerString, ssm:/aws/reference/secretsmanager/${self:custom.project}/default/brokerString}
   connectImage: ${ssm:/aws/reference/secretsmanager/ecr/images/${self:custom.project}/${self:service}, "confluentinc/cp-kafka-connect:6.0.9"}
+  serverlessTypeScript:
+    tsConfigFileLocation: './tsconfig.json'
+    includeSource: false
+    packageIncludeDevDependencies: false
+    keepOutputDirectory: true
   scripts:
-    hooks:
-      deploy:finalize: |
-        configureConnector() {
-          local connector_name=$1
-          local max_retries=3
-          local retry_count=0
-          
-          echo "Configuring Connector $connector_name"
-          
-          while [ $retry_count -lt $max_retries ]; do
-            echo "Attempt $((retry_count + 1)) of $max_retries"
-            
-            # Check if ECS service is running
-            echo "Checking if ECS service is running..."
-            running_tasks=$(aws --region ${self:provider.region} ecs list-tasks --cluster $connector_name --desired-status RUNNING --query 'taskArns' --output text)
-            
-            if [ -z "$running_tasks" ]; then
-              echo "No running ECS tasks found. Waiting 30 seconds before retry..."
-              sleep 30
-              retry_count=$((retry_count + 1))
-              continue
-            fi
-            
-            echo "ECS tasks are running. Starting Step Functions execution..."
-            
-            execution=$(aws stepfunctions start-sync-execution \
-              --cli-read-timeout 300 \
-              --state-machine-arn arn:aws:states:${self:provider.region}:${aws:accountId}:stateMachine:${self:service}-${sls:stage}-configure-connector \
-              --region ${self:provider.region} \
-              --input "{\"cluster\" : \"${self:service}-${sls:stage}-connect\", \"connectorConfigSecret\": \"${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/$connector_name\"}" \
-              2>&1)
-            
-            if echo "$execution" | grep -q "\"status\": \"SUCCEEDED\""; then
-              echo "✅ Connector $connector_name configured successfully"
-              return 0
-            else
-              echo "❌ Connector configuration failed for $connector_name"
-              echo "Execution output: $execution"
-              
-              if [ $retry_count -lt $((max_retries - 1)) ]; then
-                echo "Waiting 60 seconds before retry..."
-                sleep 60
-              fi
-              
-              retry_count=$((retry_count + 1))
-            fi
-          done
-          
-          echo "ERROR: Failed to configure connector $connector_name after $max_retries attempts"
-          echo "Please check CloudWatch logs for details:"
-          echo "  - Step Functions: /aws/states/${self:service}-${sls:stage}-configure-connector"
-          echo "  - Lambda functions: /aws/lambda/${self:service}-${sls:stage}-*"
-          echo "  - ECS logs: /aws/fargate/${self:service}-${sls:stage}-kafka-connect"
-          return 1
-        }
-        
-        # Main deployment script
-        set -e
-        echo "Starting connector configuration..."
-        
-        # Configure each connector with individual error handling
-
-        connectors=("${self:service}-${sls:stage}-connect")
-        failed_connectors=()
-        
-        for connector in "${connectors[@]}"; do
-          if ! configureConnector "$connector"; then
-            failed_connectors+=("$connector")
-          fi
-        done
-        
-        # Report final status
-        if [ ${#failed_connectors[@]} -eq 0 ]; then
-          echo "✅ All connectors configured successfully"
-        else
-          echo "⚠️  Some connectors failed to configure: ${failed_connectors[*]}"
-          echo "The deployment will continue, but manual intervention may be required."
-          echo "You can retry connector configuration manually using:"
-          echo "  serverless invoke -f createConnector --data '{\"ip\": \"<ECS_TASK_IP>\", \"connectorConfigSecret\": \"${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/<CONNECTOR_NAME>\"}'"
-        fi
     commands:
       connect: |
         runningTasks=(`aws --region ${self:provider.region} ecs list-tasks --cluster ${self:service}-${sls:stage}-connect --desired-status RUNNING | jq -r ".taskArns[]"`)
@@ -741,7 +678,7 @@ resources:
       Type: AWS::SecretsManager::Secret
       Properties:
         Description: GENERATED BY DEPLOYMENT.  DO NOT MODIFY.  Connector configuration for the MMDL Compare Sink Connector.
-        Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}-mmdl
+        Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}.lambda.mmdlData
         SecretString: !Sub |
           {
             "name": "${self:service}-${sls:stage}.lambda.mmdlData",
@@ -762,7 +699,7 @@ resources:
       Type: AWS::SecretsManager::Secret
       Properties:
         Description: GENERATED BY DEPLOYMENT.  DO NOT MODIFY.  Connector configuration for the Seatool Compare Sink Connector.
-        Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}-seatool
+        Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}.lambda.seatoolData
         SecretString: !Sub |
           {
             "name": "${self:service}-${sls:stage}.lambda.seatoolData",
@@ -783,7 +720,7 @@ resources:
       Type: AWS::SecretsManager::Secret
       Properties:
         Description: GENERATED BY DEPLOYMENT.  DO NOT MODIFY.  Connector configuration for the Appian Compare Sink Connector.
-        Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}-appian
+        Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}.lambda.appianData
         SecretString: !Sub |
           {
             "name": "${self:service}-${sls:stage}.lambda.appianData",
