@@ -17,7 +17,7 @@ if ! which node > /dev/null ; then
 fi
 
 # check node version
-if ! diff  <(cat .nvmrc | tr -d '\n') <(node -v | tr -d '\n') > /dev/null ; then
+if [ "$(cat .nvmrc | tr -d '\n')" != "$(node -v | tr -d '\n')" ]; then
 	echo "node version does not match the version required in .nvmrc"
 	echo "If using nvm, run 'nvm use'"
 	exit 1
@@ -41,7 +41,7 @@ fi
 
 # build and run dev.ts
 # ./node_modules/.bin/tsc && node ./build_run/run.js "$@"
-./node_modules/.bin/tsc --skipLibCheck --module esnext --moduleResolution node ./src/run.ts && node ./src/run.js "$@"
+./node_modules/.bin/tsc --skipLibCheck --module esnext --moduleResolution node ./src/run.ts ./src/runner.ts && node ./src/run.js "$@"
 
 # clean up
 rm ./src/run.js

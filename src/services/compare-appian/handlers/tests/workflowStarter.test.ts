@@ -7,10 +7,8 @@ import {
   it,
   vi,
 } from "vitest";
-import * as workflowStarter from "../workflowStarter";
 import * as libs from "../../../../libs";
-
-const handler = workflowStarter as { handler: Function };
+import { handler} from "../workflowStarter";
 
 const testPK = "test-pk";
 const testSK = "test-sk";
@@ -53,7 +51,7 @@ describe("workflowStarter", () => {
   });
 
   it("throws an error if process.env.appianTableName is not set", async () => {
-    await expect(handler.handler(event)).rejects.toThrowError(
+    await expect(handler(event)).rejects.toThrowError(
       /^process.env.appianTableName needs to be defined.$/
     );
   });
@@ -65,7 +63,7 @@ describe("workflowStarter", () => {
     });
 
     it("logs the received event as expected", async () => {
-      await handler.handler(event);
+      await handler(event);
       expect(console.log).toHaveBeenCalledWith(
         "Received event:",
         JSON.stringify(event, null, 2)
@@ -79,7 +77,7 @@ describe("workflowStarter", () => {
       });
 
       it("prints a log when workflows status is not set to ON", async () => {
-        await handler.handler(event);
+        await handler(event);
         expect(console.log).toHaveBeenCalledWith(
           'Workflows status is currently not "ON". not starting workflow'
         );
@@ -99,7 +97,7 @@ describe("workflowStarter", () => {
         });
 
         it("throws an error when no Appian record is found", async () => {
-          await expect(handler.handler(event)).rejects.toThrowError(
+          await expect(handler(event)).rejects.toThrowError(
             "No appian record found"
           );
         });
@@ -114,7 +112,7 @@ describe("workflowStarter", () => {
         });
 
         it("calls getItem as expected", async () => {
-          await handler.handler(event);
+          await handler(event);
           expect(libs.getItem).toHaveBeenCalledWith({
             tableName: "test-table-name",
             key: { PK: testPK, SK: testSK },
@@ -122,11 +120,11 @@ describe("workflowStarter", () => {
         });
 
         it("does not throw an error when an Appian record is found", async () => {
-          await expect(handler.handler(event)).resolves.not.toThrowError();
+          await expect(handler(event)).resolves.not.toThrowError();
         });
 
         it("logs a message if the record is > 200 days old", async () => {
-          await handler.handler(event);
+          await handler(event);
           expect(console.log).toHaveBeenCalledWith(
             `Record ${testPK} not submitted within last 200 days. Ignoring...`
           );
@@ -141,7 +139,7 @@ describe("workflowStarter", () => {
         });
 
         it("calls getItem as expected", async () => {
-          await handler.handler(event);
+          await handler(event);
           expect(libs.getItem).toHaveBeenCalledWith({
             tableName: "test-table-name",
             key: { PK: testPK, SK: testSK },
@@ -149,7 +147,7 @@ describe("workflowStarter", () => {
         });
 
         it("does not throw an error when an Appian record is found", async () => {
-          await expect(handler.handler(event)).resolves.not.toThrowError();
+          await expect(handler(event)).resolves.not.toThrowError();
         });
       });
     });

@@ -21,31 +21,43 @@ jobs:
         !contains(fromJson('["master", "staging", "production"]'), inputs.environment)
       )
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment:
       name: ${{ inputs.environment || github.event.ref }}
     env:
       STAGE_NAME: ${{ inputs.environment || github.event.ref }}
+      PROJECT: compare
+      REGION_A: us-east-1
     permissions:
       id-token: write
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: ./.github/actions/setup
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_TO_ASSUME }}
           aws-region: us-east-1
           role-duration-seconds: 10800
 
+      - name: Pre-destroy validation
+        shell: bash
+        run: |
+          echo "Preparing to destroy stage: $STAGE_NAME"
+          echo "Project: $PROJECT"
+          echo "Region: $REGION_A"
+          echo "⚠️  WARNING: This will destroy all resources for stage $STAGE_NAME"
+
       - name: Destroy
-        run: run destroy --stage $STAGE_NAME --verify false
+        shell: bash
+        run: run destroy --stage $STAGE_NAME
 
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@v2.2.0
         if: env.SLACK_WEBHOOK != '' && failure()
         env:
           SLACK_COLOR: ${{job.status}}

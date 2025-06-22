@@ -1,4 +1,4 @@
-import * as ecs from "./ecs-lib.js";
+import * as ecs from "./ecs-lib";
 import {
   ECSClient,
   DescribeTasksCommand,

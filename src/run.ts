@@ -1,6 +1,6 @@
 import yargs from "yargs";
 import * as dotenv from "dotenv";
-import LabeledProcessRunner from "./runner.js";
+import LabeledProcessRunner from "./runner";
 import * as fs from "fs";
 import { ServerlessStageDestroyer } from "@stratiformdigital/serverless-stage-destroyer";
 import { ServerlessRunningStages } from "@enterprise-cmcs/macpro-serverless-running-stages";
@@ -34,13 +34,16 @@ async function install_deps(runner: LabeledProcessRunner, dir: string) {
       await frozenInstall(runner, dir);
     }
   } else {
+    const yarnLockPath = `${dir}/yarn.lock`;
+    const yarnInstallPath = `${dir}/.yarn_install`;
+    
     if (
-      !fs.existsSync(`${dir}/.yarn_install`) ||
-      fs.statSync(`${dir}/.yarn_install`).ctimeMs <
-        fs.statSync(`${dir}/yarn.lock`).ctimeMs
+      !fs.existsSync(yarnInstallPath) ||
+      !fs.existsSync(yarnLockPath) ||
+      fs.statSync(yarnInstallPath).ctimeMs < fs.statSync(yarnLockPath).ctimeMs
     ) {
       await frozenInstall(runner, dir);
-      touch(`${dir}/.yarn_install`);
+      touch(yarnInstallPath);
     }
   }
 }
@@ -59,10 +62,29 @@ function getDirectories(path: string) {
   });
 }
 
+async function getCurrentGitBranch(): Promise<string> {
+  try {
+    const { execSync } = await import('child_process');
+    return execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+  } catch (error) {
+    throw new Error('Error getting git branch. Please specify --stage explicitly.');
+  }
+}
+
+async function getStageOrDefault(stage?: string): Promise<string> {
+  if (stage) {
+    return stage;
+  }
+  
+  const gitBranch = await getCurrentGitBranch();
+  console.log(`Using current git branch as stage: ${gitBranch}`);
+  return gitBranch;
+}
+
 async function refreshOutputs(stage: string) {
   await runner.run_command_and_output(
     `SLS Refresh Outputs`,
-    ["sls", "refresh-outputs", "--stage", stage],
+    ["npx", "serverless", "refresh-outputs", "--stage", stage],
     ".",
     true
   );
@@ -73,50 +95,97 @@ yargs(process.argv.slice(2))
     await install_deps_for_services();
   })
   .command(
+    "services",
+    "list available services",
+    {},
+    async () => {
+      await install_deps_for_services();  
+      const services = getDirectories("src/services");
+      console.log("Available services:");
+      services.forEach(service => {
+        console.log(`  - ${service}`);
+      });
+      console.log("\nUse './run deploy --stage <stage> --service <service>' to deploy a specific service");
+    }
+  )
+  .command(
+    "validate",
+    "validate serverless compose configuration",
+    {
+      stage: { type: "string", demandOption: false },
+    },
+    async (options) => {
+      await install_deps_for_services();
+      
+      const stage = await getStageOrDefault(options.stage);
+      
+      await runner.run_command_and_output(
+        `SLS Validate`,
+        ["npx", "serverless", "package", "--stage", stage],
+        ".",
+        true
+      );
+    }
+  )
+  .command(
     "deploy",
     "deploy the project",
     {
-      stage: { type: "string", demandOption: true },
+      stage: { type: "string", demandOption: false },
       service: { type: "string", demandOption: false },
     },
     async (options) => {
       await install_deps_for_services();
-      var deployCmd = ["sls", "deploy", "--stage", options.stage];
+      
+      const stage = await getStageOrDefault(options.stage);
+      await refreshOutputs(stage);
+      
+      var deployCmd = ["npx", "@serverless/compose", "deploy", "--stage", stage];
       if (options.service) {
-        await refreshOutputs(options.stage);
         deployCmd = [
-          "sls",
-          options.service,
+          "npx",
+          "@serverless/compose",
           "deploy",
           "--stage",
-          options.stage,
+          stage,
+          "--service",
+          options.service,
         ];
       }
       await runner.run_command_and_output(`SLS Deploy`, deployCmd, ".");
     }
   )
-  .command("test", "run all available tests.", {}, async () => {
-    await install_deps_for_services();
-    await runner.run_command_and_output(`Unit Tests`, ["yarn", "test-ci"], ".");
-  })
-  .command("test-gui", "open unit-testing gui for vitest.", {}, async () => {
-    await install_deps_for_services();
-    await runner.run_command_and_output(
-      `Unit Tests`,
-      ["yarn", "test-gui"],
-      "."
-    );
-  })
+  .command(
+    "test",
+    "run any available tests.",
+    {
+      stage: { type: "string", demandOption: false },
+    },
+    async (options) => {
+      await install_deps_for_services();
+      
+      const stage = await getStageOrDefault(options.stage);
+      
+      await refreshOutputs(stage);
+      await runner.run_command_and_output(
+        `Unit Tests`,
+        ["yarn", "test-ci"],
+        "."
+      );
+    }
+  )
   .command(
     "destroy",
     "destroy a stage in AWS",
     {
-      stage: { type: "string", demandOption: true },
+      stage: { type: "string", demandOption: false },
       service: { type: "string", demandOption: false },
       wait: { type: "boolean", demandOption: false, default: true },
       verify: { type: "boolean", demandOption: false, default: true },
     },
     async (options) => {
+      const stage = await getStageOrDefault(options.stage);
+      
       let destroyer = new ServerlessStageDestroyer();
       let filters = [
         {
@@ -130,7 +199,7 @@ yargs(process.argv.slice(2))
           Value: `${options.service}`,
         });
       }
-      await destroyer.destroy(`${process.env.REGION_A}`, options.stage, {
+      await destroyer.destroy(`${process.env.REGION_A}`, stage, {
         wait: options.wait,
         filters: filters,
         verify: options.verify,
@@ -141,15 +210,18 @@ yargs(process.argv.slice(2))
     "connect",
     "Prints a connection string that can be run to 'ssh' directly onto the ECS Fargate task",
     {
-      stage: { type: "string", demandOption: true },
+      stage: { type: "string", demandOption: false },
       service: { type: "string", demandOption: true },
     },
     async (options) => {
       await install_deps_for_services();
-      await refreshOutputs(options.stage);
+      
+      const stage = await getStageOrDefault(options.stage);
+      
+      await refreshOutputs(stage);
       await runner.run_command_and_output(
         `SLS connect`,
-        ["sls", options.service, "connect", "--stage", options.stage],
+        ["npx", "serverless", options.service, "connect", "--stage", stage],
         "."
       );
     }
@@ -192,52 +264,6 @@ yargs(process.argv.slice(2))
           "docs"
         );
       }
-    }
-  )
-  .command(
-    "base-update",
-    "this will update your code to the latest version of the base template",
-    {},
-    async () => {
-      const addRemoteCommand = [
-        "git",
-        "remote",
-        "add",
-        "base",
-        "https://github.com/Enterprise-CMCS/macpro-base-template",
-      ];
-
-      await runner.run_command_and_output(
-        "Update from Base | adding remote",
-        addRemoteCommand,
-        ".",
-        true,
-        {
-          stderr: true,
-          close: true,
-        }
-      );
-
-      const fetchBaseCommand = ["git", "fetch", "base"];
-
-      await runner.run_command_and_output(
-        "Update from Base | fetching base template",
-        fetchBaseCommand,
-        "."
-      );
-
-      const mergeCommand = ["git", "merge", "base/production", "--no-ff"];
-
-      await runner.run_command_and_output(
-        "Update from Base | merging code from base template",
-        mergeCommand,
-        ".",
-        true
-      );
-
-      console.log(
-        "Merge command was performed. You may have conflicts. This is normal behaivor. To complete the update process fix any conflicts, commit, push, and open a PR."
-      );
     }
   )
   .command(
