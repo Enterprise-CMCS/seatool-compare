@@ -29,8 +29,9 @@ jobs:
           aws-region: us-east-1
 
       - name: List running stages
+        id: list-stages
         run: |
-          node -e "
+          STAGES=$(node -e "
           const { ServerlessRunningStages } = require('@enterprise-cmcs/macpro-serverless-running-stages');
           async function listStages() {
             try {
@@ -45,9 +46,8 @@ jobs:
               } else {
                 console.log(\`Found \${runningStages.length} running stages:\`);
                 runningStages.forEach(stage => console.log(\`  - \${stage}\`));
-                var stages = runningStages.join(',');
-                console.log(\`stages=\${stages}\`);
-                echo \"stages=\${stages}\" >> $GITHUB_OUTPUT
+                const stages = runningStages.join(', ');
+                return stages;
               }
             } catch (error) {
               console.error('Error listing running stages:', error);
@@ -56,34 +56,14 @@ jobs:
           }
           
           listStages();
-          "
-
-      - name: Set output
-        id: stages
-        run: |
-          STAGES=$(node -e "
-          var { ServerlessRunningStages } = require('@enterprise-cmcs/macpro-serverless-running-stages');
-          
-          async function getStages() {
-            try {
-              var runningStages =  ServerlessRunningStages.getAllStagesForRegion(process.env.REGION_A).then(stages => stages.join(','));
-              console.log(runningStages);
-            } catch (error) {
-              console.error('Error:', error);
-              process.exit(1);
-            }
-          }
-          
-          getStages();
           ")
-          echo "stages=$STAGES" >> $GITHUB_OUTPUT
 
       - name: Github Issue
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
-            const stages = '${{ steps.stages.outputs.stages }}';
+            const stages = '${{ steps.list-stages.outputs.stages }}';
             const body = stages ? 
               `🚀 **Running Stages in ${process.env.REGION_A}:**\n\n${stages.split(',').map(s => `- \`${s}\``).join('\n')}` :
               `✅ **No running stages found in ${process.env.REGION_A}**`;
@@ -104,6 +84,6 @@ jobs:
           SLACK_TITLE: Running Stages Report
           SLACK_MESSAGE: |
             Region: ${{ env.REGION_A }}
-            Running Stages: ${{ steps.stages.outputs.stages || 'None' }}
+            Running Stages: ${{ steps.list-stages.outputs.stages || 'None' }}
           SLACK_USERNAME: ${{ github.repository }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }} 
