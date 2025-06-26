@@ -30,33 +30,7 @@ jobs:
 
       - name: List running stages
         id: list-stages
-        run: |
-          STAGES=$(node -e "
-          const { ServerlessRunningStages } = require('@enterprise-cmcs/macpro-serverless-running-stages');
-          async function listStages() {
-            try {
-              const region = process.env.REGION_A;
-              console.log(\`Checking running stages in region: \${region}\`);
-              
-              const runningStages = await ServerlessRunningStages.getAllStagesForRegion(region);
-              console.log(\`runningStages=\${runningStages.join(',')}\`);
-              
-              if (runningStages.length === 0) {
-                console.log('No running stages found');
-              } else {
-                console.log(\`Found \${runningStages.length} running stages:\`);
-                runningStages.forEach(stage => console.log(\`  - \${stage}\`));
-                const stages = runningStages.join(', ');
-                return stages;
-              }
-            } catch (error) {
-              console.error('Error listing running stages:', error);
-              process.exit(1);
-            }
-          }
-          
-          listStages();
-          ")
+        run: node scripts/list-running-stages.js
 
       - name: Github Issue
         if: github.event_name == 'pull_request'
