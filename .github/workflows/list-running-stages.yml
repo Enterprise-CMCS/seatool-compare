@@ -30,7 +30,7 @@ jobs:
 
       - name: List running stages
         id: list-stages
-        run: node scripts/list-running-stages.js
+        run: node scripts/list-running-stages.cjs
 
       - name: Github Issue
         if: github.event_name == 'pull_request'
