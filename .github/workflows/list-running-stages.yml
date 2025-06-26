@@ -32,7 +32,6 @@ jobs:
         run: |
           node -e "
           const { ServerlessRunningStages } = require('@enterprise-cmcs/macpro-serverless-running-stages');
-          
           async function listStages() {
             try {
               const region = process.env.REGION_A;
@@ -46,6 +45,9 @@ jobs:
               } else {
                 console.log(\`Found \${runningStages.length} running stages:\`);
                 runningStages.forEach(stage => console.log(\`  - \${stage}\`));
+                var stages = runningStages.join(',');
+                console.log(\`stages=\${stages}\`);
+                echo \"stages=\${stages}\" >> $GITHUB_OUTPUT
               }
             } catch (error) {
               console.error('Error listing running stages:', error);
