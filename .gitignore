@@ -35,3 +35,4 @@ dist/
 .Trashes
 ehthumbs.db
 Thumbs.db
+!scripts/list-running-stages.js
