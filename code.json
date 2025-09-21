@@ -19,7 +19,7 @@
   "repositoryHost": "github.com/Enterprise-CMCS",
   "repositoryVisibility": "public",
   "vcs": "git",
-  "laborHours": 6315,
+  "laborHours": 6400,
   "reuseFrequency": {
     "forks": 0,
     "clones": 0
@@ -35,8 +35,8 @@
   "contractNumber": "75FCMC24F0027",
   "date": {
     "created": "2022-09-16T18:46:05Z",
-    "lastModified": "2025-06-17T17:47:46Z",
-    "metaDataLastUpdated": "2025-06-17T17:53:58.399Z"
+    "lastModified": "2025-06-22T05:11:27Z",
+    "metaDataLastUpdated": "2025-06-22T05:12:42.837Z"
   },
   "tags": ["cms", "healthcare", "data-comparison", "serverless", "aws", "medicaid", "medicare", "notifications"],
   "contact": {
