@@ -4,20 +4,9 @@ frameworkVersion: "3"
 
 package:
   individually: true
-  patterns:
-    - '!./**'
-    - './handlers/**'
-    - '../../../libs/**'
-    - '../../../types/**'
-    - '../../../node_modules/lodash/**'
-    - '../../../node_modules/axios/**'
-    - '../../../node_modules/nodemailer/**'
-    - '../../../node_modules/@aws-sdk/**'
-    - '../../../node_modules/@smithy/**'
-    - '../../../node_modules/@aws-crypto/**'
 
 plugins:
-  - serverless-plugin-typescript
+  - serverless-esbuild
   - serverless-plugin-scripts
   - serverless-stack-termination-protection
   - serverless-step-functions
@@ -77,6 +66,16 @@ provider:
 
 custom:
   project: ${env:PROJECT}
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: false
+    exclude: 
+      - '@aws-sdk/*'
+    target: 'node20'
+    platform: 'node'
+    concurrency: 10
+    keepNames: true
   serverlessTerminationProtection:
     stages: # Apply CloudFormation termination protection for these stages
       - master
