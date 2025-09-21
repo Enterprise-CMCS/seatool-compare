@@ -10,19 +10,19 @@
     "start": "serverless offline start"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.0.0",
+    "@aws-sdk/client-cloudwatch": "^3.893.0",
     "aws-lambda": "^1.0.7",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@types/node": "^20.11.24",
-    "@types/aws-lambda": "^8.10.108",
-    "serverless": "^3.17.0",
-    "serverless-stack-termination-protection": "^2.0.2",
-    "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
     "@stratiformdigital/serverless-iam-helper": "^3.2.0",
+    "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
+    "@types/aws-lambda": "^8.10.152",
+    "@types/node": "^20.19.17",
+    "serverless": "^3.40.0",
     "serverless-plugin-typescript": "^2.1.5",
-    "typescript": "^4.9.4",
+    "serverless-stack-termination-protection": "^2.0.2",
+    "typescript": "^4.9.5",
     "vitest": "^3.2.4"
   }
 }

@@ -10,26 +10,26 @@
     "start": "serverless offline start"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.0.0",
-    "@aws-sdk/lib-dynamodb": "^3.0.0",
-    "@aws-sdk/client-sns": "^3.0.0",
-    "@aws-sdk/client-ses": "^3.0.0",
-    "@aws-sdk/client-secrets-manager": "^3.0.0",
-    "@aws-sdk/client-cloudwatch-logs": "^3.0.0",
-    "@aws-sdk/client-sfn": "^3.0.0",
-    "cfn-response-async": "^1.0.0",
-    "aws-lambda": "^1.0.7"
+    "@aws-sdk/client-cloudwatch-logs": "^3.893.0",
+    "@aws-sdk/client-dynamodb": "^3.893.0",
+    "@aws-sdk/client-secrets-manager": "^3.893.0",
+    "@aws-sdk/client-ses": "^3.893.0",
+    "@aws-sdk/client-sfn": "^3.893.0",
+    "@aws-sdk/client-sns": "^3.893.0",
+    "@aws-sdk/lib-dynamodb": "^3.893.0",
+    "aws-lambda": "^1.0.7",
+    "cfn-response-async": "^1.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.11.24",
-    "@types/aws-lambda": "^8.10.108",
-    "serverless": "^3.17.0",
-    "serverless-stack-termination-protection": "^2.0.2",
-    "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
-    "@stratiformdigital/serverless-online": "^3.2.0",
     "@stratiformdigital/serverless-iam-helper": "^3.2.0",
-    "serverless-step-functions": "^3.12.1",
-    "typescript": "^4.9.4",
+    "@stratiformdigital/serverless-online": "^3.2.0",
+    "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
+    "@types/aws-lambda": "^8.10.152",
+    "@types/node": "^20.19.17",
+    "serverless": "^3.40.0",
+    "serverless-stack-termination-protection": "^2.0.2",
+    "serverless-step-functions": "^3.23.3",
+    "typescript": "^4.9.5",
     "vitest": "^3.2.4"
   }
 }
