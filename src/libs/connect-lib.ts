@@ -17,7 +17,10 @@ const resolver = (
   resolve: (statusCode: number | undefined) => void
 ) => {
   console.log("Finished");
-  res.socket.destroy();
+  // Safely destroy socket if it exists
+  if (res.socket && !res.socket.destroyed) {
+    res.socket.destroy();
+  }
   resolve(res.statusCode);
 };
 
@@ -53,13 +56,19 @@ export async function connectRestApiWithRetry(params: {
           console.log("Data: ", d.toString());
         })
         .on("error", (error) => {
-          console.error("Error: ", error.toString());
+          console.error("Response Error: ", error.toString());
           retry(error.toString());
         })
         .on("end", () => {
           resolver(res, resolve);
         });
     });
+    
+    req.on("error", (error) => {
+      console.error("Request Error: ", error.toString());
+      retry(error.toString());
+    });
+    
     if (params.body) {
       req.write(JSON.stringify(params.body));
     }
@@ -121,6 +130,10 @@ export async function deleteConnector(ip: string, name: string) {
           resolver(res, resolve);
         });
     });
+    req.on("error", (error) => {
+      console.error("Request error:", error);
+      retry(error.toString());
+    });
     req.write(JSON.stringify({}));
     req.end();
   });
@@ -162,8 +175,15 @@ export async function testConnector(ip: string, config: { name: string }) {
           reject(error);
         })
         .on("end", () => {
-          resolver(res, resolve);
+          // Don't call resolver here as it tries to destroy socket
+          console.log("Finished");
+          // Response already handled in 'data' event
         });
+    });
+
+    req.on("error", (error) => {
+      console.error("Request error:", error);
+      reject(error);
     });
 
     req.write(JSON.stringify({}));
