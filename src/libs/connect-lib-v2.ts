@@ -59,6 +59,8 @@ export async function connectRestApiWithRetry(params: {
       }
     }
   }
+  
+  return undefined;
 }
 
 export async function restartConnectors(
@@ -213,7 +215,7 @@ export async function testConnectors(
     const workerIp = await findTaskIp(cluster);
     console.log(`Testing connectors at ${workerIp}:8083`);
     
-    const results = [];
+    const results: { name: string; tasks: any[]; connector: any }[] = [];
     
     for (const config of connectorConfigs) {
       try {
