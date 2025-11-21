@@ -12,17 +12,7 @@ async function myHandler() {
   const RUNNING = "RUNNING";
   const connectors: {
     name: string;
-    config: {
-      "tasks.max": number;
-      "connector.class": string;
-      topics: string;
-      "key.converter": string;
-      "value.converter": string;
-      "aws.region": string;
-      "aws.lambda.function.arn": string;
-      "aws.lambda.batch.enabled": boolean;
-      "aws.credentials.provider.class": string;
-    };
+    config: Record<string, any>;
   }[] = [];
 
   if (!process.env.connectorConfigPrefix) {
