@@ -1,6 +1,6 @@
 import yargs from "yargs";
 import * as dotenv from "dotenv";
-import LabeledProcessRunner from "./runner";
+import LabeledProcessRunner from "./runner.js";
 import * as fs from "fs";
 import { ServerlessStageDestroyer } from "@stratiformdigital/serverless-stage-destroyer";
 import { ServerlessRunningStages } from "@enterprise-cmcs/macpro-serverless-running-stages";

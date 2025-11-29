@@ -10,7 +10,7 @@ plugins:
   - serverless-plugin-scripts
   - serverless-stack-termination-protection
   - serverless-step-functions
-  - "@stratiformdigital/serverless-iam-helper"  
+  - "@stratiformdigital/serverless-iam-helper"
   - "@stratiformdigital/serverless-online"
   - "@stratiformdigital/serverless-s3-security-helper"
 
@@ -51,7 +51,6 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - ${param:seatoolTableArn}
-            - ${param:mmdlTableArn}
             - ${param:appianTableArn}
         - Effect: Allow
           Action:
@@ -70,10 +69,10 @@ custom:
     bundle: true
     minify: false
     sourcemap: false
-    exclude: 
-      - '@aws-sdk/*'
-    target: 'node20'
-    platform: 'node'
+    exclude:
+      - "@aws-sdk/*"
+    target: "node20"
+    platform: "node"
     concurrency: 10
     keepNames: true
   serverlessTerminationProtection:
@@ -134,6 +133,15 @@ functions:
         - Ref: LambdaConfigureConnectorsSecurityGroup
       subnetIds: >-
         ${self:custom.vpc.privateSubnets}
+  deleteConnector:
+    handler: handlers/connect.deleteConnector
+    maximumRetryAttempts: 0
+    timeout: 180
+    vpc:
+      securityGroupIds:
+        - Ref: LambdaConfigureConnectorsSecurityGroup
+      subnetIds: >-
+        ${self:custom.vpc.privateSubnets}
   sinkAppianData:
     handler: handlers/sinkAppianData.handler
     environment:
@@ -149,14 +157,6 @@ functions:
       stage: ${sls.stage}
       region: ${self:provider.region}
       tableName: ${param:seatoolTableName}
-      namespace: ${self:service}-${sls:stage}
-  sinkMmdlData:
-    handler: handlers/sinkMmdlData.handler
-    environment:
-      brokerString: ${self:custom.brokerString}
-      stage: ${sls.stage}
-      region: ${self:provider.region}
-      tableName: ${param:mmdlTableName}
       namespace: ${self:service}-${sls:stage}
   testConnectors:
     handler: handlers/testConnectors.handler
@@ -353,10 +353,10 @@ resources:
                 - Effect: Allow
                   Action:
                     - lambda:InvokeFunction
+                    - lambda:GetFunction
                   Resource:
                     - !GetAtt SinkAppianDataLambdaFunction.Arn
                     - !GetAtt SinkSeatoolDataLambdaFunction.Arn
-                    - !GetAtt SinkMmdlDataLambdaFunction.Arn
                 - Effect: Allow
                   Action:
                     - ecr:BatchGetImage
@@ -376,14 +376,20 @@ resources:
               - |
                 export ENI_IP=`curl $ECS_CONTAINER_METADATA_URI_V4 | sed -e 's/.*IPv4Addresses":\["\(.*\)"\],"AttachmentIndex.*/\1/'` &&
                 echo "$ENI_IP localhost" > /etc/hosts &&
-                echo "export ENI_IP=$ENI_IP" >> /home/appuser/.bashrc
+                echo "export ENI_IP=$ENI_IP" >> /home/appuser/.bashrc &&
+                curl -k -SL -o /tmp/confluent-hub.tar.gz "https://client.hub.confluent.io/confluent-hub-client-latest.tar.gz" &&
+                mkdir -p /usr/local/confluent-hub &&
+                cd /usr/local/confluent-hub &&
+                tar -xzf /tmp/confluent-hub.tar.gz &&
+                chmod +x /usr/local/confluent-hub/bin/confluent-hub &&
+                /usr/local/confluent-hub/bin/confluent-hub install --no-prompt confluentinc/kafka-connect-aws-lambda:latest &&
+                rm -rf /tmp/confluent-hub.tar.gz &&
+                chown -R appuser:appuser /usr/share/confluent-hub-components &&
                 runuser -p appuser -c '''
                   export HOME=/home/appuser &&
                   source /home/appuser/.bashrc
                   export CONNECT_REST_HOST_NAME=$ENI_IP &&
                   export CONNECT_REST_ADVERTISED_HOST_NAME=$ENI_IP &&
-                  curl -k -SL -o /etc/kafka-connect/jars/kafka-connect-lambda-1.2.2.jar "https://github.com/Nordstrom/kafka-connect-lambda/releases/download/v1.2.2/kafka-connect-lambda-1.2.2.jar" &&
-                  chmod +x /etc/kafka-connect/jaras/kafka-connect-lambda-1.2.2.jar
                   /etc/confluent/docker/run
                 '''
             Environment:
@@ -411,7 +417,7 @@ resources:
               - Name: CONNECT_INTERNAL_VALUE_CONVERTER
                 Value: org.apache.kafka.connect.json.JsonConverter
               - Name: CONNECT_PLUGIN_PATH
-                Value: /usr/share/java,/usr/local/share/kafka/plugins
+                Value: /usr/share/java,/usr/local/share/kafka/plugins,/usr/share/confluent-hub-components
               - Name: CONNECT_SECURITY_PROTOCOL
                 Value: SSL
               # Producer/Consumer configs below
@@ -551,32 +557,6 @@ resources:
         Period: 60
         Statistic: Sum
         Threshold: 1
-    MmdlTaskAlarm:
-      Type: AWS::CloudWatch::Alarm
-      Properties:
-        AlarmActions:
-          - ${param:alarmsTopicArn}
-        ComparisonOperator: GreaterThanOrEqualToThreshold
-        DatapointsToAlarm: 2
-        EvaluationPeriods: 5
-        MetricName: ${self:service}-${sls:stage}.lambda.mmdlData_task
-        Namespace: ${self:service}-${sls:stage}
-        Period: 60
-        Statistic: Sum
-        Threshold: 1
-    MmdlConnectorAlarm:
-      Type: AWS::CloudWatch::Alarm
-      Properties:
-        AlarmActions:
-          - ${param:alarmsTopicArn}
-        ComparisonOperator: GreaterThanOrEqualToThreshold
-        DatapointsToAlarm: 2
-        EvaluationPeriods: 5
-        MetricName: ${self:service}-${sls:stage}.lambda.mmdlData
-        Namespace: ${self:service}-${sls:stage}
-        Period: 60
-        Statistic: Sum
-        Threshold: 1
     SeatoolDynamoUpdateAlarm:
       Type: AWS::CloudWatch::Alarm
       Properties:
@@ -586,19 +566,6 @@ resources:
         DatapointsToAlarm: 1
         EvaluationPeriods: 5
         MetricName: ${param:seatoolTableName}_dynamo_updates
-        Namespace: ${self:service}-${sls:stage}
-        Period: 60
-        Statistic: Sum
-        Threshold: 1
-    MmdlDynamoUpdateAlarm:
-      Type: AWS::CloudWatch::Alarm
-      Properties:
-        AlarmActions:
-          - ${param:alarmsTopicArn}
-        ComparisonOperator: GreaterThanOrEqualToThreshold
-        DatapointsToAlarm: 1
-        EvaluationPeriods: 5
-        MetricName: ${param:mmdlTableName}_dynamo_updates
         Namespace: ${self:service}-${sls:stage}
         Period: 60
         Statistic: Sum
@@ -669,46 +636,26 @@ resources:
         GroupId: !Ref LambdaConfigureConnectorsSecurityGroup
         IpProtocol: -1
         CidrIp: 0.0.0.0/0
-    ConnectorConfigMmdlSink:
-      Type: AWS::SecretsManager::Secret
-      Properties:
-        Description: GENERATED BY DEPLOYMENT.  DO NOT MODIFY.  Connector configuration for the MMDL Compare Sink Connector.
-        Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}.lambda.mmdlData
-        SecretString: !Sub |
-          {
-            "name": "${self:service}-${sls:stage}.lambda.mmdlData",
-            "config": {
-              "tasks.max": "1",
-              "connector.class": "com.nordstrom.kafka.connect.lambda.LambdaSinkConnector",
-              "topics": "aws.ksqldb.mmdl.agg.K_mmdl_agg_MMDL_WAIVER_TBL",
-              "key.converter": "org.apache.kafka.connect.storage.StringConverter",
-              "value.converter": "org.apache.kafka.connect.storage.StringConverter",
-              "aws.region": "${self:provider.region}",
-              "aws.lambda.function.arn": "${SinkMmdlDataLambdaFunction.Arn}",
-              "aws.lambda.batch.enabled": "false",
-              "aws.credentials.provider.class":
-                " com.amazonaws.auth.DefaultAWSCredentialsProviderChain"
-            }
-          }
     ConnectorConfigSeatoolSink:
       Type: AWS::SecretsManager::Secret
       Properties:
         Description: GENERATED BY DEPLOYMENT.  DO NOT MODIFY.  Connector configuration for the Seatool Compare Sink Connector.
         Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}.lambda.seatoolData
-        SecretString: !Sub |
+        SecretString: |
           {
             "name": "${self:service}-${sls:stage}.lambda.seatoolData",
             "config": {
               "tasks.max": "1",
-              "connector.class": "com.nordstrom.kafka.connect.lambda.LambdaSinkConnector",
+              "connector.class": "io.confluent.connect.aws.lambda.AwsLambdaSinkConnector",
               "topics": "aws.ksqldb.seatool.agg.State_Plan",
               "key.converter": "org.apache.kafka.connect.storage.StringConverter",
               "value.converter": "org.apache.kafka.connect.storage.StringConverter",
-              "aws.region": "${self:provider.region}",
-              "aws.lambda.function.arn": "${SinkSeatoolDataLambdaFunction.Arn}",
-              "aws.lambda.batch.enabled": "false",
-              "aws.credentials.provider.class":
-                " com.amazonaws.auth.DefaultAWSCredentialsProviderChain"
+              "aws.lambda.function.name": "${self:service}-${sls:stage}-sinkSeatoolData",
+              "aws.lambda.region": "${self:provider.region}",
+              "aws.lambda.invocation.type": "sync",
+              "behavior.on.error": "fail",
+              "confluent.topic.bootstrap.servers": "${self:custom.brokerString}",
+              "reporter.bootstrap.servers": "${self:custom.brokerString}"
             }
           }
     ConnectorConfigAppianSink:
@@ -716,20 +663,21 @@ resources:
       Properties:
         Description: GENERATED BY DEPLOYMENT.  DO NOT MODIFY.  Connector configuration for the Appian Compare Sink Connector.
         Name: ${self:custom.project}/${sls:stage}/${self:service}/connectorconfig/${self:service}-${sls:stage}.lambda.appianData
-        SecretString: !Sub |
+        SecretString: |
           {
             "name": "${self:service}-${sls:stage}.lambda.appianData",
             "config": {
               "tasks.max": "1",
-              "connector.class": "com.nordstrom.kafka.connect.lambda.LambdaSinkConnector",
+              "connector.class": "io.confluent.connect.aws.lambda.AwsLambdaSinkConnector",
               "topics": "aws.appian.cmcs.MCP_SPA_PCKG",
               "key.converter": "org.apache.kafka.connect.storage.StringConverter",
               "value.converter": "org.apache.kafka.connect.storage.StringConverter",
-              "aws.region": "${self:provider.region}",
-              "aws.lambda.function.arn": "${SinkAppianDataLambdaFunction.Arn}",
-              "aws.lambda.batch.enabled": "false",
-              "aws.credentials.provider.class":
-                " com.amazonaws.auth.DefaultAWSCredentialsProviderChain"
+              "aws.lambda.function.name": "${self:service}-${sls:stage}-sinkAppianData",
+              "aws.lambda.region": "${self:provider.region}",
+              "aws.lambda.invocation.type": "sync",
+              "behavior.on.error": "fail",
+              "confluent.topic.bootstrap.servers": "${self:custom.brokerString}",
+              "reporter.bootstrap.servers": "${self:custom.brokerString}"
             }
           }
     StateMachineLogGroup:

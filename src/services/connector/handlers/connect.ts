@@ -63,3 +63,29 @@ export async function createConnector(event: {
     };
   }
 }
+
+export async function deleteConnector(event: {
+  cluster: string;
+  connectorName: string;
+}) {
+  console.log("Received event:", JSON.stringify(event, null, 2));
+  try {
+    const ip = await connect.findTaskIp(event.cluster);
+    if (!ip) {
+      throw new Error("Could not find task IP");
+    }
+    await connect.deleteConnector(ip, event.connectorName);
+    console.log(`Connector ${event.connectorName} deleted successfully`);
+    return {
+      success: true,
+      message: `Connector ${event.connectorName} deleted`
+    };
+  } catch (error) {
+    console.error("Error deleting connector:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return {
+      success: false,
+      error: errorMessage
+    };
+  }
+}

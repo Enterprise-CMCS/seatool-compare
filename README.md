@@ -144,3 +144,32 @@ yarn workspace <service-name> start
 ```
 
 This will start the service in development mode with hot reloading enabled.
+
+## Connector Service
+
+The connector service uses Kafka Connect to stream data from Kafka topics into Lambda sink functions.
+
+### Kafka Connect Plugin
+
+The service uses the **Confluent AWS Lambda Sink Connector** (`io.confluent.connect.aws.lambda.AwsLambdaSinkConnector`) to invoke Lambda functions for each message consumed from Kafka topics.
+
+> **Note**: As of November 2025, the Confluent connector replaced the previously used Nordstrom kafka-connect-lambda connector which became unavailable.
+
+### Migration Runbook
+
+For deploying connector changes to val/production environments, see the [Confluent Connector Migration Runbook](docs/confluent-connector-migration-runbook.md).
+
+### Quick Connector Health Check
+
+```bash
+# Check connector status (replace <stage> with master, val, or production)
+aws lambda invoke \
+  --function-name compare-connector-<stage>-testConnectors \
+  --region us-east-1 \
+  --cli-binary-format raw-in-base64-out \
+  --payload '{"cluster": "compare-connector-<stage>-connect"}' \
+  /tmp/test.json && cat /tmp/test.json
+
+# View recent Kafka Connect logs
+aws logs tail /aws/fargate/compare-connector-<stage>-kafka-connect --since 10m --region us-east-1
+```
