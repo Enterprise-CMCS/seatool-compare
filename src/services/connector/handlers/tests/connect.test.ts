@@ -1,5 +1,5 @@
 import { it, describe, expect, vi } from "vitest";
-import { findTaskIp, checkIfConnectIsReady, createConnector } from "../connect";
+import { findTaskIp, checkIfConnectIsReady, createConnector, deleteConnector } from "../connect";
 import * as connect from "../../../../libs/connect-lib";
 
 vi.mock("../../../../libs/connect-lib", () => {
@@ -7,6 +7,7 @@ vi.mock("../../../../libs/connect-lib", () => {
     findTaskIp: vi.fn(),
     checkIfConnectIsReady: vi.fn(),
     createConnector: vi.fn(),
+    deleteConnector: vi.fn(),
   };
 });
 
@@ -37,5 +38,17 @@ describe("connect service function", () => {
     await createConnector(event);
 
     expect(connect.createConnector).toHaveBeenCalledWith("1000", "secret");
+  });
+
+  it("function tests deleting a connector", async () => {
+    vi.mocked(connect.findTaskIp).mockResolvedValue("192.168.1.1");
+    const event = {
+      cluster: "test-cluster",
+      connectorName: "test-connector",
+    };
+    await deleteConnector(event);
+
+    expect(connect.findTaskIp).toHaveBeenCalledWith("test-cluster");
+    expect(connect.deleteConnector).toHaveBeenCalledWith("192.168.1.1", "test-connector");
   });
 });
