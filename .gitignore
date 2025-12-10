@@ -37,4 +37,4 @@ ehthumbs.db
 Thumbs.db
 !scripts/list-running-stages.js
 
-docs/private/
+private/

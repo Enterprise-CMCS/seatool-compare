@@ -110,7 +110,6 @@ Available services:
 - `compare-appian` - Appian comparison service
 - `compare-mmdl` - MMDL comparison service
 - `connector` - Data connector service
-- `dashboard` - Dashboard service
 - `mmdl` - MMDL service
 - `seatool` - Seatool service
 
@@ -121,9 +120,6 @@ yarn workspace alerts build
 
 # Run tests for the connector service
 yarn workspace connector test
-
-# Start the dashboard service locally
-yarn workspace dashboard start
 ```
 
 ### Running Tests
