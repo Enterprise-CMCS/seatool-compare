@@ -8,6 +8,12 @@
 
 This project refactors the seatool-compare connector service from a complex ECS-based Kafka Connect architecture to AWS Lambda's native MSK Event Source Mapping.
 
+**Note:** MMDL comparison functionality has been completely removed from this application. The `src/services/mmdl` and `src/services/compare-mmdl` directories have been deleted, and all references removed from `serverless-compose.yml`. The application now only performs Appian-to-Seatool comparisons.
+
+### How Compare-Appian Works
+
+The compare-appian service monitors the Appian DynamoDB table for new records via DynamoDB Streams. **A workflow is only triggered when a record does NOT already exist in the Seatool DynamoDB table.** If the record already exists in Seatool, no comparison workflow is started.
+
 ## Current State (Dec 9, 2025)
 
 ### Status: COMPLETE AND WORKING
@@ -20,8 +26,9 @@ The connector refactor is complete. Both ESMs are enabled and processing message
    - `src/services/connector/serverless.yml` - Simplified from ~694 lines to ~253 lines, using Self-Managed Kafka ESM pattern
    - `src/services/connector/handlers/sinkAppianData.ts` - Updated for Lambda ESM event format (base64 decoding, batch processing)
    - `src/services/connector/handlers/sinkSeatoolData.ts` - Updated for Lambda ESM event format
-   - `serverless-compose.yml` - Removed MMDL params from connector dependencies
+   - `serverless-compose.yml` - Removed mmdl and compare-mmdl services entirely
    - **Deleted:** `connect.ts`, `testConnectors.ts`, `connect-lib.ts`, `connect-lib-v2.ts`
+   - **Deleted:** `src/services/mmdl/` and `src/services/compare-mmdl/` directories (MMDL comparison removed)
 
 2. **Deployed to Master:**
    - Lambda functions deployed successfully
@@ -166,12 +173,14 @@ aws dynamodb describe-table --table-name compare-seatool-master --region us-east
 | `src/services/connector/serverless.yml` | Complete - Uses Self-Managed Kafka ESM with SSM StringList parameters |
 | `src/services/connector/handlers/sinkAppianData.ts` | Complete |
 | `src/services/connector/handlers/sinkSeatoolData.ts` | Complete |
-| `serverless-compose.yml` | Complete |
+| `serverless-compose.yml` | Complete - Removed mmdl and compare-mmdl services |
 | `src/services/connector/handlers/connect.ts` | Deleted |
 | `src/services/connector/handlers/testConnectors.ts` | Deleted |
 | `src/libs/connect-lib.ts` | Deleted |
 | `src/libs/connect-lib-v2.ts` | Deleted |
 | `src/libs/index.ts` | Updated (removed connect-lib export) |
+| `src/services/mmdl/` | Deleted (entire directory) |
+| `src/services/compare-mmdl/` | Deleted (entire directory) |
 
 ## Testing Plan
 

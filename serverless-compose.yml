@@ -3,25 +3,8 @@ services:
     path: src/services/alerts
   appian:
     path: src/services/appian
-  mmdl:
-    path: src/services/mmdl
   seatool:
     path: src/services/seatool
-  compare-mmdl:
-    dependsOn:
-      - alerts
-      - mmdl
-      - seatool
-    path: src/services/compare-mmdl
-    params:
-      mmdlTableName: ${mmdl.TableName}
-      mmdlTableArn: ${mmdl.TableArn}
-      mmdlTableStreamArn: ${mmdl.TableStreamArn}
-      seatoolTableName: ${seatool.TableName}
-      seatoolTableArn: ${seatool.TableArn}
-      sesLogGroupArn: ${alerts.SesLogGroupArn}
-      sesLogGroupName: ${alerts.SesLogGroupName}
-      errorsTopicArn: ${alerts.ErrorsTopicArn}
   compare-appian:
     dependsOn:
       - alerts
