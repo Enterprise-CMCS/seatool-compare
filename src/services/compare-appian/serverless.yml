@@ -86,6 +86,7 @@ params:
     workflowsStatus: ON
     ignoredStates: N/A
     skipWait: true
+    isUrgentThresholdSec: 4200 # 70 minutes
   val:
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 259200
@@ -94,6 +95,7 @@ params:
     workflowsStatus: ON
     ignoredStates: N/A
     skipWait: false
+    isUrgentThresholdSec: 432000 # 5 days
   production:
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 259200
@@ -102,6 +104,7 @@ params:
     workflowsStatus: ON
     ignoredStates: ZZ,ZT
     skipWait: false
+    isUrgentThresholdSec: 432000 # 5 days
   default:
     tempWaitSec: 3600 # 1 hour
     sinceSubmissionChoiceSec: 3
@@ -110,6 +113,7 @@ params:
     workflowsStatus: OFF
     ignoredStates: N/A
     skipWait: true
+    isUrgentThresholdSec: 4200 # 70 minutes
 
 custom:
   project: ${env:PROJECT}
@@ -181,6 +185,7 @@ functions:
       errorsTopicArn: ${param:errorsTopicArn}
       seatoolSubdomain: ${param:seatoolSubdomain}
       ignoredStates: ${param:ignoredStates}
+      isUrgentThresholdSec: ${param:isUrgentThresholdSec}
   getAppianData:
     handler: handlers/getAppianData.handler
     environment:

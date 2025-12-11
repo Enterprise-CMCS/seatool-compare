@@ -114,7 +114,7 @@ functions:
   sinkSeatoolData:
     handler: handlers/sinkSeatoolData.handler
     timeout: 60
-    memorySize: 512
+    memorySize: 1024
     environment:
       tableName: ${param:seatoolTableName}
       stage: ${sls:stage}
@@ -221,6 +221,7 @@ resources:
 
     # Self-Managed Kafka Event Source Mapping for Seatool Data
     # Uses bootstrap broker strings instead of MSK cluster ARN (proven working pattern from onemac-dev)
+    # Optimized for high throughput: increased batch size and reduced batching window
     SeatoolKafkaEventSourceMapping:
       Type: AWS::Lambda::EventSourceMapping
       Properties:
@@ -239,8 +240,8 @@ resources:
             URI: !Sub "security_group:${LambdaKafkaSecurityGroup}"
         Topics:
           - aws.ksqldb.seatool.agg.State_Plan
-        BatchSize: 100
-        MaximumBatchingWindowInSeconds: 5
+        BatchSize: 500
+        MaximumBatchingWindowInSeconds: 2
         StartingPosition: LATEST
         Enabled: true
         SelfManagedKafkaEventSourceConfig:

@@ -1,13 +1,21 @@
 import { it, beforeAll, beforeEach, describe, expect, vi } from "vitest";
 import * as sink from "../sinkSeatoolData";
 import * as dynamodb from "../../../../libs/dynamodb-lib";
+import * as cloudwatch from "../../../../libs/cloudwatch-lib";
 
 const seaToolSink = sink as { handler: Function };
 
 vi.mock("../../../../libs/dynamodb-lib", () => {
   return {
+    batchWriteItems: vi.fn().mockResolvedValue({ processed: 0, failed: 0 }),
     putItem: vi.fn(),
     deleteItem: vi.fn(),
+  };
+});
+
+vi.mock("../../../../libs/cloudwatch-lib", () => {
+  return {
+    sendMetricData: vi.fn().mockResolvedValue({}),
   };
 });
 
@@ -43,9 +51,13 @@ describe("SEATool sink service tests", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset the mock to return successful processing by default
+    vi.mocked(dynamodb.batchWriteItems).mockResolvedValue({ processed: 1, failed: 0 });
   });
 
-  it("function tests putting an item to SEATool table", async () => {
+  it("function tests putting an item to SEATool table using batch write", async () => {
+    vi.mocked(dynamodb.batchWriteItems).mockResolvedValue({ processed: 1, failed: 0 });
+
     const event = createKafkaESMEvent("aws.ksqldb.seatool.agg.State_Plan-0", [
       {
         key: '"NC-11-020"',
@@ -56,20 +68,27 @@ describe("SEATool sink service tests", () => {
 
     await seaToolSink.handler(event, {});
 
-    expect(dynamodb.putItem).toHaveBeenCalledWith({
+    expect(dynamodb.batchWriteItems).toHaveBeenCalledWith({
       tableName: "seatool-table",
-      item: {
-        PK: "NC-11-020",
-        SK: "NC-11-020",
-        STATE_PLAN: {
-          ID_NUMBER: "NC-11-020",
-          SUBMISSION_DATE: 1311638400000,
+      items: [
+        {
+          type: "put",
+          item: {
+            PK: "NC-11-020",
+            SK: "NC-11-020",
+            STATE_PLAN: {
+              ID_NUMBER: "NC-11-020",
+              SUBMISSION_DATE: 1311638400000,
+            },
+          },
         },
-      },
+      ],
     });
   });
 
-  it("tests deleting an item", async () => {
+  it("tests deleting an item using batch write", async () => {
+    vi.mocked(dynamodb.batchWriteItems).mockResolvedValue({ processed: 1, failed: 0 });
+
     const event = createKafkaESMEvent("aws.ksqldb.seatool.agg.State_Plan-0", [
       {
         key: '"TX-23-4440"',
@@ -79,16 +98,23 @@ describe("SEATool sink service tests", () => {
 
     await seaToolSink.handler(event, {});
 
-    expect(dynamodb.deleteItem).toHaveBeenCalledWith({
+    expect(dynamodb.batchWriteItems).toHaveBeenCalledWith({
       tableName: "seatool-table",
-      key: {
-        PK: "TX-23-4440",
-        SK: "TX-23-4440",
-      },
+      items: [
+        {
+          type: "delete",
+          item: {
+            PK: "TX-23-4440",
+            SK: "TX-23-4440",
+          },
+        },
+      ],
     });
   });
 
-  it("tests processing multiple records in a batch", async () => {
+  it("tests processing multiple records in a single batch write call", async () => {
+    vi.mocked(dynamodb.batchWriteItems).mockResolvedValue({ processed: 2, failed: 0 });
+
     const event = createKafkaESMEvent("aws.ksqldb.seatool.agg.State_Plan-0", [
       {
         key: '"NC-11-001"',
@@ -102,6 +128,129 @@ describe("SEATool sink service tests", () => {
 
     await seaToolSink.handler(event, {});
 
-    expect(dynamodb.putItem).toHaveBeenCalledTimes(2);
+    // Should be called once with all items batched together
+    expect(dynamodb.batchWriteItems).toHaveBeenCalledTimes(1);
+    expect(dynamodb.batchWriteItems).toHaveBeenCalledWith({
+      tableName: "seatool-table",
+      items: [
+        {
+          type: "put",
+          item: {
+            PK: "NC-11-001",
+            SK: "NC-11-001",
+            STATE_PLAN: {
+              ID_NUMBER: "NC-11-001",
+              SUBMISSION_DATE: 1311638400000,
+            },
+          },
+        },
+        {
+          type: "put",
+          item: {
+            PK: "NC-11-002",
+            SK: "NC-11-002",
+            STATE_PLAN: {
+              ID_NUMBER: "NC-11-002",
+              SUBMISSION_DATE: 1311638400001,
+            },
+          },
+        },
+      ],
+    });
+  });
+
+  it("tests mixed put and delete operations in a single batch", async () => {
+    vi.mocked(dynamodb.batchWriteItems).mockResolvedValue({ processed: 2, failed: 0 });
+
+    const event = createKafkaESMEvent("aws.ksqldb.seatool.agg.State_Plan-0", [
+      {
+        key: '"NC-11-001"',
+        value: '{"STATE_PLAN":{"ID_NUMBER":"NC-11-001"}}',
+      },
+      {
+        key: '"NC-11-002"',
+        value: "", // Delete
+      },
+    ]);
+
+    await seaToolSink.handler(event, {});
+
+    expect(dynamodb.batchWriteItems).toHaveBeenCalledWith({
+      tableName: "seatool-table",
+      items: [
+        {
+          type: "put",
+          item: {
+            PK: "NC-11-001",
+            SK: "NC-11-001",
+            STATE_PLAN: { ID_NUMBER: "NC-11-001" },
+          },
+        },
+        {
+          type: "delete",
+          item: {
+            PK: "NC-11-002",
+            SK: "NC-11-002",
+          },
+        },
+      ],
+    });
+  });
+
+  it("sends aggregate metrics after processing", async () => {
+    vi.mocked(dynamodb.batchWriteItems).mockResolvedValue({ processed: 2, failed: 0 });
+
+    const event = createKafkaESMEvent("aws.ksqldb.seatool.agg.State_Plan-0", [
+      {
+        key: '"NC-11-001"',
+        value: '{"STATE_PLAN":{"ID_NUMBER":"NC-11-001"}}',
+      },
+      {
+        key: '"NC-11-002"',
+        value: '{"STATE_PLAN":{"ID_NUMBER":"NC-11-002"}}',
+      },
+    ]);
+
+    await seaToolSink.handler(event, {});
+
+    // Should send metrics once with aggregate values
+    expect(cloudwatch.sendMetricData).toHaveBeenCalledTimes(1);
+    expect(cloudwatch.sendMetricData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        MetricData: expect.arrayContaining([
+          expect.objectContaining({ MetricName: "RecordsProcessed", Value: 2 }),
+          expect.objectContaining({ MetricName: "RecordsFailed", Value: 0 }),
+          expect.objectContaining({ MetricName: "BatchDuration" }),
+        ]),
+      })
+    );
+  });
+
+  it("throws error when all records fail", async () => {
+    vi.mocked(dynamodb.batchWriteItems).mockResolvedValue({ processed: 0, failed: 2 });
+
+    const event = createKafkaESMEvent("aws.ksqldb.seatool.agg.State_Plan-0", [
+      {
+        key: '"NC-11-001"',
+        value: '{"STATE_PLAN":{"ID_NUMBER":"NC-11-001"}}',
+      },
+      {
+        key: '"NC-11-002"',
+        value: '{"STATE_PLAN":{"ID_NUMBER":"NC-11-002"}}',
+      },
+    ]);
+
+    await expect(seaToolSink.handler(event, {})).rejects.toThrow(
+      "All 2 records failed to process"
+    );
+  });
+
+  it("handles empty batch gracefully", async () => {
+    const event = createKafkaESMEvent("aws.ksqldb.seatool.agg.State_Plan-0", []);
+
+    const result = await seaToolSink.handler(event, {});
+
+    expect(dynamodb.batchWriteItems).not.toHaveBeenCalled();
+    expect(result.body.processed).toBe(0);
   });
 });

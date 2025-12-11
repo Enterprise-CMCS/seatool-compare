@@ -1,4 +1,5 @@
 import * as dynamodb from "../../../libs/dynamodb-lib";
+import { sendMetricData } from "../../../libs/cloudwatch-lib";
 
 /**
  * Lambda Event Source Mapping event structure for self-managed Kafka
@@ -21,6 +22,14 @@ interface KafkaESMEvent {
 }
 
 /**
+ * Batch item for DynamoDB operations
+ */
+interface BatchItem {
+  type: "put" | "delete";
+  item: Record<string, any>;
+}
+
+/**
  * Decode base64 string to UTF-8
  */
 function decodeBase64(encoded: string): string {
@@ -30,67 +39,108 @@ function decodeBase64(encoded: string): string {
 /**
  * Handler for Seatool data from Kafka via Lambda Event Source Mapping
  * Processes batches of records from the aws.ksqldb.seatool.agg.State_Plan topic
+ * 
+ * Optimized for high throughput using batch DynamoDB operations.
  */
 async function myHandler(event: KafkaESMEvent, _context: any) {
-  console.log("Received Kafka ESM event:", JSON.stringify(event, null, 2));
+  const startTime = Date.now();
 
   if (!process.env.tableName) {
     throw new Error("process.env.tableName needs to be defined.");
   }
 
   const tableName = process.env.tableName;
-  let processedCount = 0;
-  let errorCount = 0;
+  const batchItems: BatchItem[] = [];
+  let parseErrorCount = 0;
 
-  // Process all records from all topic-partitions
-  for (const [topicPartition, records] of Object.entries(event.records)) {
-    console.log(`Processing ${records.length} records from ${topicPartition}`);
+  // Count total records across all partitions
+  const totalRecords = Object.values(event.records).reduce(
+    (sum, records) => sum + records.length,
+    0
+  );
+  console.log(`Processing ${totalRecords} records from Kafka`);
 
+  // Collect all items for batch processing
+  for (const [, records] of Object.entries(event.records)) {
     for (const record of records) {
       try {
         // Decode base64 encoded key and value
         const decodedKey = decodeBase64(record.key);
         const decodedValue = record.value ? decodeBase64(record.value) : "";
-        
-        console.log(`Processing record at offset ${record.offset}, key: ${decodedKey}`);
 
         const id = JSON.parse(decodedKey);
-        const key = { PK: id, SK: id };
 
         // An empty string value represents deleted records
         if (decodedValue === "" || decodedValue === "null") {
-          await dynamodb.deleteItem({
-            tableName,
-            key,
+          batchItems.push({
+            type: "delete",
+            item: { PK: id, SK: id },
           });
-          console.log(`Deleted record with key: ${id}`);
         } else {
-          await dynamodb.putItem({
-            tableName,
-            item: { ...key, ...JSON.parse(decodedValue) },
+          batchItems.push({
+            type: "put",
+            item: { PK: id, SK: id, ...JSON.parse(decodedValue) },
           });
-          console.log(`Upserted record with key: ${id}`);
         }
-
-        processedCount++;
       } catch (error) {
-        errorCount++;
-        console.error(`Error processing record at offset ${record.offset}:`, error);
-        // Continue processing other records
+        parseErrorCount++;
+        console.error(`Error parsing record at offset ${record.offset}:`, error);
+        // Continue collecting other records
       }
     }
   }
 
-  console.log(`Completed: ${processedCount} processed, ${errorCount} errors`);
+  // Process all items in batches
+  let processed = 0;
+  let failed = 0;
+
+  if (batchItems.length > 0) {
+    const result = await dynamodb.batchWriteItems({
+      tableName,
+      items: batchItems,
+    });
+    processed = result.processed;
+    failed = result.failed;
+  }
+
+  const duration = Date.now() - startTime;
+  const throughput = totalRecords > 0 ? Math.round((processed / duration) * 1000) : 0;
+
+  console.log(
+    `Completed: ${processed} processed, ${failed} failed, ${parseErrorCount} parse errors, ${duration}ms duration, ~${throughput} records/sec`
+  );
+
+  // Send aggregate metrics (single metric call instead of per-record)
+  await sendMetricData({
+    Namespace: process.env.namespace || "SeatoolConnector",
+    MetricData: [
+      {
+        MetricName: "RecordsProcessed",
+        Value: processed,
+        Unit: "Count",
+      },
+      {
+        MetricName: "RecordsFailed",
+        Value: failed + parseErrorCount,
+        Unit: "Count",
+      },
+      {
+        MetricName: "BatchDuration",
+        Value: duration,
+        Unit: "Milliseconds",
+      },
+    ],
+  });
 
   // If all records failed, throw to trigger retry
-  if (processedCount === 0 && errorCount > 0) {
-    throw new Error(`All ${errorCount} records failed to process`);
+  const totalErrors = failed + parseErrorCount;
+  if (processed === 0 && totalErrors > 0) {
+    throw new Error(`All ${totalErrors} records failed to process`);
   }
 
   return {
     statusCode: 200,
-    body: { processed: processedCount, errors: errorCount },
+    body: { processed, errors: totalErrors, duration },
   };
 }
 
