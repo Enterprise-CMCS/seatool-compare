@@ -34,7 +34,7 @@ exports.handler = async function (
 
   const region = process.env.region;
   const project = process.env.project;
-  const stage = process.env.stage;
+  const stage = process.env.stage ?? "master";
 
   if (!region) throw "process.env.region needs to be defined.";
 
