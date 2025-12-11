@@ -76,6 +76,7 @@ describe("sendNoMatchAlert", () => {
       process.env.project = "test-project";
       process.env.region = "test-region";
       process.env.stage = "test-state";
+      process.env.isUrgentThresholdSec = "432000"; // 5 days in seconds
     });
 
     beforeEach(() => {

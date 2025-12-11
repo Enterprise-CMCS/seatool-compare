@@ -8,6 +8,8 @@ import {
   DeleteItemCommandInput,
   ScanCommandInput,
   ScanCommandOutput,
+  BatchWriteItemCommand,
+  WriteRequest,
 } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { sendMetricData } from "./cloudwatch-lib";
@@ -152,4 +154,89 @@ export async function deleteItem({
     console.log("ERROR Deleting Item: ", error);
     return error;
   }
+}
+
+/**
+ * Batch write items to DynamoDB for high-throughput operations.
+ * Handles chunking into 25-item batches (DynamoDB limit) and retries for unprocessed items.
+ */
+export async function batchWriteItems({
+  tableName,
+  items,
+}: {
+  tableName: string;
+  items: Array<{ type: "put" | "delete"; item: Record<string, NativeAttributeValue> }>;
+}): Promise<{ processed: number; failed: number }> {
+  const BATCH_SIZE = 25; // DynamoDB limit
+  const MAX_RETRIES = 3;
+  let processed = 0;
+  let failed = 0;
+
+  // Split items into chunks of 25
+  const batches: Array<typeof items> = [];
+  for (let i = 0; i < items.length; i += BATCH_SIZE) {
+    batches.push(items.slice(i, i + BATCH_SIZE));
+  }
+
+  for (const batch of batches) {
+    const requests: WriteRequest[] = batch.map(({ type, item }) => {
+      if (type === "delete") {
+        return {
+          DeleteRequest: {
+            Key: marshall({ PK: item.PK, SK: item.SK }),
+          },
+        };
+      } else {
+        return {
+          PutRequest: {
+            Item: marshall(item, { removeUndefinedValues: true }),
+          },
+        };
+      }
+    });
+
+    let unprocessedItems: WriteRequest[] | undefined = requests;
+    let retryCount = 0;
+
+    while (unprocessedItems && unprocessedItems.length > 0 && retryCount < MAX_RETRIES) {
+      try {
+        const result = await client.send(
+          new BatchWriteItemCommand({
+            RequestItems: {
+              [tableName]: unprocessedItems,
+            },
+          })
+        );
+
+        const processedInBatch = unprocessedItems.length - (result.UnprocessedItems?.[tableName]?.length ?? 0);
+        processed += processedInBatch;
+
+        // Check for unprocessed items (throttling/capacity issues)
+        unprocessedItems = result.UnprocessedItems?.[tableName];
+
+        if (unprocessedItems && unprocessedItems.length > 0) {
+          retryCount++;
+          // Exponential backoff before retry
+          await new Promise((resolve) => setTimeout(resolve, Math.pow(2, retryCount) * 100));
+        }
+      } catch (error) {
+        console.error(`Error in batch write (attempt ${retryCount + 1}):`, error);
+        retryCount++;
+        if (retryCount >= MAX_RETRIES) {
+          failed += unprocessedItems?.length ?? 0;
+          break;
+        }
+        // Exponential backoff before retry
+        await new Promise((resolve) => setTimeout(resolve, Math.pow(2, retryCount) * 100));
+      }
+    }
+
+    // If we exhausted retries and still have unprocessed items
+    if (unprocessedItems && unprocessedItems.length > 0 && retryCount >= MAX_RETRIES) {
+      failed += unprocessedItems.length;
+      console.error(`Failed to process ${unprocessedItems.length} items after ${MAX_RETRIES} retries`);
+    }
+  }
+
+  return { processed, failed };
 }

@@ -34,7 +34,7 @@ exports.handler = async function (
 
   const region = process.env.region;
   const project = process.env.project;
-  const stage = process.env.stage;
+  const stage = process.env.stage ?? "master";
 
   if (!region) throw "process.env.region needs to be defined.";
 
@@ -48,8 +48,9 @@ exports.handler = async function (
   const secSinceAppianSubmitted = data.secSinceAppianSubmitted || 0;
   const isIgnoredState = getIsIgnoredState(data);
 
-  // Was this submitted more than five days ago? If so, it's urgent:
-  const isUrgent = secSinceAppianSubmitted >= 432000; // Five days in secs
+  // Check if submission exceeds the urgent threshold (configured per environment)
+  const isUrgentThresholdSec = parseInt(process.env.isUrgentThresholdSec || "432000", 10);
+  const isUrgent = secSinceAppianSubmitted >= isUrgentThresholdSec;
 
   // Build the email from the template:
   const emailContent = getEmailContent({
