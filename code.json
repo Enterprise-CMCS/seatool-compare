@@ -1,7 +1,7 @@
 {
   "name": "seatool-compare",
   "description": "Service for comparing legacy/seatool data and sending notifications",
-  "longDescription": "The seatool-compare project is a comprehensive serverless microservice designed to ensure data consistency and integrity within CMS healthcare operations. This system performs critical comparisons between MMDL (customer-submitted records) and SEATOOL (government-entered counterpart records) to identify discrepancies and maintain data accuracy. Built as a serverless monorepo using TypeScript and AWS services, the platform consists of eight specialized services including data connectors, comparison engines, alert systems, and dashboard interfaces. The system integrates with CMS Bigmac for data ingestion, utilizes DynamoDB for data storage, AWS SES for notification delivery, and Step Functions for workflow orchestration. When comparison logic detects mismatches or data inconsistencies, automated notifications are sent to relevant stakeholders, ensuring rapid response to data quality issues. This solution supports Medicare and Medicaid operations by maintaining the reliability of critical healthcare data exchanges between customer submissions and government systems.",
+  "longDescription": "The seatool-compare project is a comprehensive serverless microservice designed to ensure data consistency and integrity within CMS healthcare operations. This system performs critical comparisons between MMDL (customer-submitted records) and SEATOOL (government-entered counterpart records) to identify discrepancies and maintain data accuracy. Built as a serverless monorepo using TypeScript and AWS services, the platform consists of specialized services including data connectors, comparison engines, and alert systems. The system integrates with CMS Bigmac for data ingestion, utilizes DynamoDB for data storage, AWS SES for notification delivery, and Step Functions for workflow orchestration. When comparison logic detects mismatches or data inconsistencies, automated notifications are sent to relevant stakeholders, ensuring rapid response to data quality issues. This solution supports Medicare and Medicaid operations by maintaining the reliability of critical healthcare data exchanges between customer submissions and government systems.",
   "status": "Production",
   "permissions": {
     "licenses": [
@@ -15,11 +15,11 @@
   },
   "organization": "Centers for Medicare & Medicaid Services",
   "repositoryURL": "https://github.com/Enterprise-CMCS/seatool-compare",
-  "projectURL": "https://Enterprise-CMCS.github.io/seatool-compare/",
+  "projectURL": "https://github.com/Enterprise-CMCS/seatool-compare",
   "repositoryHost": "github.com/Enterprise-CMCS",
   "repositoryVisibility": "public",
   "vcs": "git",
-  "laborHours": 6315,
+  "laborHours": 6400,
   "reuseFrequency": {
     "forks": 0,
     "clones": 0
@@ -35,8 +35,8 @@
   "contractNumber": "75FCMC24F0027",
   "date": {
     "created": "2022-09-16T18:46:05Z",
-    "lastModified": "2025-06-17T17:47:46Z",
-    "metaDataLastUpdated": "2025-06-17T17:53:58.399Z"
+    "lastModified": "2025-06-22T05:11:27Z",
+    "metaDataLastUpdated": "2025-06-22T05:12:42.837Z"
   },
   "tags": ["cms", "healthcare", "data-comparison", "serverless", "aws", "medicaid", "medicare", "notifications"],
   "contact": {

@@ -6,6 +6,7 @@ package:
   individually: true
 
 plugins:
+  - serverless-esbuild
   - serverless-stack-termination-protection
   - "@stratiformdigital/serverless-s3-security-helper"
   - "@stratiformdigital/serverless-online"
@@ -78,13 +79,14 @@ provider:
             - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
 params:
   master:
-    tempWaitSec: 172800 # 2 days
-    sinceSubmissionChoiceSec: 259200 # 3 days
-    recordAgeChoiceSec: 17366000 # 201 days
+    tempWaitSec: 1200 # 20 minutes
+    sinceSubmissionChoiceSec: 1200 # 20 minutes
+    recordAgeChoiceSec: 86400 # 1 day (stop alerting after 24 hours in dev)
     seatoolSubdomain: seadev
     workflowsStatus: ON
     ignoredStates: N/A
-    skipWait: false
+    skipWait: true
+    isUrgentThresholdSec: 4200 # 70 minutes
   val:
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 259200
@@ -93,6 +95,7 @@ params:
     workflowsStatus: ON
     ignoredStates: N/A
     skipWait: false
+    isUrgentThresholdSec: 432000 # 5 days
   production:
     tempWaitSec: 172800
     sinceSubmissionChoiceSec: 259200
@@ -101,6 +104,7 @@ params:
     workflowsStatus: ON
     ignoredStates: ZZ,ZT
     skipWait: false
+    isUrgentThresholdSec: 432000 # 5 days
   default:
     tempWaitSec: 3600 # 1 hour
     sinceSubmissionChoiceSec: 3
@@ -109,9 +113,20 @@ params:
     workflowsStatus: OFF
     ignoredStates: N/A
     skipWait: true
+    isUrgentThresholdSec: 4200 # 70 minutes
 
 custom:
   project: ${env:PROJECT}
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: false
+    exclude:
+      - "@aws-sdk/*"
+    target: "node20"
+    platform: "node"
+    concurrency: 10
+    keepNames: true
   serverlessTerminationProtection:
     stages: # Apply CloudFormation termination protection for these stages
       - master
@@ -170,6 +185,7 @@ functions:
       errorsTopicArn: ${param:errorsTopicArn}
       seatoolSubdomain: ${param:seatoolSubdomain}
       ignoredStates: ${param:ignoredStates}
+      isUrgentThresholdSec: ${param:isUrgentThresholdSec}
   getAppianData:
     handler: handlers/getAppianData.handler
     environment:
@@ -177,6 +193,7 @@ functions:
       project: ${self:custom.project}
       stage: ${sls:stage}
       appianTableName: ${param:appianTableName}
+      skipWait: ${param:skipWait}
   stopExecutions:
     handler: handlers/stopExecutions.handler
     environment:

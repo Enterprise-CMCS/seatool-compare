@@ -34,8 +34,12 @@ async function workflowStarter(event: {
     throw "No appian record found";
   }
 
-  /* Checking if the appian record was submitted within the last 200 days. */
-  const submissionDate = appianRecord.payload?.SBMSSN_DATE;
+  /* Checking if the appian record was submitted within the last 200 days.
+   * If SBMSSN_DATE is null/undefined, treat as a recent record (use current time).
+   * This handles cases where Appian hasn't set the submission date yet but
+   * the record just arrived via Kafka stream - it's clearly a "fresh" record.
+   */
+  const submissionDate = appianRecord.payload?.SBMSSN_DATE || new Date();
   const diffInSec = secondsBetweenDates(submissionDate);
 
   if (
@@ -43,9 +47,16 @@ async function workflowStarter(event: {
     appianRecord.payload?.SPA_PCKG_ID?.toLowerCase()?.at(-1) === "o" &&
     diffInSec < 17366000 // 201 days
   ) {
-    /* Creating an object that will be passed to the StartExecutionCommand. */
+    /* Creating an object that will be passed to the StartExecutionCommand.
+     * eligibleAt captures the system time when the record becomes eligible for alerting.
+     * This is used in master environment for accurate minute-level timing calculations,
+     * avoiding dependency on Appian date fields which may be hours off.
+     */
     const params = {
-      input: JSON.stringify(key),
+      input: JSON.stringify({
+        ...key,
+        eligibleAt: Date.now(),
+      }),
       name: PK,
       stateMachineArn: process.env.stateMachineArn,
     };
