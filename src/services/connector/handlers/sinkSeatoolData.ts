@@ -90,14 +90,28 @@ async function myHandler(event: KafkaESMEvent, _context: any) {
     }
   }
 
+  // Deduplicate by key, keeping last occurrence (most recent)
+  // Kafka records are ordered within a partition, so last record is most recent
+  const deduplicatedItems = new Map<string, BatchItem>();
+  for (const item of batchItems) {
+    const key = `${item.item.PK}|${item.item.SK}`;
+    deduplicatedItems.set(key, item); // Last write wins
+  }
+  const uniqueItems = Array.from(deduplicatedItems.values());
+
+  const duplicatesRemoved = batchItems.length - uniqueItems.length;
+  if (duplicatesRemoved > 0) {
+    console.log(`Deduplicated ${duplicatesRemoved} records (kept most recent for each key)`);
+  }
+
   // Process all items in batches
   let processed = 0;
   let failed = 0;
 
-  if (batchItems.length > 0) {
+  if (uniqueItems.length > 0) {
     const result = await dynamodb.batchWriteItems({
       tableName,
-      items: batchItems,
+      items: uniqueItems,
     });
     processed = result.processed;
     failed = result.failed;

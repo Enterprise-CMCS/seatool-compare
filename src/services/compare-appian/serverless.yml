@@ -81,7 +81,7 @@ params:
   master:
     tempWaitSec: 1200 # 20 minutes
     sinceSubmissionChoiceSec: 1200 # 20 minutes
-    recordAgeChoiceSec: 17366000 # 201 days
+    recordAgeChoiceSec: 86400 # 1 day (stop alerting after 24 hours in dev)
     seatoolSubdomain: seadev
     workflowsStatus: ON
     ignoredStates: N/A
@@ -193,6 +193,7 @@ functions:
       project: ${self:custom.project}
       stage: ${sls:stage}
       appianTableName: ${param:appianTableName}
+      skipWait: ${param:skipWait}
   stopExecutions:
     handler: handlers/stopExecutions.handler
     environment:

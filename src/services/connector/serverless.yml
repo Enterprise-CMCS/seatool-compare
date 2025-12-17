@@ -39,6 +39,7 @@ provider:
           Action:
             - dynamodb:PutItem
             - dynamodb:DeleteItem
+            - dynamodb:BatchWriteItem
           Resource:
             - ${param:seatoolTableArn}
             - ${param:appianTableArn}
