@@ -183,4 +183,254 @@ describe("getAppianData", () => {
       });
     });
   });
+
+  describe("environment-specific timing calculation", () => {
+    const FIXED_NOW = new Date("2025-12-15T10:00:00.000Z").getTime();
+    const localCallback = vi.fn();
+
+    beforeEach(() => {
+      // Reset all mocks including any spies from previous describe blocks
+      vi.restoreAllMocks();
+      vi.useFakeTimers();
+      vi.setSystemTime(FIXED_NOW);
+      vi.spyOn(console, "log").mockImplementation(() => {});
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      vi.spyOn(libs, "trackError").mockImplementation(async () => {});
+      process.env.appianTableName = "table-name";
+      localCallback.mockClear();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      vi.clearAllMocks();
+      delete process.env.skipWait;
+    });
+
+    describe("master environment (skipWait=true)", () => {
+      beforeEach(() => {
+        process.env.skipWait = "true";
+      });
+
+      it("uses eligibleAt when present for secSinceAppianSubmitted", async () => {
+        // eligibleAt was 30 minutes ago
+        const eligibleAt = FIXED_NOW - 30 * 60 * 1000; // 30 minutes ago
+        const eventWithEligibleAt = {
+          Payload: {
+            PK: "TN-25-0001-O#v1",
+            SK: "Appian",
+            eligibleAt,
+          },
+        };
+
+        const appianRecord = {
+          PK: "TN-25-0001-O#v1",
+          SK: "Appian",
+          payload: {
+            SBMSSN_DATE: FIXED_NOW - 24 * 60 * 60 * 1000, // 1 day ago (should be ignored)
+            SPA_ID: "TN-25-0001",
+            SPA_PCKG_ID: "TN-25-0001-O",
+            CRNT_STUS: "Submitted",
+          },
+        };
+
+        vi.spyOn(libs, "getItem").mockResolvedValue(appianRecord);
+
+        await handler.handler(eventWithEligibleAt, null, localCallback);
+
+        const result = localCallback.mock.calls[0][1];
+        // Should be ~1800 seconds (30 minutes), not ~86400 (1 day)
+        expect(result.secSinceAppianSubmitted).toBe(1800);
+      });
+
+      it("falls back to SBMSSN_DATE when eligibleAt is missing", async () => {
+        const eventWithoutEligibleAt = {
+          Payload: {
+            PK: "TN-25-0002-O#v1",
+            SK: "Appian",
+            // no eligibleAt
+          },
+        };
+
+        const sbmssnDate = FIXED_NOW - 45 * 60 * 1000; // 45 minutes ago
+        const appianRecord = {
+          PK: "TN-25-0002-O#v1",
+          SK: "Appian",
+          payload: {
+            SBMSSN_DATE: sbmssnDate,
+            SPA_ID: "TN-25-0002",
+            SPA_PCKG_ID: "TN-25-0002-O",
+            CRNT_STUS: "Submitted",
+          },
+        };
+
+        vi.spyOn(libs, "getItem").mockResolvedValue(appianRecord);
+
+        await handler.handler(eventWithoutEligibleAt, null, localCallback);
+
+        const result = localCallback.mock.calls[0][1];
+        // Should use SBMSSN_DATE = 45 minutes = 2700 seconds
+        expect(result.secSinceAppianSubmitted).toBe(2700);
+      });
+
+      it("calculates accurate minute-level timing from eligibleAt", async () => {
+        // Test at various master environment timing boundaries
+        const timingScenarios = [
+          { minutesAgo: 10, expectedSeconds: 600 },   // First check
+          { minutesAgo: 20, expectedSeconds: 1200 },  // sinceSubmissionChoiceSec threshold
+          { minutesAgo: 30, expectedSeconds: 1800 },  // First email
+          { minutesAgo: 70, expectedSeconds: 4200 },  // Urgent threshold
+          { minutesAgo: 90, expectedSeconds: 5400 },  // After urgent
+        ];
+
+        for (const { minutesAgo, expectedSeconds } of timingScenarios) {
+          localCallback.mockClear();
+
+          const eligibleAt = FIXED_NOW - minutesAgo * 60 * 1000;
+          const eventWithTiming = {
+            Payload: {
+              PK: `TN-25-TEST-O#v1`,
+              SK: "Appian",
+              eligibleAt,
+            },
+          };
+
+          const appianRecord = {
+            PK: `TN-25-TEST-O#v1`,
+            SK: "Appian",
+            payload: {
+              SBMSSN_DATE: FIXED_NOW - 100 * 24 * 60 * 60 * 1000, // Old date to verify it's ignored
+              SPA_ID: "TN-25-TEST",
+              SPA_PCKG_ID: "TN-25-TEST-O",
+              CRNT_STUS: "Submitted",
+            },
+          };
+
+          vi.spyOn(libs, "getItem").mockResolvedValue(appianRecord);
+
+          await handler.handler(eventWithTiming, null, localCallback);
+
+          const result = localCallback.mock.calls[0][1];
+          expect(result.secSinceAppianSubmitted).toBe(expectedSeconds);
+        }
+      });
+    });
+
+    describe("val/production environment (skipWait=false)", () => {
+      beforeEach(() => {
+        process.env.skipWait = "false";
+      });
+
+      it("always uses SBMSSN_DATE regardless of eligibleAt", async () => {
+        const sbmssnDate = FIXED_NOW - 4 * 24 * 60 * 60 * 1000; // 4 days ago
+        const eligibleAt = FIXED_NOW - 30 * 60 * 1000; // 30 minutes ago (should be ignored)
+
+        const eventWithEligibleAt = {
+          Payload: {
+            PK: "TN-25-0003-O#v1",
+            SK: "Appian",
+            eligibleAt,
+          },
+        };
+
+        const appianRecord = {
+          PK: "TN-25-0003-O#v1",
+          SK: "Appian",
+          payload: {
+            SBMSSN_DATE: sbmssnDate,
+            SPA_ID: "TN-25-0003",
+            SPA_PCKG_ID: "TN-25-0003-O",
+            CRNT_STUS: "Submitted",
+          },
+        };
+
+        vi.spyOn(libs, "getItem").mockResolvedValue(appianRecord);
+
+        await handler.handler(eventWithEligibleAt, null, localCallback);
+
+        const result = localCallback.mock.calls[0][1];
+        // Should be ~345600 seconds (4 days), not 1800 (30 min)
+        expect(result.secSinceAppianSubmitted).toBe(345600);
+      });
+
+      it("calculates day-level timing from SBMSSN_DATE", async () => {
+        // Test at various val/production timing boundaries
+        const timingScenarios = [
+          { daysAgo: 2, expectedSeconds: 172800 },   // Initial wait
+          { daysAgo: 3, expectedSeconds: 259200 },   // sinceSubmissionChoiceSec threshold
+          { daysAgo: 5, expectedSeconds: 432000 },   // Urgent threshold
+          { daysAgo: 7, expectedSeconds: 604800 },   // After urgent
+        ];
+
+        for (const { daysAgo, expectedSeconds } of timingScenarios) {
+          localCallback.mockClear();
+
+          const sbmssnDate = FIXED_NOW - daysAgo * 24 * 60 * 60 * 1000;
+          const eventWithTiming = {
+            Payload: {
+              PK: `TN-25-TEST-O#v1`,
+              SK: "Appian",
+              eligibleAt: FIXED_NOW - 5 * 60 * 1000, // Should be ignored
+            },
+          };
+
+          const appianRecord = {
+            PK: `TN-25-TEST-O#v1`,
+            SK: "Appian",
+            payload: {
+              SBMSSN_DATE: sbmssnDate,
+              SPA_ID: "TN-25-TEST",
+              SPA_PCKG_ID: "TN-25-TEST-O",
+              CRNT_STUS: "Submitted",
+            },
+          };
+
+          vi.spyOn(libs, "getItem").mockResolvedValue(appianRecord);
+
+          await handler.handler(eventWithTiming, null, localCallback);
+
+          const result = localCallback.mock.calls[0][1];
+          expect(result.secSinceAppianSubmitted).toBe(expectedSeconds);
+        }
+      });
+    });
+
+    describe("skipWait not set (default behavior)", () => {
+      beforeEach(() => {
+        delete process.env.skipWait;
+      });
+
+      it("falls back to SBMSSN_DATE when skipWait is undefined", async () => {
+        const sbmssnDate = FIXED_NOW - 60 * 60 * 1000; // 1 hour ago
+        const eligibleAt = FIXED_NOW - 10 * 60 * 1000; // 10 minutes ago
+
+        const eventWithEligibleAt = {
+          Payload: {
+            PK: "TN-25-0004-O#v1",
+            SK: "Appian",
+            eligibleAt,
+          },
+        };
+
+        const appianRecord = {
+          PK: "TN-25-0004-O#v1",
+          SK: "Appian",
+          payload: {
+            SBMSSN_DATE: sbmssnDate,
+            SPA_ID: "TN-25-0004",
+            SPA_PCKG_ID: "TN-25-0004-O",
+            CRNT_STUS: "Submitted",
+          },
+        };
+
+        vi.spyOn(libs, "getItem").mockResolvedValue(appianRecord);
+
+        await handler.handler(eventWithEligibleAt, null, localCallback);
+
+        const result = localCallback.mock.calls[0][1];
+        // Should use SBMSSN_DATE = 1 hour = 3600 seconds
+        expect(result.secSinceAppianSubmitted).toBe(3600);
+      });
+    });
+  });
 });
+

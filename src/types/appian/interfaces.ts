@@ -84,6 +84,8 @@ export interface AppianSeatoolCompareData {
   isAppianInSubmittedStatus: boolean;
   appianSubmittedDate: number;
   seatoolExist: boolean;
+  /** System timestamp (ms) when record became eligible for alerting. Used in master env for accurate timing. */
+  eligibleAt?: number;
 }
 
 export interface AppianReportData {
@@ -98,6 +100,8 @@ export interface AppianReportData {
   seatoolSubmissionDate?: string;
   match?: boolean;
   startAtTimeStamp?: string;
+  /** System timestamp (ms) when record became eligible for alerting. Used in master env for accurate timing. */
+  eligibleAt?: number;
 }
 
 interface CcAddress {

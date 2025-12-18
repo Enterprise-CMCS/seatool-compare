@@ -28,13 +28,30 @@ exports.handler = async function (
     data.SPA_ID = appianRecord.payload?.SPA_ID;
     data.SPA_PCKG_ID = appianRecord.payload?.SPA_PCKG_ID;
 
-    /* Checking if the appian record was submitted within the last 200 days. */
-    const submissionDate = appianRecord.payload?.SBMSSN_DATE;
-    data.secSinceAppianSubmitted = secondsBetweenDates(submissionDate);
+    /*
+     * Calculate time elapsed since record became eligible for alerting.
+     * 
+     * Master environment (skipWait=true):
+     *   Use eligibleAt timestamp captured when workflow started.
+     *   This provides accurate minute-level timing without dependency on Appian date fields.
+     * 
+     * Val/Production environments (skipWait=false):
+     *   Use SBMSSN_DATE from Appian. Day-level precision is sufficient since
+     *   thresholds are measured in days and emails are batched to 8am EST.
+     */
+    if (data.eligibleAt && process.env.skipWait === "true") {
+      // Master: calculate from when record became eligible (system time)
+      data.secSinceAppianSubmitted = Math.floor((Date.now() - data.eligibleAt) / 1000);
+    } else {
+      // Val/Production: use SBMSSN_DATE (day-level precision)
+      const submissionDate = appianRecord.payload?.SBMSSN_DATE;
+      data.secSinceAppianSubmitted = secondsBetweenDates(submissionDate);
+    }
+    
     data.isAppianInSubmittedStatus =
       appianRecord.payload?.CRNT_STUS === "Submitted";
 
-    data.appianSubmittedDate = submissionDate || undefined;
+    data.appianSubmittedDate = appianRecord.payload?.SBMSSN_DATE || undefined;
   } catch (e) {
     await trackError(e);
   } finally {

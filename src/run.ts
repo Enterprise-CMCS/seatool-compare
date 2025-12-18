@@ -1,6 +1,6 @@
 import yargs from "yargs";
 import * as dotenv from "dotenv";
-import LabeledProcessRunner from "./runner";
+import LabeledProcessRunner from "./runner.js";
 import * as fs from "fs";
 import { ServerlessStageDestroyer } from "@stratiformdigital/serverless-stage-destroyer";
 import { ServerlessRunningStages } from "@enterprise-cmcs/macpro-serverless-running-stages";
@@ -224,46 +224,6 @@ yargs(process.argv.slice(2))
         ["npx", "serverless", options.service, "connect", "--stage", stage],
         "."
       );
-    }
-  )
-  .command(
-    "docs",
-    "Starts the Jekyll documentation site in a docker container, available on http://localhost:4000.",
-    {
-      stop: { type: "boolean", demandOption: false, default: false },
-    },
-    async (options) => {
-      // Always clean up first...
-      await runner.run_command_and_output(
-        `Stop any existing container.`,
-        ["docker", "rm", "-f", "jekyll"],
-        "docs"
-      );
-
-      // If we're starting...
-      if (!options.stop) {
-        await runner.run_command_and_output(
-          `Run docs at http://localhost:4000`,
-          [
-            "docker",
-            "run",
-            "--rm",
-            "-i",
-            "-v",
-            `${process.cwd()}/docs:/site`,
-            "--name",
-            "jekyll",
-            "--pull=always",
-            "-p",
-            "0.0.0.0:4000:4000",
-            "bretfisher/jekyll-serve",
-            "sh",
-            "-c",
-            "bundle install && bundle exec jekyll serve --force_polling --host 0.0.0.0",
-          ],
-          "docs"
-        );
-      }
     }
   )
   .command(
