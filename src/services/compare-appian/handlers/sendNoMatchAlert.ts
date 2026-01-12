@@ -40,13 +40,37 @@ exports.handler = async function (
 
   const secretId = `${project}/${stage}/alerts-appian`;
 
-  const data: Types.AppianReportData = {
+  const data: Types.AppianSeatoolCompareData = {
     ...event.Payload,
-  } as Types.AppianSeatoolCompareData;
+  }
   const id: string = data.SPA_ID;
   const secretExists = await Libs.doesSecretExist(region, secretId);
   const secSinceAppianSubmitted = data.secSinceAppianSubmitted || 0;
   const isIgnoredState = getIsIgnoredState(data);
+
+  // Validate record is still a valid Official submission before sending email
+  // Note: appianRecord from DynamoDB has payload property, but AppianRecord type is narrowly defined
+  const appianRecord = data.appianRecord as any;
+  const isValidOfficialSubmission =
+    id && // SPA_ID is not null/undefined
+    appianRecord?.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
+    appianRecord?.payload?.SPA_PCKG_ID?.toLowerCase()?.endsWith("o");
+
+  if (!isValidOfficialSubmission) {
+    console.log(
+      `EMAIL NOT SENT - Record is no longer a valid Official submission. ` +
+        `SPA_ID: ${id}, SBMSSN_TYPE: ${appianRecord?.payload?.SBMSSN_TYPE}, ` +
+        `SPA_PCKG_ID: ${appianRecord?.payload?.SPA_PCKG_ID}`
+    );
+
+    await Libs.putLogsEvent({
+      type: "NOTFOUND-APPIAN",
+      message: `Alert SKIPPED for PK ${data.PK} - Record no longer valid Official submission`,
+    });
+
+    callback(null, data);
+    return;
+  }
 
   // Check if submission exceeds the urgent threshold (configured per environment)
   const isUrgentThresholdSec = parseInt(process.env.isUrgentThresholdSec || "432000", 10);

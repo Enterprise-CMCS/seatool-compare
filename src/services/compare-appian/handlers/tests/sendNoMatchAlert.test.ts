@@ -55,10 +55,22 @@ vi.mock("../../../../libs", () => {
 
 const handler = sendNoMatchAlert as { handler: Function };
 const callback = vi.fn();
+
+// Valid appianRecord that passes the Official submission validation
+const validAppianRecord = {
+  PK: "12345",
+  SK: "12345",
+  payload: {
+    SBMSSN_TYPE: "Official",
+    SPA_PCKG_ID: "TN2025MS0001O", // Must end in "O" for Official
+  },
+};
+
 const event = {
   Payload: {
     SPA_ID: testSpaId,
     secSinceAppianSubmitted: 10000,
+    appianRecord: validAppianRecord,
   },
 };
 
@@ -206,6 +218,7 @@ describe("sendNoMatchAlert", () => {
         expect(callback.mock.calls[0][1]).toEqual({
           SPA_ID: "test-spa-id",
           secSinceAppianSubmitted: 10000,
+          appianRecord: validAppianRecord,
         });
       });
     });
@@ -235,6 +248,7 @@ describe("sendNoMatchAlert", () => {
           Payload: {
             SPA_ID: testSpaId,
             secSinceAppianSubmitted: 1200, // 20 minutes, below 70 minute threshold
+            appianRecord: validAppianRecord,
           },
         };
 
@@ -253,6 +267,7 @@ describe("sendNoMatchAlert", () => {
           Payload: {
             SPA_ID: testSpaId,
             secSinceAppianSubmitted: 5000, // ~83 minutes, above 70 minute threshold
+            appianRecord: validAppianRecord,
           },
         };
 
@@ -270,6 +285,7 @@ describe("sendNoMatchAlert", () => {
           Payload: {
             SPA_ID: testSpaId,
             secSinceAppianSubmitted: 4200, // exactly at threshold
+            appianRecord: validAppianRecord,
           },
         };
 
@@ -287,6 +303,7 @@ describe("sendNoMatchAlert", () => {
           Payload: {
             SPA_ID: testSpaId,
             secSinceAppianSubmitted: 64800, // 18 hours in seconds
+            appianRecord: validAppianRecord,
           },
         };
 
@@ -326,6 +343,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0001",
               secSinceAppianSubmitted: 1200, // 20 minutes
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -340,6 +358,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0002",
               secSinceAppianSubmitted: 1800, // 30 minutes
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -354,6 +373,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0003",
               secSinceAppianSubmitted: 3600, // 60 minutes
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -368,6 +388,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0004",
               secSinceAppianSubmitted: 4200, // exactly 70 minutes
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -382,6 +403,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0005",
               secSinceAppianSubmitted: 5400, // 90 minutes
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -396,6 +418,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0006",
               secSinceAppianSubmitted: 7200, // 2 hours
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -416,6 +439,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0010",
               secSinceAppianSubmitted: 86400, // 1 day
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -430,6 +454,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0011",
               secSinceAppianSubmitted: 259200, // 3 days
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -444,6 +469,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0012",
               secSinceAppianSubmitted: 345600, // 4 days
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -458,6 +484,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0013",
               secSinceAppianSubmitted: 432000, // exactly 5 days
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -472,6 +499,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0014",
               secSinceAppianSubmitted: 604800, // 7 days
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -486,6 +514,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0015",
               secSinceAppianSubmitted: 864000, // 10 days
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -504,6 +533,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0020",
               secSinceAppianSubmitted: 4199, // 1 second below 70 minutes
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -520,6 +550,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0021",
               secSinceAppianSubmitted: 4201, // 1 second above 70 minutes
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -536,6 +567,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0022",
               secSinceAppianSubmitted: 0,
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -552,6 +584,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-0023",
               // secSinceAppianSubmitted not provided
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -572,6 +605,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "TN-25-5666",
               secSinceAppianSubmitted: 4500, // ~75 minutes, urgent
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -584,6 +618,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "NC-11-020",
               secSinceAppianSubmitted: 3600, // 60 minutes, non-urgent
+              appianRecord: validAppianRecord,
             },
           };
 
@@ -596,6 +631,7 @@ describe("sendNoMatchAlert", () => {
             Payload: {
               SPA_ID: "CA-24-0001-P",
               secSinceAppianSubmitted: 1200, // 20 minutes, non-urgent
+              appianRecord: validAppianRecord,
             },
           };
 
