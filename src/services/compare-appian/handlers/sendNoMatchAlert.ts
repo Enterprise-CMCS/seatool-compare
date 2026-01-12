@@ -40,16 +40,17 @@ exports.handler = async function (
 
   const secretId = `${project}/${stage}/alerts-appian`;
 
-  const data: Types.AppianReportData = {
+  const data: Types.AppianSeatoolCompareData = {
     ...event.Payload,
-  } as Types.AppianSeatoolCompareData;
+  }
   const id: string = data.SPA_ID;
   const secretExists = await Libs.doesSecretExist(region, secretId);
   const secSinceAppianSubmitted = data.secSinceAppianSubmitted || 0;
   const isIgnoredState = getIsIgnoredState(data);
 
   // Validate record is still a valid Official submission before sending email
-  const appianRecord = data.appianRecord;
+  // Note: appianRecord from DynamoDB has payload property, but AppianRecord type is narrowly defined
+  const appianRecord = data.appianRecord as any;
   const isValidOfficialSubmission =
     id && // SPA_ID is not null/undefined
     appianRecord?.payload?.SBMSSN_TYPE?.toLowerCase() === "official" &&
