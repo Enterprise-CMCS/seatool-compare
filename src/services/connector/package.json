@@ -22,7 +22,7 @@
     "aws-lambda": "^1.0.7",
     "axios": "^1.12.2",
     "lodash": "^4.17.21",
-    "nodemailer": "^6.10.1"
+    "nodemailer": "^8.0.2"
   },
   "devDependencies": {
     "@stratiformdigital/serverless-iam-helper": "^3.2.0",
@@ -32,7 +32,7 @@
     "@types/lodash": "^4.17.20",
     "@types/node": "^20.19.17",
     "@types/nodemailer": "^6.4.19",
-    "glob": "^11.0.3",
+    "glob": "^13.0.6",
     "serverless": "^3.40.0",
     "serverless-esbuild": "^1.55.1",
     "serverless-plugin-scripts": "^1.0.2",
