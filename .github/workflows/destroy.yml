@@ -1,3 +1,4 @@
+---
 name: Destroy
 
 on:
@@ -5,27 +6,82 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Name of the environment to destroy:"
+        description: >-
+          Name of the non-protected environment/branch to destroy:
         required: true
 
 jobs:
+  validate_target:
+    runs-on: ubuntu-latest
+    outputs:
+      stage_name: ${{ steps.validate.outputs.stage_name }}
+      should_destroy: ${{ steps.validate.outputs.should_destroy }}
+    steps:
+      - name: Resolve target stage
+        id: validate
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          stage_name=""
+          should_destroy="true"
+
+          if [ "${{ github.event_name }}" = "delete" ]; then
+            if [ "${{ github.event.ref_type }}" != "branch" ]; then
+              echo "Ignoring delete for ref type: ${{ github.event.ref_type }}"
+              should_destroy="false"
+            else
+              stage_name="${{ github.event.ref }}"
+            fi
+          else
+            stage_name="${{ inputs.environment }}"
+          fi
+
+          stage_name="$(printf '%s' "$stage_name" | xargs)"
+
+          if [ "$should_destroy" = "false" ]; then
+            echo "should_destroy=false" >> "$GITHUB_OUTPUT"
+            echo "stage_name=$stage_name" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -z "$stage_name" ]; then
+            echo "::error::A branch or environment name is required."
+            exit 1
+          fi
+
+          if [[ "$stage_name" == skipci* ]]; then
+            echo "Skipping destroy for branch: $stage_name"
+            echo "stage_name=$stage_name" >> "$GITHUB_OUTPUT"
+            echo "should_destroy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          case "$stage_name" in
+            master|val|production)
+              echo "Skipping destroy for protected stage: $stage_name"
+              echo "stage_name=$stage_name" >> "$GITHUB_OUTPUT"
+              echo "should_destroy=false" >> "$GITHUB_OUTPUT"
+              exit 0
+              ;;
+          esac
+
+          echo "Validated destroy stage: $stage_name"
+          echo "stage_name=$stage_name" >> "$GITHUB_OUTPUT"
+          echo "should_destroy=true" >> "$GITHUB_OUTPUT"
+
   destroy:
-    if: |
-      (
-        github.event.ref_type == 'branch' &&
-        !startsWith(github.event.ref, 'skipci') &&
-        !contains(fromJson('["master", "staging", "production"]'), github.event.ref)
-      ) ||
-      (
-        inputs.environment != '' &&
-        !contains(fromJson('["master", "staging", "production"]'), inputs.environment)
-      )
+    needs: validate_target
+    if: >-
+      ${{
+        needs.validate_target.result == 'success' &&
+        needs.validate_target.outputs.should_destroy == 'true'
+      }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment:
-      name: ${{ inputs.environment || github.event.ref }}
+    environment: master
     env:
-      STAGE_NAME: ${{ inputs.environment || github.event.ref }}
+      STAGE_NAME: ${{ needs.validate_target.outputs.stage_name }}
       PROJECT: compare
       REGION_A: us-east-1
     permissions:
@@ -47,14 +103,52 @@ jobs:
       - name: Pre-destroy validation
         shell: bash
         run: |
+          set -euo pipefail
           echo "Preparing to destroy stage: $STAGE_NAME"
           echo "Project: $PROJECT"
           echo "Region: $REGION_A"
-          echo "⚠️  WARNING: This will destroy all resources for stage $STAGE_NAME"
+          echo "WARNING: This will destroy all resources for stage $STAGE_NAME"
 
       - name: Destroy
         shell: bash
-        run: run destroy --stage $STAGE_NAME
+        run: |
+          set -euo pipefail
+
+          case "$STAGE_NAME" in
+            master|val|production)
+              echo "::error::Refusing to destroy protected stage '$STAGE_NAME'."
+              exit 1
+              ;;
+          esac
+
+          ./run destroy --stage "$STAGE_NAME" --verify false --wait true
+
+      - name: Verify stage cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Checking for remaining CloudFormation stacks"
+          echo "for stage: $STAGE_NAME"
+
+          query="Stacks[?length(Tags[?Key=='PROJECT'"
+          query+=" && Value=='$PROJECT']) > \`0\` "
+          query+="&& length(Tags[?Key=='STAGE'"
+          query+=" && Value=='$STAGE_NAME']) > \`0\`].StackName"
+
+          remaining_stacks=$(aws cloudformation describe-stacks \
+            --region "$REGION_A" \
+            --query "$query" \
+            --output text)
+
+          if [ -n "$remaining_stacks" ] \
+            && [ "$remaining_stacks" != "None" ]; then
+            echo "::error::Found remaining stacks for stage $STAGE_NAME."
+            echo "Stacks remain tagged with PROJECT=$PROJECT."
+            printf '%s\n' "$remaining_stacks" | tr '\t' '\n'
+            exit 1
+          fi
+
+          echo "No CloudFormation stacks remain for stage $STAGE_NAME"
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2.2.0
@@ -67,11 +161,19 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   delete_environment:
-    needs: destroy
+    needs:
+      - validate_target
+      - destroy
+    if: >-
+      ${{
+        needs.validate_target.result == 'success' &&
+        needs.validate_target.outputs.should_destroy == 'true' &&
+        needs.destroy.result == 'success'
+      }}
     runs-on: ubuntu-latest
     steps:
       - uses: strumwolf/delete-deployment-environment@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          environment: ${{ inputs.environment || github.event.ref }}
+          environment: ${{ needs.validate_target.outputs.stage_name }}
           onlyRemoveDeployments: true

@@ -16,7 +16,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs20.x
+  runtime: nodejs22.x
   region: ${env:REGION_A}
   stackTags:
     PROJECT: ${self:custom.project}
@@ -123,7 +123,7 @@ custom:
     sourcemap: false
     exclude:
       - "@aws-sdk/*"
-    target: "node20"
+    target: "node22"
     platform: "node"
     concurrency: 10
     keepNames: true
@@ -154,6 +154,8 @@ functions:
     timeout: 120
     environment:
       region: ${self:provider.region}
+      project: ${self:custom.project}
+      stage: ${sls:stage}
       seatoolTableName: ${param:seatoolTableName}
       errorsTopicArn: ${param:errorsTopicArn}
       appianTableName: ${param:appianTableName}
