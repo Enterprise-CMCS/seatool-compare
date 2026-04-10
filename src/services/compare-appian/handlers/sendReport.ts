@@ -36,13 +36,15 @@ function formatReportData(data: Types.ReportData[]): Types.CSVData[] {
 function getMailOptionsWithAttachment({
   recipient,
   attachment,
+  sourceEmail,
 }: {
   recipient: string;
   attachment: string;
+  sourceEmail: string;
 }) {
   const todaysDate = new Date().toISOString().split("T")[0];
   const mailOptions = {
-    from: "noreply@cms.hhs.gov",
+    from: sourceEmail,
     subject: `Appian SEA Tool Status - ${todaysDate}`,
     html:
       `<p>Attached is a csv indicating the current status of Appian and SEA Tool records.</p>` +
@@ -62,9 +64,16 @@ exports.handler = async function (event: { recipient: string; days: number }) {
   console.log("Received event:", JSON.stringify(event, null, 2));
 
   const { recipient, days } = event;
+  const region = process.env.region;
+  const project = process.env.project;
+  const stage = process.env.stage ?? "master";
 
   if (!recipient || !days) {
     throw 'You must manually provide a recipient email and days in the event. ex. {"recipient": "user@example.com", "days": 250}';
+  }
+
+  if (!region || !project) {
+    throw "process.env.region and process.env.project needs to be defined.";
   }
 
   if (!process.env.appianTableName || !process.env.seatoolTableName) {
@@ -72,6 +81,17 @@ exports.handler = async function (event: { recipient: string; days: number }) {
   }
 
   try {
+    const secretId = `${project}/${stage}/alerts-appian`;
+    const appianSecret = (await Libs.getSecretsValue(
+      region,
+      secretId
+    )) as Types.AppianSecret | undefined;
+    const sourceEmail = appianSecret?.sourceEmail;
+
+    if (!sourceEmail) {
+      throw new Error(`Missing sourceEmail in secret ${secretId}`);
+    }
+
     const epochTime = new Date().getTime() - days * 86400000; // one day in miliseconds
 
     const appianRecords = await Libs.scanTable<{
@@ -109,6 +129,7 @@ exports.handler = async function (event: { recipient: string; days: number }) {
     const mailOptions = getMailOptionsWithAttachment({
       recipient,
       attachment: csv,
+      sourceEmail,
     });
     await Libs.sendAttachment(mailOptions);
   } catch (e) {

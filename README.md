@@ -73,7 +73,7 @@ For accessing private repositories and packages:
 ## Local Development
 
 ### Prerequisites
-- Node.js v20.17.0
+- Node.js v22.x
 - Yarn v1.22.19 or later
 - AWS CLI v2
 - AWS SSO configured
