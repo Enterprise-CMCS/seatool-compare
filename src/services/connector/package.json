@@ -20,7 +20,7 @@
     "@aws-sdk/client-sns": "^3.893.0",
     "@aws-sdk/lib-dynamodb": "^3.893.0",
     "aws-lambda": "^1.0.7",
-    "axios": "^1.12.2",
+    "axios": "^1.15.2",
     "lodash": "^4.18.1",
     "nodemailer": "^8.0.5"
   },
