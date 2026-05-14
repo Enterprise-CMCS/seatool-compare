@@ -10,6 +10,7 @@ import { SecurityHubJiraSync } from "@enterprise-cmcs/macpro-security-hub-sync";
 dotenv.config();
 
 const runner = new LabeledProcessRunner();
+const protectedStages = new Set(["master", "val", "production"]);
 
 function touch(file: string) {
   try {
@@ -60,6 +61,12 @@ function getDirectories(path: string) {
   return fs.readdirSync(path).filter(function (file) {
     return fs.statSync(path + "/" + file).isDirectory();
   });
+}
+
+function assertDestroyableStage(stage: string) {
+  if (protectedStages.has(stage)) {
+    throw new Error(`Refusing to destroy protected stage '${stage}'.`);
+  }
 }
 
 async function getCurrentGitBranch(): Promise<string> {
@@ -185,6 +192,7 @@ yargs(process.argv.slice(2))
     },
     async (options) => {
       const stage = await getStageOrDefault(options.stage);
+      assertDestroyableStage(stage);
       
       let destroyer = new ServerlessStageDestroyer();
       let filters = [
