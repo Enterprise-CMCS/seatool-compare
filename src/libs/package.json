@@ -1,7 +1,6 @@
 {
   "name": "libs",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf .serverless node_modules .yarn.lock"
