@@ -21,7 +21,7 @@
     "@aws-sdk/lib-dynamodb": "^3.893.0",
     "aws-lambda": "^1.0.7",
     "axios": "^1.12.2",
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "nodemailer": "^8.0.5"
   },
   "devDependencies": {
@@ -30,9 +30,9 @@
     "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
     "@types/aws-lambda": "^8.10.152",
     "@types/lodash": "^4.17.20",
-    "@types/node": "^20.19.17",
+    "@types/node": "^22.15.31",
     "@types/nodemailer": "^6.4.19",
-    "glob": "^11.0.3",
+    "glob": "^12.0.0",
     "serverless": "^3.40.0",
     "serverless-esbuild": "^1.55.1",
     "serverless-plugin-scripts": "^1.0.2",
