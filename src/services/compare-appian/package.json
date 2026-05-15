@@ -25,7 +25,7 @@
     "@stratiformdigital/serverless-online": "^3.2.0",
     "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
     "@types/aws-lambda": "^8.10.152",
-    "@types/node": "^20.19.17",
+    "@types/node": "^22.15.31",
     "serverless": "^3.40.0",
     "serverless-stack-termination-protection": "^2.0.2",
     "serverless-step-functions": "^3.23.3",

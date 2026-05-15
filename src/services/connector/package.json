@@ -30,7 +30,7 @@
     "@stratiformdigital/serverless-s3-security-helper": "^4.0.0",
     "@types/aws-lambda": "^8.10.152",
     "@types/lodash": "^4.17.20",
-    "@types/node": "^20.19.17",
+    "@types/node": "^22.15.31",
     "@types/nodemailer": "^6.4.19",
     "glob": "^12.0.0",
     "serverless": "^3.40.0",
