@@ -39,6 +39,6 @@
     "serverless-stack-termination-protection": "^2.0.2",
     "serverless-step-functions": "^3.23.3",
     "typescript": "^4.9.5",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.0"
   }
 }
