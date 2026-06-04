@@ -248,6 +248,20 @@ resources:
               Condition:
                 ArnLike:
                   kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${self:service}-${sls:stage}-*"
+            - Sid: Allow CloudWatch Logs state machine log group to use the key
+              Effect: Allow
+              Principal:
+                Service: !Sub "logs.${AWS::Region}.amazonaws.com"
+              Action:
+                - "kms:Encrypt"
+                - "kms:Decrypt"
+                - "kms:ReEncrypt*"
+                - "kms:GenerateDataKey*"
+                - "kms:DescribeKey"
+              Resource: "*"
+              Condition:
+                ArnLike:
+                  kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/vendedlogs/states/${self:service}-${sls:stage}-alert"
     NoMatchStream:
       Type: AWS::Logs::LogStream
       Properties:
