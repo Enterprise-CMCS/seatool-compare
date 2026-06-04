@@ -21,6 +21,8 @@ provider:
   stackTags:
     PROJECT: ${self:custom.project}
     SERVICE: ${self:service}
+  tracing:
+    lambda: true
   iam:
     role:
       path: /delegatedadmin/developer/
@@ -137,6 +139,8 @@ custom:
 functions:
   workflowStarter:
     handler: handlers/workflowStarter.handler
+    tracing: Active
+    logRetentionInDays: 365
     events:
       - stream:
           arn: ${param:appianTableStreamArn}
@@ -151,6 +155,8 @@ functions:
     maximumRetryAttempts: 0
   sendReport:
     handler: handlers/sendReport.handler
+    tracing: Active
+    logRetentionInDays: 365
     timeout: 120
     environment:
       region: ${self:provider.region}
@@ -162,23 +168,31 @@ functions:
       ignoredStates: ${param:ignoredStates}
   compare:
     handler: handlers/compare.handler
+    tracing: Active
+    logRetentionInDays: 365
     environment:
       region: ${self:provider.region}
       errorsTopicArn: ${param:errorsTopicArn}
   seatoolRecordExist:
     handler: handlers/seatoolRecordExist.handler
+    tracing: Active
+    logRetentionInDays: 365
     environment:
       region: ${self:provider.region}
       seatoolTableName: ${param:seatoolTableName}
       errorsTopicArn: ${param:errorsTopicArn}
   getStartAtTimeStamp:
     handler: handlers/getStartAtTimeStamp.handler
+    tracing: Active
+    logRetentionInDays: 365
     environment:
       region: ${self:provider.region}
       errorsTopicArn: ${param:errorsTopicArn}
       skipWait: ${param:skipWait}
   sendNoMatchAlert:
     handler: handlers/sendNoMatchAlert.handler
+    tracing: Active
+    logRetentionInDays: 365
     environment:
       region: ${self:provider.region}
       project: ${self:custom.project}
@@ -190,6 +204,8 @@ functions:
       isUrgentThresholdSec: ${param:isUrgentThresholdSec}
   getAppianData:
     handler: handlers/getAppianData.handler
+    tracing: Active
+    logRetentionInDays: 365
     environment:
       region: ${self:provider.region}
       project: ${self:custom.project}
@@ -198,11 +214,40 @@ functions:
       skipWait: ${param:skipWait}
   stopExecutions:
     handler: handlers/stopExecutions.handler
+    tracing: Active
+    logRetentionInDays: 365
     environment:
       region: ${self:provider.region}
       stateMachineArn: !Ref AppianAlertingStateMachine
 resources:
   Resources:
+    LambdaLogGroupKey:
+      Type: AWS::KMS::Key
+      Properties:
+        EnableKeyRotation: true
+        KeyPolicy:
+          Version: "2012-10-17"
+          Statement:
+            - Sid: Allow account administration
+              Effect: Allow
+              Principal:
+                AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+              Action: "kms:*"
+              Resource: "*"
+            - Sid: Allow CloudWatch Logs to use the key
+              Effect: Allow
+              Principal:
+                Service: !Sub "logs.${AWS::Region}.amazonaws.com"
+              Action:
+                - "kms:Encrypt"
+                - "kms:Decrypt"
+                - "kms:ReEncrypt*"
+                - "kms:GenerateDataKey*"
+                - "kms:DescribeKey"
+              Resource: "*"
+              Condition:
+                ArnLike:
+                  kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${self:service}-${sls:stage}-*"
     NoMatchStream:
       Type: AWS::Logs::LogStream
       Properties:
@@ -216,11 +261,39 @@ resources:
     StateMachineLogGroup:
       Type: AWS::Logs::LogGroup
       Properties:
+        KmsKeyId: !GetAtt LambdaLogGroupKey.Arn
         LogGroupName: /aws/vendedlogs/states/${self:service}-${sls:stage}-alert
+        RetentionInDays: 365
     StopExecutions:
       Type: Custom::StopExecutions
       Properties:
         ServiceToken: !GetAtt StopExecutionsLambdaFunction.Arn
+
+  extensions:
+    WorkflowStarterLogGroup:
+      Properties:
+        KmsKeyId: !GetAtt LambdaLogGroupKey.Arn
+    SendReportLogGroup:
+      Properties:
+        KmsKeyId: !GetAtt LambdaLogGroupKey.Arn
+    CompareLogGroup:
+      Properties:
+        KmsKeyId: !GetAtt LambdaLogGroupKey.Arn
+    SeatoolRecordExistLogGroup:
+      Properties:
+        KmsKeyId: !GetAtt LambdaLogGroupKey.Arn
+    GetStartAtTimeStampLogGroup:
+      Properties:
+        KmsKeyId: !GetAtt LambdaLogGroupKey.Arn
+    SendNoMatchAlertLogGroup:
+      Properties:
+        KmsKeyId: !GetAtt LambdaLogGroupKey.Arn
+    GetAppianDataLogGroup:
+      Properties:
+        KmsKeyId: !GetAtt LambdaLogGroupKey.Arn
+    StopExecutionsLogGroup:
+      Properties:
+        KmsKeyId: !GetAtt LambdaLogGroupKey.Arn
 
 stepFunctions:
   stateMachines:
