@@ -43,85 +43,22 @@ for (const template of templates) {
   bucketResource.Properties.VersioningConfiguration = {
     Status: "Enabled",
   };
-  bucketResource.Properties.LoggingConfiguration = {
-    DestinationBucketName: {
-      Ref: template.bucket,
-    },
-    LogFilePrefix: "server-access-logs/",
-  };
 
   const statements = policyResource.Properties.PolicyDocument.Statement;
   if (!Array.isArray(statements)) {
     throw new Error(`Expected bucket policy statements array in ${template.file}`);
   }
 
+  // Do not configure a generated deployment/state bucket to log to itself.
+  // That creates a CloudFormation cycle between the bucket and its policy.
   const logDeliverySid = "AllowS3ServerAccessLogDelivery";
-  const existingIndex = statements.findIndex(
-    (statement) => statement.Sid === logDeliverySid,
+  delete bucketResource.Properties.LoggingConfiguration;
+  policyResource.Properties.PolicyDocument.Statement = statements.filter(
+    (statement) => statement.Sid !== logDeliverySid,
   );
-  const logDeliveryStatement = createLogDeliveryStatement(template.bucket);
-
-  if (existingIndex === -1) {
-    statements.push(logDeliveryStatement);
-  } else {
-    statements[existingIndex] = logDeliveryStatement;
-  }
 
   fs.writeFileSync(templatePath, `${JSON.stringify(cloudFormation, null, 2)}\n`);
   patchedCount += 1;
 }
 
 console.log(`Hardened ${patchedCount} Snyk-scanned IaC template(s).`);
-
-function createLogDeliveryStatement(bucketLogicalId) {
-  return {
-    Sid: "AllowS3ServerAccessLogDelivery",
-    Action: "s3:PutObject",
-    Effect: "Allow",
-    Principal: {
-      Service: "logging.s3.amazonaws.com",
-    },
-    Resource: [
-      {
-        "Fn::Join": [
-          "",
-          [
-            "arn:",
-            {
-              Ref: "AWS::Partition",
-            },
-            ":s3:::",
-            {
-              Ref: bucketLogicalId,
-            },
-            "/server-access-logs/*",
-          ],
-        ],
-      },
-    ],
-    Condition: {
-      ArnLike: {
-        "aws:SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                Ref: "AWS::Partition",
-              },
-              ":s3:::",
-              {
-                Ref: bucketLogicalId,
-              },
-            ],
-          ],
-        },
-      },
-      StringEquals: {
-        "aws:SourceAccount": {
-          Ref: "AWS::AccountId",
-        },
-      },
-    },
-  };
-}
