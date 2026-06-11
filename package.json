@@ -27,7 +27,8 @@
     "clean:all": "yarn workspaces run clean && rm -rf .serverless",
     "clean:modules": "yarn workspaces run clean",
     "test:all": "yarn test-tsc && vitest run --config ./src/tests/vitest.config.ts",
-    "install:all": "yarn install"
+    "install:all": "yarn install",
+    "postinstall": "node scripts/harden-snyk-iac-templates.cjs"
   },
   "repository": {
     "type": "git",
