@@ -111,7 +111,7 @@ yargs(process.argv.slice(2))
       services.forEach(service => {
         console.log(`  - ${service}`);
       });
-      console.log("\nUse './run deploy --stage <stage> --service <service> --profile onemac-dev' to deploy a specific service");
+      console.log("\nUse './run deploy --stage <stage> --service <service>' to deploy a specific service");
     }
   )
   .command(

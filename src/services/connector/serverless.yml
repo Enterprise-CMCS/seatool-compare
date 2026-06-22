@@ -228,7 +228,6 @@ resources:
             Value: !Ref SinkSeatoolDataLambdaFunction
 
     # Self-Managed Kafka Event Source Mapping for Appian Data
-    # Uses bootstrap broker strings instead of MSK cluster ARN (proven working pattern from onemac-dev)
     AppianKafkaEventSourceMapping:
       Type: AWS::Lambda::EventSourceMapping
       Properties:
@@ -255,7 +254,6 @@ resources:
           ConsumerGroupId: ${param:topicNamespace}esm.${self:service}-${sls:stage}
 
     # Self-Managed Kafka Event Source Mapping for Seatool Data
-    # Uses bootstrap broker strings instead of MSK cluster ARN (proven working pattern from onemac-dev)
     # Optimized for high throughput: increased batch size and reduced batching window
     SeatoolKafkaEventSourceMapping:
       Type: AWS::Lambda::EventSourceMapping
