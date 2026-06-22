@@ -4,20 +4,24 @@ import { CloudWatchLogsClient, PutLogEventsCommand, PutLogEventsCommandOutput } 
 
 // Mock AWS SDK clients
 vi.mock('@aws-sdk/client-sns', () => ({
-  SNSClient: vi.fn(() => ({
-    send: vi.fn().mockImplementation(async (): Promise<PublishCommandOutput> => {
-      return { MessageId: 'test-message-id', $metadata: {} };
-    })
-  })),
+  SNSClient: vi.fn(function SNSClient() {
+    return {
+      send: vi.fn().mockImplementation(async (): Promise<PublishCommandOutput> => {
+        return { MessageId: 'test-message-id', $metadata: {} };
+      })
+    };
+  }),
   PublishCommand: vi.fn()
 }));
 
 vi.mock('@aws-sdk/client-cloudwatch-logs', () => ({
-  CloudWatchLogsClient: vi.fn(() => ({
-    send: vi.fn().mockImplementation(async (): Promise<PutLogEventsCommandOutput> => {
-      return { nextSequenceToken: 'test-token', $metadata: {} };
-    })
-  })),
+  CloudWatchLogsClient: vi.fn(function CloudWatchLogsClient() {
+    return {
+      send: vi.fn().mockImplementation(async (): Promise<PutLogEventsCommandOutput> => {
+        return { nextSequenceToken: 'test-token', $metadata: {} };
+      })
+    };
+  }),
   PutLogEventsCommand: vi.fn()
 }));
 
@@ -92,4 +96,4 @@ describe('Alerts Service', () => {
       await expect(cloudWatchClient.send(new PutLogEventsCommand(mockLogEvents))).rejects.toThrow('CloudWatch put logs failed');
     });
   });
-}); 
+});

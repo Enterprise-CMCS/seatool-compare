@@ -27,12 +27,45 @@ custom:
 
 resources:
   Resources:
+    TableEncryptionKey:
+      Type: AWS::KMS::Key
+      Properties:
+        EnableKeyRotation: true
+        KeyPolicy:
+          Version: "2012-10-17"
+          Statement:
+            - Sid: Allow account administration
+              Effect: Allow
+              Principal:
+                AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+              Action: "kms:*"
+              Resource: "*"
+            - Sid: Allow DynamoDB to use the key
+              Effect: Allow
+              Principal:
+                Service: dynamodb.amazonaws.com
+              Action:
+                - "kms:Encrypt"
+                - "kms:Decrypt"
+                - "kms:ReEncrypt*"
+                - "kms:GenerateDataKey*"
+                - "kms:CreateGrant"
+                - "kms:DescribeKey"
+              Resource: "*"
+              Condition:
+                StringEquals:
+                  kms:CallerAccount: !Ref AWS::AccountId
+                  kms:ViaService: !Sub "dynamodb.${AWS::Region}.amazonaws.com"
     Table:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:service}-${sls:stage}
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: true
+        SSESpecification:
+          SSEEnabled: true
+          SSEType: KMS
+          KMSMasterKeyId: !GetAtt TableEncryptionKey.Arn
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         AttributeDefinitions:

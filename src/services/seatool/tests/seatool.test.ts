@@ -3,20 +3,22 @@ import { DynamoDBClient, GetItemCommand, PutItemCommand, AttributeValue } from '
 
 // Mock AWS SDK clients
 vi.mock('@aws-sdk/client-dynamodb', () => ({
-  DynamoDBClient: vi.fn(() => ({
-    send: vi.fn().mockImplementation(async (command: GetItemCommand | PutItemCommand) => {
-      if (command instanceof GetItemCommand) {
-        return {
-          Item: {
-            PK: { S: 'test-pk' },
-            SK: { S: 'test-sk' },
-            data: { M: { test: { S: 'data' } } }
-          }
-        };
-      }
-      return {};
-    })
-  })),
+  DynamoDBClient: vi.fn(function DynamoDBClient() {
+    return {
+      send: vi.fn().mockImplementation(async (command: GetItemCommand | PutItemCommand) => {
+        if (command instanceof GetItemCommand) {
+          return {
+            Item: {
+              PK: { S: 'test-pk' },
+              SK: { S: 'test-sk' },
+              data: { M: { test: { S: 'data' } } }
+            }
+          };
+        }
+        return {};
+      })
+    };
+  }),
   GetItemCommand: vi.fn(),
   PutItemCommand: vi.fn()
 }));
@@ -77,4 +79,4 @@ describe('Seatool Service', () => {
       await expect(dynamoClient.send(command)).rejects.toThrow('DynamoDB error');
     });
   });
-}); 
+});

@@ -19,6 +19,8 @@ provider:
   stackTags:
     PROJECT: ${self:custom.project}
     SERVICE: ${self:service}
+  tracing:
+    lambda: true
   iam:
     role:
       path: /delegatedadmin/developer/
@@ -99,6 +101,8 @@ params:
 functions:
   sinkAppianData:
     handler: handlers/sinkAppianData.handler
+    tracing: Active
+    logRetentionInDays: 365
     timeout: 60
     memorySize: 512
     environment:
@@ -114,6 +118,8 @@ functions:
 
   sinkSeatoolData:
     handler: handlers/sinkSeatoolData.handler
+    tracing: Active
+    logRetentionInDays: 365
     timeout: 60
     memorySize: 1024
     environment:
@@ -139,6 +145,34 @@ resources:
       Default: "/compare/default/kafkaSubnets"
 
   Resources:
+    LambdaLogGroupKey:
+      Type: AWS::KMS::Key
+      Properties:
+        EnableKeyRotation: true
+        KeyPolicy:
+          Version: "2012-10-17"
+          Statement:
+            - Sid: Allow account administration
+              Effect: Allow
+              Principal:
+                AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+              Action: "kms:*"
+              Resource: "*"
+            - Sid: Allow CloudWatch Logs to use the key
+              Effect: Allow
+              Principal:
+                Service: !Sub "logs.${AWS::Region}.amazonaws.com"
+              Action:
+                - "kms:Encrypt"
+                - "kms:Decrypt"
+                - "kms:ReEncrypt*"
+                - "kms:GenerateDataKey*"
+                - "kms:DescribeKey"
+              Resource: "*"
+              Condition:
+                ArnLike:
+                  kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${self:service}-${sls:stage}-*"
+
     # Security group for Lambda functions connecting to MSK
     LambdaKafkaSecurityGroup:
       Type: AWS::EC2::SecurityGroup
@@ -194,7 +228,6 @@ resources:
             Value: !Ref SinkSeatoolDataLambdaFunction
 
     # Self-Managed Kafka Event Source Mapping for Appian Data
-    # Uses bootstrap broker strings instead of MSK cluster ARN (proven working pattern from onemac-dev)
     AppianKafkaEventSourceMapping:
       Type: AWS::Lambda::EventSourceMapping
       Properties:
@@ -221,7 +254,6 @@ resources:
           ConsumerGroupId: ${param:topicNamespace}esm.${self:service}-${sls:stage}
 
     # Self-Managed Kafka Event Source Mapping for Seatool Data
-    # Uses bootstrap broker strings instead of MSK cluster ARN (proven working pattern from onemac-dev)
     # Optimized for high throughput: increased batch size and reduced batching window
     SeatoolKafkaEventSourceMapping:
       Type: AWS::Lambda::EventSourceMapping
@@ -247,6 +279,14 @@ resources:
         Enabled: true
         SelfManagedKafkaEventSourceConfig:
           ConsumerGroupId: ${param:topicNamespace}esm.${self:service}-${sls:stage}
+
+  extensions:
+    SinkAppianDataLogGroup:
+      Properties:
+        KmsKeyId: !GetAtt LambdaLogGroupKey.Arn
+    SinkSeatoolDataLogGroup:
+      Properties:
+        KmsKeyId: !GetAtt LambdaLogGroupKey.Arn
 
   Outputs:
     LambdaKafkaSecurityGroupId:

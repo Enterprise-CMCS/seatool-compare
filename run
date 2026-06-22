@@ -16,9 +16,11 @@ if ! which node > /dev/null ; then
 	exit 1
 fi
 
-# check node version
-if [ "$(cat .nvmrc | tr -d '\n')" != "$(node -v | tr -d '\n')" ]; then
-	echo "node version does not match the version required in .nvmrc"
+# check node version matches .nvmrc major version
+required_major=$(tr -d '[:space:]' < .nvmrc | sed 's/^v//' | cut -d. -f1)
+current_major=$(node -v | tr -d '[:space:]' | sed 's/^v//' | cut -d. -f1)
+if [ "$required_major" != "$current_major" ]; then
+	echo "node major version does not match .nvmrc (requires v${required_major}.x, found $(node -v))"
 	echo "If using nvm, run 'nvm use'"
 	exit 1
 fi
