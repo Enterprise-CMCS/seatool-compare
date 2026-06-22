@@ -27,11 +27,15 @@ let patchedCount = 0;
 for (const template of templates) {
   const templatePath = path.join(repoRoot, template.file);
 
-  if (!fs.existsSync(templatePath)) {
-    continue;
+  let contents;
+  try {
+    contents = fs.readFileSync(templatePath, "utf8");
+  } catch (error) {
+    if (error && error.code === "ENOENT") {
+      continue;
+    }
+    throw error;
   }
-
-  const contents = fs.readFileSync(templatePath, "utf8");
   const cloudFormation = JSON.parse(contents);
   const bucketResource = cloudFormation.Resources?.[template.bucket];
   const policyResource = cloudFormation.Resources?.[template.policy];
