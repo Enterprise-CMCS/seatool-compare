@@ -45,6 +45,17 @@ provider:
           Resource:
             - ${param:seatoolTableArn}
             - ${param:appianTableArn}
+        # KMS permissions for DynamoDB tables encrypted with customer-managed keys
+        - Effect: "Allow"
+          Action:
+            - kms:Decrypt
+            - kms:GenerateDataKey
+          Resource:
+            - !Sub "arn:aws:kms:${self:provider.region}:${AWS::AccountId}:key/*"
+          Condition:
+            StringEquals:
+              kms:CallerAccount: !Ref AWS::AccountId
+              kms:ViaService: !Sub "dynamodb.${AWS::Region}.amazonaws.com"
         # MSK permissions for event source mapping
         - Effect: "Allow"
           Action:
