@@ -4,12 +4,12 @@ import LabeledProcessRunner from "./runner.js";
 import * as fs from "fs";
 import { ServerlessStageDestroyer } from "@stratiformdigital/serverless-stage-destroyer";
 import { ServerlessRunningStages } from "@enterprise-cmcs/macpro-serverless-running-stages";
-import { SecurityHubJiraSync } from "@enterprise-cmcs/macpro-security-hub-sync";
 
 // load .env
 dotenv.config();
 
 const runner = new LabeledProcessRunner();
+const protectedStages = new Set(["master", "val", "production"]);
 
 function touch(file: string) {
   try {
@@ -60,6 +60,12 @@ function getDirectories(path: string) {
   return fs.readdirSync(path).filter(function (file) {
     return fs.statSync(path + "/" + file).isDirectory();
   });
+}
+
+function assertDestroyableStage(stage: string) {
+  if (protectedStages.has(stage)) {
+    throw new Error(`Refusing to destroy protected stage '${stage}'.`);
+  }
 }
 
 async function getCurrentGitBranch(): Promise<string> {
@@ -185,6 +191,7 @@ yargs(process.argv.slice(2))
     },
     async (options) => {
       const stage = await getStageOrDefault(options.stage);
+      assertDestroyableStage(stage);
       
       let destroyer = new ServerlessStageDestroyer();
       let filters = [
@@ -237,22 +244,6 @@ yargs(process.argv.slice(2))
           await ServerlessRunningStages.getAllStagesForRegion(region!);
         console.log(`runningStages=${runningStages.join(",")}`);
       }
-    }
-  )
-  .command(
-    ["securityHubJiraSync", "securityHubSync", "secHubSync"],
-    "Create Jira Issues for Security Hub findings.",
-    {},
-    async () => {
-      await install_deps_for_services();
-      await new SecurityHubJiraSync({
-        customJiraFields: {
-          customfield_14117: [{ value: "Platform Team" }],
-          customfield_14151: [{ value: "Not Applicable " }],
-          customfield_14068:
-            "* All findings of this type are resolved or suppressed, indicated by a Workflow Status of Resolved or Suppressed.  (Note:  this ticket will automatically close when the AC is met.)",
-        },
-      }).sync();
     }
   )
   .strict() // This errors and prints help if you pass an unknown command

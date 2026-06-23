@@ -1,9 +1,6 @@
 <h1 align="center" style="border-bottom: none;">seatool-compare</h1>
 <h3 align="center">Service for comparing legacy/seatool data and sending notifications.</h3>
 <p align="center">
-  <a href="https://Enterprise-CMCS.github.io/seatool-compare/">
-    <img alt="Docs" src="https://img.shields.io/badge/Docs-Pages-blue.svg">
-  </a>
   <a href="https://cmsgov.slack.com/archives/C045M44HA0Y">
     <img alt="Slack" src="https://img.shields.io/badge/Slack-seatool--compare-purple.svg">
   </a>
@@ -23,15 +20,9 @@
 
 ---
 
-### Please visit our [seatool-compare docs site](https://Enterprise-CMCS.github.io/seatool-compare/) for complete documentation.
-
----
-
 ## Overview
 
 The seatool-compare project (oftened referenced in the context of this repository as just 'compare') is a microservice compares legacy data and seatool data and sends notifications when certain conditions exist.
-
-![Architecture Diagram](docs/assets/architecture.svg)
 
 ## Contributing
 
@@ -150,10 +141,6 @@ The connector service uses Kafka Connect to stream data from Kafka topics into L
 The service uses the **Confluent AWS Lambda Sink Connector** (`io.confluent.connect.aws.lambda.AwsLambdaSinkConnector`) to invoke Lambda functions for each message consumed from Kafka topics.
 
 > **Note**: As of November 2025, the Confluent connector replaced the previously used Nordstrom kafka-connect-lambda connector which became unavailable.
-
-### Migration Runbook
-
-For deploying connector changes to val/production environments, see the [Confluent Connector Migration Runbook](docs/confluent-connector-migration-runbook.md).
 
 ### Quick Connector Health Check
 

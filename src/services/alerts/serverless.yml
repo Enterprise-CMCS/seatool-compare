@@ -31,6 +31,7 @@ resources:
     SentAlertsGroup:
       Type: AWS::Logs::LogGroup
       Properties:
+        KmsKeyId: !GetAtt KmsKeyForSesLogGroup.Arn
         RetentionInDays: 365
         LogGroupName: ${self:custom.sesLogGroupName}
     AlarmsTopic:
@@ -82,6 +83,34 @@ resources:
                 - "kms:Decrypt"
                 - "kms:GenerateDataKey*"
               Resource: "*"
+
+    KmsKeyForSesLogGroup:
+      Type: AWS::KMS::Key
+      Properties:
+        EnableKeyRotation: "true"
+        KeyPolicy:
+          Version: "2012-10-17"
+          Statement:
+            - Sid: Allow account administration
+              Effect: Allow
+              Principal:
+                AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+              Action: "kms:*"
+              Resource: "*"
+            - Sid: Allow CloudWatch Logs to use the key
+              Effect: Allow
+              Principal:
+                Service: !Sub "logs.${AWS::Region}.amazonaws.com"
+              Action:
+                - "kms:Encrypt"
+                - "kms:Decrypt"
+                - "kms:ReEncrypt*"
+                - "kms:GenerateDataKey*"
+                - "kms:DescribeKey"
+              Resource: "*"
+              Condition:
+                ArnEquals:
+                  kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${self:custom.sesLogGroupName}"
 
     EventBridgeToToSnsPolicy:
       Type: AWS::SNS::TopicPolicy

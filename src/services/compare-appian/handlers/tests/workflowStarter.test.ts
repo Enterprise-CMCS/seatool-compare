@@ -15,9 +15,11 @@ import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
 vi.mock("@aws-sdk/client-sfn", () => {
   const mockSend = vi.fn().mockResolvedValue({ executionArn: "test-arn" });
   return {
-    SFNClient: vi.fn().mockImplementation(() => ({
-      send: mockSend,
-    })),
+    SFNClient: vi.fn().mockImplementation(function SFNClient() {
+      return {
+        send: mockSend,
+      };
+    }),
     StartExecutionCommand: vi.fn().mockImplementation((params) => {
       // Store the input for verification
       return { input: params.input, name: params.name, stateMachineArn: params.stateMachineArn };
@@ -440,4 +442,3 @@ describe("workflowStarter", () => {
     });
   });
 });
-

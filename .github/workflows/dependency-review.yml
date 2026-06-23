@@ -13,6 +13,9 @@ permissions:
 jobs:
   dependency-review:
     runs-on: ubuntu-latest
+    env:
+      # Run JS actions on Node 24 (deprecation of embedded Node 20 on runners).
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - name: "Checkout Repository"
         uses: actions/checkout@v4

@@ -47,7 +47,31 @@ export default class LabeledProcessRunner {
     return `\x1b[38;5;${color}m ${prefix.padStart(maxLength)}|\x1b[0m`;
   }
 
-  // run_command_and_output runs the given shell command and interleaves its output with all
+  // Reject values that could alter process invocation when passed to spawn.
+  private validateSpawnInput(value: string, label: string): string {
+    if (value.includes("\0")) {
+      throw new Error(`Invalid ${label}: contains null byte`);
+    }
+    if (/[\r\n]/.test(value)) {
+      throw new Error(`Invalid ${label}: contains newline`);
+    }
+    return value;
+  }
+
+  private parseCommand(cmd: string[]): { command: string; args: string[] } {
+    if (cmd.length === 0) {
+      throw new Error("Command must not be empty");
+    }
+
+    const command = this.validateSpawnInput(cmd[0], "command");
+    const args = cmd.slice(1).map((arg, index) =>
+      this.validateSpawnInput(arg, `argument ${index + 1}`)
+    );
+
+    return { command, args };
+  }
+
+  // run_command_and_output runs the given process command and interleaves its output with all
   // other commands run via this method.
   //
   // prefix: the prefix to display at the start of every line printed by this command
@@ -70,12 +94,12 @@ export default class LabeledProcessRunner {
       ...{ open: false, stdout: false, stderr: false, close: false },
       ...silenced,
     };
-    const proc_opts = cwd ? { cwd } : {};
+    const { command, args } = this.parseCommand(cmd);
 
-    const command = cmd[0];
-    const args = cmd.slice(1);
-
-    const proc = spawn(command, args, proc_opts);
+    const proc = spawn(command, args, {
+      shell: false,
+      ...(cwd ? { cwd: this.validateSpawnInput(cwd, "cwd") } : {}),
+    });
     const paddedPrefix = `[${prefix}]`;
     if (!silenced.open)
       process.stdout.write(`${paddedPrefix} Running: ${cmd.join(" ")}\n`);
@@ -109,8 +133,9 @@ export default class LabeledProcessRunner {
         if (code != 0 && !catchAll) {
           // This is not my area.
           // Deploy failures don't get handled and show up here with non zero exit codes
-          // Here we throw an error.  Not sure what's best.
-          throw `Exit ${code}`;
+          // Here we reject with an error.  Not sure what's best.
+          reject(new Error(`Exit ${code}`));
+          return;
         }
         resolve();
       });

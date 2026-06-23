@@ -11,6 +11,5 @@ yarn-error.log
 .yarn_install
 tsconfig.tsbuildinfo
 build_run
-docs/
 .github/
 code.json

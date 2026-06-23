@@ -19,10 +19,10 @@ jobs:
           BODY: ${{ github.event.pull_request.body }}
         if: env.JIRA_TOKEN != '' && failure()
         run: |
-          printenv BODY > .tmp.body.txt
-          issues=(`grep -oP "(?<=${JIRA_BASE_URL})[A-Z]+\d+-\d+" .tmp.body.txt || true`)
-          issueJson=`jq -c -n '$ARGS.positional' --args "${issues[@]}"`
-          echo "issues=$issueJson" >> $GITHUB_OUTPUT
+          printf '%s' "$BODY" > .tmp.body.txt
+          mapfile -t issues < <(grep -oP "(?<=${JIRA_BASE_URL})[A-Z]+\d+-\d+" .tmp.body.txt || true)
+          issue_json="$(jq -c -n '$ARGS.positional' --args "${issues[@]}")"
+          printf 'issues=%s\n' "$issue_json" >> "$GITHUB_OUTPUT"
   comment:
     runs-on: ubuntu-latest
     name: Comment on Jira Issues
