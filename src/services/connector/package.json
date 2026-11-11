@@ -19,14 +19,14 @@
     "@aws-sdk/client-ses": "^3.893.0",
     "@aws-sdk/client-sns": "^3.893.0",
     "@aws-sdk/lib-dynamodb": "^3.893.0",
-    "axios": "^1.12.2",
+    "axios": "^1.20.0",
     "lodash": "^4.18.1",
-    "nodemailer": "^9.0.1"
+    "nodemailer": "^10.1.4"
   },
   "devDependencies": {
     "@types/lodash": "^4.17.20",
     "@types/nodemailer": "^6.4.19",
-    "glob": "^12.0.0",
+    "glob": "^14.0.2",
     "serverless-esbuild": "^1.55.1"
   }
 }
